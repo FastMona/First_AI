@@ -1,4 +1,4 @@
-# first attempt at building a convolutional neural network in PyTorch 
+# First attempt at building a convolutional neural network in PyTorch 
 # this is as an image classifier for MNIST dataset
 
 # Import torch to access functions like torch.argmax, torch.no_grad, torch.max
@@ -13,16 +13,17 @@ from torchvision.transforms import ToTensor
 
 # Get data
 # Download MNIST dataset (28x28 grayscale images of handwritten digits 0-9)
-# ToTensor() converts PIL images to PyTorch tensors and normalizes pixel values to [0,1]
+# ToTensor() converts PIL images to PyTorch tensors and normalizes pixel values to [0,1] because neural networks train better on normalized data
 train = datasets.MNIST(root='data', train=True, download=True, transform=ToTensor())
 test = datasets.MNIST(root='data', train=False, download=True, transform=ToTensor())
 
 # DataLoader wraps datasets to provide batching and shuffling
-# batch_size=32 processes 32 images at once for efficient GPU computation
+# batch_size=64 processes 64 images at once for efficient GPU computation
+# WHY: Larger batches (64/128) better utilize powerful GPUs and speed up training
 # shuffle=True randomizes training order to prevent learning patterns in data order
 # shuffle=False for test to ensure consistent evaluation across runs
-train_loader = DataLoader(train, batch_size=32, shuffle=True)
-test_loader = DataLoader(test, batch_size=32, shuffle=False)
+train_loader = DataLoader(train, batch_size=64, shuffle=True)
+test_loader = DataLoader(test, batch_size=64, shuffle=False)
 
 # Define Image Classifier and Neural Network
 # Inheriting from nn.Module gives us PyTorch's neural network functionality
@@ -91,71 +92,71 @@ if __name__ == "__main__":
 
     # TRAINING CODE (currently commented out)
     # Uncomment to train the model from scratch for 10 epochs
-    # for epoch in range(10):
-    #     # Training phase
-    #     # Set model to training mode - enables dropout, batch norm updates, etc.
-    #     # WHY: Different behavior needed during training vs testing
-    #     clf.train()
-    #     train_loss = 0.0
-    #     
-    #     # Loop through all training batches
-    #     for batch in train_loader:
-    #         X, y = batch  # X = images, y = labels (0-9)
-    #         # Move batch to GPU to match model
-    #         X, y = X.to('cuda'), y.to('cuda')
-    #         
-    #         # Forward pass: get model predictions
-    #         yhat = clf(X)
-    #         # Calculate how wrong predictions are
-    #         loss = loss_fn(yhat, y)
-    #         
-    #         # Backpropagation: calculate gradients and update weights
-    #         # WHY: zero_grad() clears old gradients (PyTorch accumulates by default)
-    #         opt.zero_grad()
-    #         # Compute gradients of loss with respect to all parameters
-    #         loss.backward()
-    #         # Update weights using computed gradients
-    #         opt.step()
-    #         
-    #         train_loss += loss.item()
-    #     
-    #     # Average loss across all batches for this epoch
-    #     train_loss /= len(train_loader)
-    #     
-    #     # Validation/Test phase
-    #     # Set model to evaluation mode - disables dropout, uses running stats for batch norm
-    #     # WHY: We want consistent, deterministic predictions during testing
-    #     clf.eval()
-    #     test_loss = 0.0
-    #     correct = 0
-    #     total = 0
-    #     
-    #     # no_grad() disables gradient computation - saves memory and speeds up testing
-    #     # WHY: We don't need gradients during evaluation, only during training
-    #     with torch.no_grad():
-    #         for batch in test_loader:
-    #             X, y = batch
-    #             X, y = X.to('cuda'), y.to('cuda')
-    #             yhat = clf(X)
-    #             loss = loss_fn(yhat, y)
-    #             test_loss += loss.item()
-    #             
-    #             # Calculate accuracy
-    #             # torch.max returns (values, indices) - we only need indices (predictions)
-    #             _, predicted = torch.max(yhat, 1)
-    #             total += y.size(0)
-    #             # Count how many predictions match actual labels
-    #             correct += (predicted == y).sum().item()
-    #     
-    #     test_loss /= len(test_loader)
-    #     accuracy = 100 * correct / total
-    #     
-    #     # Print metrics to monitor training progress
-    #     # WHY: Watching these helps detect overfitting (test loss increases while train decreases)
-    #     print(f"Epoch {epoch}: Train Loss = {train_loss:.6f}, Test Loss = {test_loss:.6f}, Test Accuracy = {accuracy:.2f}%")
+    for epoch in range(10):
+        # Training phase
+        # Set model to training mode - enables dropout, batch norm updates, etc.
+        # WHY: Different behavior needed during training vs testing
+        clf.train()
+        train_loss = 0.0
+        
+        # Loop through all training batches
+        for batch in train_loader:
+            X, y = batch  # X = images, y = labels (0-9)
+            # Move batch to GPU to match model
+            X, y = X.to('cuda'), y.to('cuda')
+            
+            # Forward pass: get model predictions
+            yhat = clf(X)
+            # Calculate how wrong predictions are
+            loss = loss_fn(yhat, y)
+            
+            # Backpropagation: calculate gradients and update weights
+            # WHY: zero_grad() clears old gradients (PyTorch accumulates by default)
+            opt.zero_grad()
+            # Compute gradients of loss with respect to all parameters
+            loss.backward()
+            # Update weights using computed gradients
+            opt.step()
+            
+            train_loss += loss.item()
+        
+        # Average loss across all batches for this epoch
+        train_loss /= len(train_loader)
+        
+        # Validation/Test phase
+        # Set model to evaluation mode - disables dropout, uses running stats for batch norm
+        # WHY: We want consistent, deterministic predictions during testing
+        clf.eval()
+        test_loss = 0.0
+        correct = 0
+        total = 0
+        
+        # no_grad() disables gradient computation - saves memory and speeds up testing
+        # WHY: We don't need gradients during evaluation, only during training
+        with torch.no_grad():
+            for batch in test_loader:
+                X, y = batch
+                X, y = X.to('cuda'), y.to('cuda')
+                yhat = clf(X)
+                loss = loss_fn(yhat, y)
+                test_loss += loss.item()
+                
+                # Calculate accuracy
+                # torch.max returns (values, indices) - we only need indices (predictions)
+                _, predicted = torch.max(yhat, 1)
+                total += y.size(0)
+                # Count how many predictions match actual labels
+                correct += (predicted == y).sum().item()
+        
+        test_loss /= len(test_loader)
+        accuracy = 100 * correct / total
+        
+        # Print metrics to monitor training progress
+        # WHY: Watching these helps detect overfitting (test loss increases while train decreases)
+        print(f"Epoch {epoch}: Train Loss = {train_loss:.6f}, Test Loss = {test_loss:.6f}, Test Accuracy = {accuracy:.2f}%")
 
         # Save model weights after each epoch
         # WHY: Preserves trained model so we can use it later without retraining
         # Currently saves after every epoch - could optimize to save only the best model
-        # with open('model_state.pth', 'wb') as f:
-        #     save(clf.state_dict(), f)
+        with open('model_state.pth', 'wb') as f:
+            save(clf.state_dict(), f)
