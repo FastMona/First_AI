@@ -10,6 +10,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+from nn_model import ImageClassifier
 
 # Get data
 # Download MNIST dataset (28x28 grayscale images of handwritten digits 0-9)
@@ -24,41 +25,6 @@ test = datasets.MNIST(root='data', train=False, download=True, transform=ToTenso
 # shuffle=False for test to ensure consistent evaluation across runs
 train_loader = DataLoader(train, batch_size=64, shuffle=True)
 test_loader = DataLoader(test, batch_size=64, shuffle=False)
-
-# Define Image Classifier and Neural Network
-# Inheriting from nn.Module gives us PyTorch's neural network functionality
-class ImageClassifier(nn.Module):
-    def __init__(self):
-        super().__init__()
-        # Using Sequential to create a pipeline where output of one layer feeds into the next
-        # This keeps the architecture clean for simple forward-flowing networks
-        self.model = nn.Sequential(
-            # First Conv2d: 1 input channel (grayscale), 32 output feature maps, 3x3 kernel
-            # WHY: Start with 32 filters to detect basic patterns (edges, curves) in images
-            nn.Conv2d(1, 32, (3,3)),
-            # ReLU activation introduces non-linearity so network can learn complex patterns
-            # WHY: Without activation functions, stacking layers would just be linear algebra
-            nn.ReLU(),
-            # Second Conv2d: 32 inputs from previous layer, 64 outputs
-            # WHY: Double the filters to learn more complex combinations of simple patterns
-            nn.Conv2d(32, 64, (3,3)),
-            nn.ReLU(),
-            # Third Conv2d: Keep 64 filters to learn even higher-level features
-            # WHY: More layers = more abstraction (simple edges → digit parts → full digits)
-            nn.Conv2d(64, 64, (3,3)),
-            nn.ReLU(),
-            # Flatten converts 2D feature maps into 1D vector for the final classifier
-            # WHY: Dense layers expect 1D input, not 2D spatial feature maps
-            nn.Flatten(),
-            # Final Linear layer: (28-6)*(28-6) comes from 3 conv layers shrinking 28x28 by 2 pixels each
-            # 10 outputs = one score for each digit (0-9)
-            # WHY: Output layer size matches number of classes we're predicting
-            nn.Linear(64*(28-6)*(28-6), 10)        
-        )
-    
-    # forward defines how data flows through the network during prediction
-    def forward(self, x):
-        return self.model(x)
 
 # Instantiate model, define loss function and optimizer
 # Move model to GPU ('cuda') for faster training - GPUs excel at parallel matrix operations
