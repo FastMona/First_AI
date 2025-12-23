@@ -1,86 +1,19 @@
 # Batch digit detection for MNIST model
 # Processes all images in a folder and reports results
 
-import torch
-import os
 from pathlib import Path
-from PIL import Image
-from torch import load
-from torchvision.transforms import ToTensor
-from nn_model import ImageClassifier
-from autoencoder_model import MNISTAutoencoder
-from ood_detector import MahalanobisOODDetector
-
-def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
-    """Predict digit with two-stage OOD detection"""
-    img = Image.open(image_path)
-    img_tensor = ToTensor()(img).unsqueeze(0).to('cuda')
-    
-    with torch.no_grad():
-        # Stage 1: Reconstruction error
-        recon_error = autoencoder.reconstruction_error(img_tensor).item()
-        
-        if recon_error > ae_threshold:
-            # Rejected by autoencoder
-            output = model(img_tensor)
-            probs = torch.softmax(output, dim=1)[0]
-            prediction = torch.argmax(probs).item()
-            confidence = probs[prediction].item()
-            return prediction, confidence, False, recon_error, None, "reconstruction"
-        
-        # Stage 2: Mahalanobis distance
-        features = model.get_features(img_tensor)
-        output = model(img_tensor)
-        
-        probs = torch.softmax(output, dim=1)[0]
-        prediction = torch.argmax(probs).item()
-        confidence = probs[prediction].item()
-        
-        belongs, mahal_distance, min_distance, nearest_class, all_distances = ood_detector.detect(
-            features[0], prediction
-        )
-        
-        if not belongs:
-            return prediction, confidence, False, recon_error, min_distance, "mahalanobis"
-    
-    return prediction, confidence, True, recon_error, min_distance, "passed"
+from detection_utils import load_models, predict_image
 
 def main():
     print("="*80)
     print("MNIST Batch Digit Detector with 2-Stage OOD Detection")
     print("="*80)
     
-    # Load model
-    print("\nLoading model...")
-    clf = ImageClassifier().to('cuda')
+    # Load models
+    print("\nLoading models...")
+    clf, autoencoder, ood_detector, ae_threshold = load_models()
     
-    try:
-        with open('model_state.pth', 'rb') as f:
-            clf.load_state_dict(load(f))
-        clf.eval()
-        print("✓ Model loaded")
-    except FileNotFoundError:
-        print("Error: model_state.pth not found! Train the model first.")
-        return
-    
-    # Load autoencoder
-    try:
-        with open('autoencoder.pth', 'rb') as f:
-            ae_data = load(f)
-        autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
-        autoencoder.load_state_dict(ae_data['model_state'])
-        autoencoder.eval()
-        ae_threshold = ae_data['threshold_95']
-        print(f"✓ Autoencoder loaded (threshold: {ae_threshold:.6f})")
-    except FileNotFoundError:
-        print("Error: autoencoder.pth not found! Train the model first.")
-        return
-    
-    # Load OOD detector
-    try:
-        ood_detector = MahalanobisOODDetector('ood_params.pth')
-    except FileNotFoundError:
-        print("Error: ood_params.pth not found! Train the model first.")
+    if clf is None:
         return
     
     # Get folder path
