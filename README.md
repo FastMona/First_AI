@@ -258,4 +258,4 @@ The system reports:
 
 ## License
 
-[Your License Here]
+student code for learning purposes based on public domain information
