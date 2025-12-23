@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
 from nn_model import ImageClassifier
+from autoencoder_model import MNISTAutoencoder
 
 # Load MNIST dataset
 train = datasets.MNIST(root='data', train=True, download=True, transform=ToTensor())
@@ -198,4 +199,91 @@ if __name__ == "__main__":
     print("  - Class prototypes (means) for all 10 digits")
     print("  - Precision matrix for Mahalanobis distance")
     print(f"  - Calibrated threshold: {threshold_95:.2f}")
+    print("="*60)
+    
+    # Train autoencoder for reconstruction-based OOD detection
+    print("\n" + "="*60)
+    print("Training Autoencoder for Reconstruction-Based OOD Detection")
+    print("="*60)
+    
+    autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
+    ae_opt = Adam(autoencoder.parameters(), lr=1e-3)
+    ae_loss_fn = nn.MSELoss()
+    
+    print("\nTraining autoencoder for 5 epochs...")
+    for epoch in range(5):
+        autoencoder.train()
+        train_recon_loss = 0.0
+        
+        for batch in train_loader:
+            X, _ = batch  # Don't need labels for autoencoder
+            X = X.to('cuda')
+            
+            # Forward pass: reconstruct input
+            reconstruction = autoencoder(X)
+            loss = ae_loss_fn(reconstruction, X)
+            
+            # Backpropagation
+            ae_opt.zero_grad()
+            loss.backward()
+            ae_opt.step()
+            
+            train_recon_loss += loss.item()
+        
+        train_recon_loss /= len(train_loader)
+        
+        # Evaluate on test set
+        autoencoder.eval()
+        test_recon_loss = 0.0
+        
+        with torch.no_grad():
+            for batch in test_loader:
+                X, _ = batch
+                X = X.to('cuda')
+                reconstruction = autoencoder(X)
+                loss = ae_loss_fn(reconstruction, X)
+                test_recon_loss += loss.item()
+        
+        test_recon_loss /= len(test_loader)
+        
+        print(f"Epoch {epoch}: Train Recon Loss = {train_recon_loss:.6f}, Test Recon Loss = {test_recon_loss:.6f}")
+    
+    # Calibrate reconstruction error threshold
+    print("\nCalibrating reconstruction error threshold...")
+    autoencoder.eval()
+    recon_errors = []
+    
+    with torch.no_grad():
+        for batch in test_loader:
+            X, _ = batch
+            X = X.to('cuda')
+            errors = autoencoder.reconstruction_error(X)
+            recon_errors.extend(errors.cpu().tolist())
+    
+    recon_errors = np.array(recon_errors)
+    recon_threshold_95 = np.percentile(recon_errors, 95)
+    recon_threshold_99 = np.percentile(recon_errors, 99)
+    recon_mean = np.mean(recon_errors)
+    recon_std = np.std(recon_errors)
+    
+    print(f"\nReconstruction error statistics on test data:")
+    print(f"  Mean: {recon_mean:.6f}")
+    print(f"  Std: {recon_std:.6f}")
+    print(f"  95th percentile: {recon_threshold_95:.6f}")
+    print(f"  99th percentile: {recon_threshold_99:.6f}")
+    print(f"\nRecommended threshold: {recon_threshold_95:.6f}")
+    
+    # Save autoencoder and threshold
+    with open('autoencoder.pth', 'wb') as f:
+        save({
+            'model_state': autoencoder.state_dict(),
+            'threshold_95': recon_threshold_95,
+            'threshold_99': recon_threshold_99,
+            'mean_error': recon_mean,
+            'std_error': recon_std
+        }, f)
+    
+    print(f"\n✓ Autoencoder saved to autoencoder.pth")
+    print(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
+    print("  - Use as first gate before digit classifier")
     print("="*60)
