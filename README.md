@@ -15,12 +15,47 @@ This project implements a convolutional neural network for MNIST digit classific
 ## Key Features
 
 - ✅ CNN (Convolutional Neural Network) -based digit classifier with early stopping
+- ✅ **Class-Conditional Autoencoder** - Biological perception model
 - ✅ Two-stage OOD detection:
-  - **Stage 1**: Autoencoder reconstruction error (rejects non-reconstructible inputs)
+  - **Stage 1**: Class-conditional reconstruction error (rejects non-reconstructible inputs)
   - **Stage 2**: Diagonal Mahalanobis distance to class prototypes
 - ✅ Batch processing capabilities
 - ✅ Automated accuracy testing with ground truth validation
 - ✅ Visual markdown reports with image thumbnails
+- ✅ Manifold visualization and separation analysis
+
+## Class-Conditional Autoencoder (Biological Perception)
+
+### The Concept: "I think this is a 3 — does it look like a 3?"
+
+Traditional autoencoders learn **one global manifold** for all digits, which can make it hard to distinguish between digit classes during OOD detection. Our class-conditional autoencoder implements a more biologically-inspired approach:
+
+**Training Phase:**
+- Input: `(image, label)` pairs
+- The autoencoder learns **10 separate reconstruction manifolds**
+- Each digit learns its own unique geometry
+- Example: The "3 manifold" learns what makes a 3 look like a 3
+
+**Inference Phase:**
+1. Classifier predicts: "I think this is a 3"
+2. Autoencoder reconstructs using the "3 manifold"
+3. Check: Does the reconstruction match? → Low error = looks like a 3
+4. If reconstruction error is high → doesn't look like a 3 → reject
+
+**Benefits:**
+- ✅ Better class separation: Wrong class manifolds produce higher reconstruction error
+- ✅ More interpretable: Each class has its own quality check
+- ✅ Biological plausibility: Mimics how humans verify perceptions
+- ✅ Improved OOD detection: Non-digits fail reconstruction with ALL manifolds
+
+### Manifold Separation
+
+The key advantage is **manifold separation**. When you try to reconstruct:
+- A true "3" using the "3 manifold" → **LOW** error
+- A true "3" using the "5 manifold" → **HIGH** error
+- A random letter using ANY digit manifold → **VERY HIGH** error
+
+This creates natural boundaries between classes and makes OOD detection more robust.
 
 ## Python Programs
 
@@ -43,10 +78,20 @@ CNN model architecture for digit classification:
 - Provides `get_features()` method for OOD detection
 
 #### `autoencoder_model.py`
-Autoencoder architecture for OOD detection:
-- Encoder: Compresses 28×28 images to 64-dimensional latent space
-- Decoder: Reconstructs images from latent representation
+**Class-Conditional Autoencoder** for biological-style perception:
+- Learns **10 separate reconstruction manifolds** (one per digit)
+- Training: Takes (image, label) pairs → learns digit-specific geometry
+- Inference: Uses predicted class to reconstruct → "Does it look like a 3?"
+- Architecture:
+  - Label embedding: Projects class into 16-dim space
+  - Encoder: Compresses 28×28 + label embedding → 64-dim latent
+  - Decoder: Reconstructs from latent + label embedding → 28×28
 - Trained only on digits to reject non-digit inputs
+
+**Key difference from standard autoencoders:**
+- Standard: Learns one global manifold for all digits
+- Conditional: Learns 10 separate manifolds, one per digit class
+- Better separation: Wrong class manifolds have higher reconstruction error
 
 #### `ood_detector.py`
 Mahalanobis distance-based OOD detector:
@@ -91,6 +136,21 @@ Automated accuracy evaluation:
 - Shows breakdown by rejection stage
 
 **Usage**: `python test_accuracy.py`
+
+#### `visualize_conditional_ae.py`
+**NEW**: Visualize class-conditional autoencoder manifolds:
+- Shows original images with classifier predictions
+- Displays reconstructions using ALL 10 class manifolds
+- Color-coded: Green = predicted class, Blue = true class
+- Bar charts showing reconstruction errors for each manifold
+- Manifold separation analysis:
+  - Compares correct vs wrong manifold errors
+  - Quantifies how well each digit's manifold is separated
+  - Higher separation ratio = better class-specific learning
+
+**Demonstrates biological perception**: "I think this is a 3 — does it look like a 3?"
+
+**Usage**: `python visualize_conditional_ae.py`
 
 #### `generate_report.py`
 Visual markdown report generator:

@@ -203,8 +203,10 @@ if __name__ == "__main__":
     
     # Train autoencoder for reconstruction-based OOD detection
     print("\n" + "="*60)
-    print("Training Autoencoder for Reconstruction-Based OOD Detection")
+    print("Training Class-Conditional Autoencoder")
     print("="*60)
+    print("Learning 10 separate digit manifolds (one per class)")
+    print("Biological perception: 'I think this is a 3 — does it look like a 3?'")
     
     autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
     ae_opt = Adam(autoencoder.parameters(), lr=1e-3)
@@ -216,11 +218,12 @@ if __name__ == "__main__":
         train_recon_loss = 0.0
         
         for batch in train_loader:
-            X, _ = batch  # Don't need labels for autoencoder
+            X, y = batch  # Now we NEED labels for class-conditional training
             X = X.to('cuda')
+            y = y.to('cuda')
             
-            # Forward pass: reconstruct input
-            reconstruction = autoencoder(X)
+            # Forward pass: reconstruct input conditioned on label
+            reconstruction = autoencoder(X, y)
             loss = ae_loss_fn(reconstruction, X)
             
             # Backpropagation
@@ -238,9 +241,10 @@ if __name__ == "__main__":
         
         with torch.no_grad():
             for batch in test_loader:
-                X, _ = batch
+                X, y = batch
                 X = X.to('cuda')
-                reconstruction = autoencoder(X)
+                y = y.to('cuda')
+                reconstruction = autoencoder(X, y)
                 loss = ae_loss_fn(reconstruction, X)
                 test_recon_loss += loss.item()
         
@@ -248,16 +252,25 @@ if __name__ == "__main__":
         
         print(f"Epoch {epoch}: Train Recon Loss = {train_recon_loss:.6f}, Test Recon Loss = {test_recon_loss:.6f}")
     
-    # Calibrate reconstruction error threshold
+    # Calibrate reconstruction error threshold using predicted labels
     print("\nCalibrating reconstruction error threshold...")
+    print("Using classifier predictions to determine which manifold to use...")
     autoencoder.eval()
+    clf.eval()
     recon_errors = []
     
     with torch.no_grad():
         for batch in test_loader:
-            X, _ = batch
+            X, y_true = batch
             X = X.to('cuda')
-            errors = autoencoder.reconstruction_error(X)
+            
+            # Get classifier predictions (simulating inference scenario)
+            output = clf(X)
+            y_pred = torch.argmax(output, dim=1)
+            
+            # Compute reconstruction error using PREDICTED class
+            # This simulates real inference: "I think this is a 3, does it look like a 3?"
+            errors = autoencoder.reconstruction_error(X, y_pred)
             recon_errors.extend(errors.cpu().tolist())
     
     recon_errors = np.array(recon_errors)

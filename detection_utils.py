@@ -45,12 +45,17 @@ def load_models():
 
 def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
     """
-    Predict digit with two-stage OOD detection.
+    Predict digit with two-stage OOD detection using class-conditional autoencoder.
+    
+    This implements biological perception:
+    1. Classifier predicts "I think this is a 3"
+    2. Autoencoder checks "Does it look like a 3?"
+    3. Mahalanobis checks "Is it close to the 3 prototype?"
     
     Args:
         image_path: Path to image file
         model: Trained classifier
-        autoencoder: Trained autoencoder
+        autoencoder: Trained class-conditional autoencoder
         ood_detector: MahalanobisOODDetector instance
         ae_threshold: Reconstruction error threshold
     
@@ -67,24 +72,23 @@ def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
     img_tensor = ToTensor()(img).unsqueeze(0).to('cuda')
     
     with torch.no_grad():
-        # Stage 1: Reconstruction error
-        recon_error = autoencoder.reconstruction_error(img_tensor).item()
+        # First, get classifier prediction
+        output = model(img_tensor)
+        probs = torch.softmax(output, dim=1)[0]
+        prediction = torch.argmax(probs).item()
+        confidence = probs[prediction].item()
+        
+        # Stage 1: Class-conditional reconstruction error
+        # "I think this is a {prediction} — does it look like a {prediction}?"
+        predicted_label = torch.tensor([prediction], dtype=torch.long, device='cuda')
+        recon_error = autoencoder.reconstruction_error(img_tensor, predicted_label).item()
         
         if recon_error > ae_threshold:
-            # Rejected by autoencoder
-            output = model(img_tensor)
-            probs = torch.softmax(output, dim=1)[0]
-            prediction = torch.argmax(probs).item()
-            confidence = probs[prediction].item()
+            # Rejected by autoencoder: doesn't look like the predicted digit
             return prediction, confidence, False, recon_error, None, "reconstruction"
         
         # Stage 2: Mahalanobis distance
         features = model.get_features(img_tensor)
-        output = model(img_tensor)
-        
-        probs = torch.softmax(output, dim=1)[0]
-        prediction = torch.argmax(probs).item()
-        confidence = probs[prediction].item()
         
         belongs, mahal_distance, min_distance, nearest_class, all_distances = ood_detector.detect(
             features[0], prediction
