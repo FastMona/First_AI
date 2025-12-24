@@ -29,6 +29,10 @@ def clean_project():
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
     files_to_remove.extend(md_files)
     
+    # Find .png files (generated visualizations/plots)
+    png_files = list(workspace.glob("*.png"))
+    files_to_remove.extend(png_files)
+    
     # Find __pycache__ folders
     pycache_folders = list(workspace.glob("**/__pycache__"))
     folders_to_remove.extend(pycache_folders)
@@ -59,9 +63,9 @@ def clean_project():
     print("PRESERVED (NOT deleted):")
     print("-"*80)
     print("  ✓ data/ folder (MNIST training data)")
+    print("  ✓ test_images/ folder (if exists)")
     print("  ✓ README.md (if exists)")
     print("  ✓ All Python source files (.py)")
-    print("  ✓ All image files (.jpg, .png, etc.)")
     print("="*80)
     
     if not files_to_remove and not folders_to_remove:
