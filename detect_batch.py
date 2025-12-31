@@ -4,7 +4,12 @@
 from pathlib import Path
 from detection_utils import load_models, predict_image
 
-def main():
+def main(folder_path=None):
+    """Process all images in a folder for digit detection
+    
+    Args:
+        folder_path (str): Path to folder containing images. If None, will prompt user or use default.
+    """
     print("="*80)
     print("MNIST Batch Digit Detector with 2-Stage OOD Detection")
     print("="*80)
@@ -17,9 +22,12 @@ def main():
         return
     
     # Get folder path
-    folder_path = input("\nEnter folder path (default: test_images): ").strip()
-    if not folder_path:
-        folder_path = "test_images"
+    if folder_path is None:
+        folder_path = input("\nEnter folder path (default: test_images): ").strip()
+        if not folder_path:
+            folder_path = "test_images"
+    else:
+        print(f"\nProcessing folder: {folder_path}")
     
     # Get all image files
     image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']

@@ -6,8 +6,12 @@ import os
 import shutil
 from pathlib import Path
 
-def clean_project():
-    """Remove generated files and folders"""
+def clean_project(interactive=True):
+    """Remove generated files and folders
+    
+    Args:
+        interactive (bool): If True, ask for confirmation. If False, proceed automatically.
+    """
     
     print("="*80)
     print("CLEAN PROJECT - Remove Generated Files")
@@ -72,13 +76,14 @@ def clean_project():
         print("\n✓ Project is already clean!")
         return
     
-    # Ask for confirmation
-    print("\n⚠️  WARNING: This action cannot be undone!")
-    response = input("Do you want to proceed? (yes/no): ").strip().lower()
-    
-    if response not in ['yes', 'y']:
-        print("\n❌ Cleanup cancelled")
-        return
+    # Ask for confirmation (only if interactive mode)
+    if interactive:
+        print("\n⚠️  WARNING: This action cannot be undone!")
+        response = input("Do you want to proceed? (yes/no): ").strip().lower()
+        
+        if response not in ['yes', 'y']:
+            print("\n❌ Cleanup cancelled")
+            return
     
     # Perform cleanup
     print("\n" + "="*80)
@@ -117,5 +122,9 @@ def clean_project():
     print("\n💡 To also remove MNIST data, delete the data/ folder manually")
     print("   (This will require re-downloading ~10MB on next training)")
 
+def main():
+    """Main entry point for direct execution"""
+    clean_project(interactive=True)
+
 if __name__ == "__main__":
-    clean_project()
+    main()

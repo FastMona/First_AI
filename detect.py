@@ -2,8 +2,14 @@
 # Interactive single-image detection with detailed output
 
 from detection_utils import load_models, predict_image
+import sys
 
-def main():
+def main(image_path=None):
+    """Detect digit in a single image
+    
+    Args:
+        image_path (str): Path to image file. If None, will prompt user for input.
+    """
     print("="*60)
     print("MNIST Digit Detector with 2-Stage OOD Detection")
     print("="*60)
@@ -17,9 +23,12 @@ def main():
     
     print("✓ All models loaded successfully!")
     
-    # Get image filename from user
+    # Get image filename from user or parameter
     print("\n" + "-"*60)
-    image_path = input("Enter image filename (e.g., test_images/img_1.jpg): ")
+    if image_path is None:
+        image_path = input("Enter image filename (e.g., test_images/img_1.jpg): ")
+    else:
+        print(f"Processing image: {image_path}")
     
     try:
         # Make prediction

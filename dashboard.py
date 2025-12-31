@@ -101,6 +101,73 @@ def run_module(module_name, function_name="main"):
         print("\n" + "─"*80)
         input("\nPress Enter to return to dashboard...")
 
+def run_clean_project():
+    """Special handler for clean_project with confirmation"""
+    try:
+        print("\n" + "─"*80)
+        import clean_project
+        
+        # Ask for confirmation before running
+        print("\n⚠️  This will remove all generated files (.pth, .md, .png, __pycache__)")
+        print("⚠️  MNIST data and source code will be preserved")
+        response = input("\nAre you sure you want to clean the project? (yes/no): ").strip().lower()
+        
+        if response in ['yes', 'y']:
+            # Run cleanup without additional interactive prompts
+            clean_project.clean_project(interactive=False)
+        else:
+            print("\n❌ Cleanup cancelled")
+            
+    except ImportError as e:
+        print(f"Error importing clean_project: {e}")
+    except Exception as e:
+        print(f"Error running clean_project: {e}")
+    finally:
+        print("\n" + "─"*80)
+        input("\nPress Enter to return to dashboard...")
+
+def run_detect():
+    """Special handler for single image detection"""
+    try:
+        print("\n" + "─"*80)
+        import detect
+        
+        # Prompt for image path
+        image_path = input("Enter image filename (e.g., test_images/img_1.jpg): ").strip()
+        if image_path:
+            detect.main(image_path)
+        else:
+            print("❌ No image path provided")
+            
+    except ImportError as e:
+        print(f"Error importing detect: {e}")
+    except Exception as e:
+        print(f"Error running detect: {e}")
+    finally:
+        print("\n" + "─"*80)
+        input("\nPress Enter to return to dashboard...")
+
+def run_detect_batch():
+    """Special handler for batch image detection"""
+    try:
+        print("\n" + "─"*80)
+        import detect_batch
+        
+        # Prompt for folder path
+        folder_path = input("Enter folder path (default: test_images): ").strip()
+        if not folder_path:
+            folder_path = "test_images"
+        
+        detect_batch.main(folder_path)
+            
+    except ImportError as e:
+        print(f"Error importing detect_batch: {e}")
+    except Exception as e:
+        print(f"Error running detect_batch: {e}")
+    finally:
+        print("\n" + "─"*80)
+        input("\nPress Enter to return to dashboard...")
+
 def main():
     """Main dashboard loop"""
     # Check environment at startup
@@ -120,15 +187,15 @@ def main():
         elif choice == '3':
             run_module("generate_report")
         elif choice == '4':
-            run_module("detect")
+            run_detect()
         elif choice == '5':
-            run_module("detect_batch")
+            run_detect_batch()
         elif choice == '6':
             run_module("camera")
         elif choice == '7':
             run_module("visualize_conditional_ae")
         elif choice == '8':
-            run_module("clean_project")
+            run_clean_project()
         elif choice == '0':
             clear_screen()
             print("\n" + "="*80)

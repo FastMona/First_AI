@@ -97,10 +97,11 @@ def main():
     print("\n" + "="*60)
     print("Computing Mahalanobis distance parameters for OOD detection")
     print("="*60)
+    print("Using compact 128-d embedding layer for manifold representation")
     
     clf.eval()
     num_classes = 10
-    feature_dim = 64 * (28-6) * (28-6)
+    feature_dim = 128  # Compact embedding dimension
     
     # Collect features for each class
     class_features = {i: [] for i in range(num_classes)}
@@ -123,7 +124,7 @@ def main():
         if class_features[i]:
             all_features = torch.cat(class_features[i], dim=0)
             class_means[i] = all_features.mean(dim=0)
-            print(f"Class {i}: {len(all_features)} samples")
+            print(f"Class {i}: {len(all_features)} samples, embedding shape: {all_features.shape}")
     
     # Compute diagonal covariance (simpler, more robust for high dimensions)
     print("\nComputing diagonal covariance matrix...")
