@@ -22,12 +22,12 @@ def load_models():
         # Load classifier
         clf = ImageClassifier().to('cuda')
         with open('model_state.pth', 'rb') as f:
-            clf.load_state_dict(load(f))
+            clf.load_state_dict(load(f, weights_only=False))
         clf.eval()
         
         # Load autoencoder
         with open('autoencoder.pth', 'rb') as f:
-            ae_data = load(f)
+            ae_data = load(f, weights_only=False)
         autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
         autoencoder.load_state_dict(ae_data['model_state'])
         autoencoder.eval()

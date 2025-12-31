@@ -14,7 +14,7 @@ class MahalanobisOODDetector:
     def __init__(self, ood_params_path='ood_params.pth'):
         """Load pre-computed OOD parameters"""
         with open(ood_params_path, 'rb') as f:
-            params = load(f)
+            params = load(f, weights_only=False)
         
         self.class_means = params['class_means']
         # Support both full and diagonal precision matrices
