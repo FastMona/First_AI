@@ -1,4 +1,5 @@
-# Convolutional neural network for MNIST digit classification
+# Tis is the training program for a CNN (Convolutional Neural Network) in nn_model.py
+# for MNIST digit classification
 
 import torch
 import numpy as np
