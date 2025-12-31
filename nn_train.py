@@ -173,6 +173,8 @@ def main():
         print(f"  Computed per-class distances" + " "*30)
     
     # Compute per-class thresholds
+    # Use 90th percentile for stricter rejection (was 95th)
+    class_thresholds_90 = {}
     class_thresholds_95 = {}
     class_thresholds_99 = {}
     class_mean_distances = {}
@@ -182,12 +184,13 @@ def main():
     for i in range(num_classes):
         if class_distances[i]:
             distances = np.array(class_distances[i])
+            class_thresholds_90[i] = np.percentile(distances, 90)
             class_thresholds_95[i] = np.percentile(distances, 95)
             class_thresholds_99[i] = np.percentile(distances, 99)
             class_mean_distances[i] = np.mean(distances)
             class_std_distances[i] = np.std(distances)
             print(f"  Class {i}: mean={class_mean_distances[i]:.2f} ± {class_std_distances[i]:.2f}, "
-                  f"95th={class_thresholds_95[i]:.2f}, 99th={class_thresholds_99[i]:.2f}")
+                  f"90th={class_thresholds_90[i]:.2f}, 95th={class_thresholds_95[i]:.2f}, 99th={class_thresholds_99[i]:.2f}")
     
     # Also compute global statistics for reference
     all_distances = [d for distances in class_distances.values() for d in distances]
@@ -202,6 +205,7 @@ def main():
         'class_means': class_means,
         'precision_diag': precision_diag,  # Diagonal precision instead of full matrix
         'feature_dim': feature_dim,
+        'class_thresholds_90': class_thresholds_90,  # Stricter per-class thresholds (default)
         'class_thresholds_95': class_thresholds_95,  # Per-class thresholds
         'class_thresholds_99': class_thresholds_99,  # Per-class thresholds
         'class_mean_distances': class_mean_distances,
@@ -216,7 +220,8 @@ def main():
     print(f"\n✓ OOD detection parameters saved to ood_params.pth")
     print("  - Class prototypes (means) for all 10 digits")
     print("  - Precision matrix for Mahalanobis distance")
-    print(f"  - Class-conditional thresholds (95th percentile per class)")
+    print(f"  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
+    print(f"  - Default: 90th percentile (stricter for better OOD detection)")
     print("="*60)
     
     # Train autoencoder for reconstruction-based OOD detection

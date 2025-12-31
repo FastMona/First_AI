@@ -36,10 +36,13 @@ def main(image_path=None):
             image_path, clf, autoencoder, ood_detector, ae_threshold
         )
         
-        # Get class-specific threshold
-        if ood_detector.class_thresholds_95 and prediction in ood_detector.class_thresholds_95:
+        # Get class-specific threshold (prefer 90th percentile if available)
+        if ood_detector.class_thresholds_90 and prediction in ood_detector.class_thresholds_90:
+            mahal_threshold = ood_detector.class_thresholds_90[prediction]
+            threshold_type = f"class-{prediction} 90%"
+        elif ood_detector.class_thresholds_95 and prediction in ood_detector.class_thresholds_95:
             mahal_threshold = ood_detector.class_thresholds_95[prediction]
-            threshold_type = f"class-{prediction}"
+            threshold_type = f"class-{prediction} 95%"
         else:
             mahal_threshold = ood_detector.threshold_95
             threshold_type = "global"
