@@ -2,6 +2,14 @@
 
 A PyTorch-based digit classification system with robust out-of-distribution (OOD) detection using a two-stage approach: autoencoder reconstruction and Mahalanobis distance to class prototypes.
 
+## Quick Start
+
+**Run the Dashboard (Recommended):**
+```bash
+python dashboard.py
+```
+The dashboard provides easy access to all project functionalities through an interactive menu.
+
 ## Author
 
 David Cronin 

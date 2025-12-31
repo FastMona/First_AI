@@ -4,7 +4,12 @@
 from pathlib import Path
 from detection_utils import load_models, predict_image
 
-def main():
+def main(folder_path=None):
+    """Process all images in a folder for digit detection
+    
+    Args:
+        folder_path (str): Path to folder containing images. If None, will prompt user or use default.
+    """
     print("="*80)
     print("MNIST Batch Digit Detector with 2-Stage OOD Detection")
     print("="*80)
@@ -17,9 +22,12 @@ def main():
         return
     
     # Get folder path
-    folder_path = input("\nEnter folder path (default: test_images): ").strip()
-    if not folder_path:
-        folder_path = "test_images"
+    if folder_path is None:
+        folder_path = input("\nEnter folder path (default: test_images): ").strip()
+        if not folder_path:
+            folder_path = "test_images"
+    else:
+        print(f"\nProcessing folder: {folder_path}")
     
     # Get all image files
     image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
@@ -143,7 +151,66 @@ def main():
             for r in stage2_rejects:
                 print(f"  - {r['filename']:<25} distance={r['distance']:.2f} (classifier guessed: {r['prediction']})")
     
+    # Final summary statistics
     print("\n" + "="*80)
+    print("FINAL SUMMARY")
+    print("="*80)
+    
+    # Extract true labels from filenames if they follow pattern like "img_0.jpg", "img_1.jpg", etc.
+    labeled_results = []
+    for r in results:
+        # Try to extract digit from filename (e.g., "img_3.jpg" -> 3, "test_5.png" -> 5)
+        filename_lower = r['filename'].lower().replace('.jpg', '').replace('.png', '').replace('.jpeg', '')
+        
+        # Look for single digit in filename
+        true_label = None
+        for char in filename_lower:
+            if char.isdigit():
+                true_label = int(char)
+                break
+        
+        if true_label is not None:
+            labeled_results.append({
+                'true_label': true_label,
+                'prediction': r['prediction'],
+                'belongs': r['belongs'],
+                'filename': r['filename']
+            })
+    
+    total_samples = len(results)
+    accepted_samples = in_distribution
+    rejected_samples = out_of_distribution
+    
+    print(f"\nTotal samples processed: {total_samples}")
+    print(f"  ✓ Accepted as digits: {accepted_samples} ({accepted_samples/total_samples*100:.1f}%)")
+    print(f"  ✗ Rejected as OOD: {rejected_samples} ({rejected_samples/total_samples*100:.1f}%)")
+    
+    if labeled_results:
+        # Calculate accuracy on labeled samples
+        correct_predictions = sum(1 for r in labeled_results 
+                                 if r['belongs'] and r['prediction'] == r['true_label'])
+        total_labeled = len(labeled_results)
+        accuracy = correct_predictions / total_labeled * 100
+        
+        # Calculate rejection accuracy (correctly rejected non-digits)
+        labeled_digits = [r for r in labeled_results if r['true_label'] in range(10)]
+        if labeled_digits:
+            correct_digit_accepts = sum(1 for r in labeled_digits if r['belongs'])
+            digit_accuracy = correct_digit_accepts / len(labeled_digits) * 100
+            
+            print(f"\nAccuracy on labeled samples:")
+            print(f"  Overall accuracy: {correct_predictions}/{total_labeled} ({accuracy:.1f}%)")
+            print(f"  Digit acceptance rate: {correct_digit_accepts}/{len(labeled_digits)} ({digit_accuracy:.1f}%)")
+            
+            # Show misclassifications
+            misclassified = [r for r in labeled_results 
+                           if r['belongs'] and r['prediction'] != r['true_label']]
+            if misclassified:
+                print(f"\n  Misclassifications: {len(misclassified)}")
+                for r in misclassified:
+                    print(f"    {r['filename']}: predicted {r['prediction']}, actual {r['true_label']}")
+    
+    print("="*80)
 
 if __name__ == "__main__":
     main()

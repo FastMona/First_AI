@@ -6,8 +6,8 @@ from torch import nn
 class ImageClassifier(nn.Module):
     def __init__(self):
         super().__init__()
-        # Feature extractor (all layers except final linear)
-        self.feature_extractor = nn.Sequential(
+        # Convolutional feature extractor
+        self.conv_layers = nn.Sequential(
             nn.Conv2d(1, 32, (3,3)),
             nn.ReLU(),
             nn.Conv2d(32, 64, (3,3)),
@@ -16,13 +16,23 @@ class ImageClassifier(nn.Module):
             nn.ReLU(),
             nn.Flatten()
         )
+        # Compact embedding layer (penultimate layer for OOD detection)
+        self.embedding = nn.Linear(64*(28-6)*(28-6), 128)
+        self.embedding_activation = nn.ReLU()
+        
         # Final classification layer
-        self.classifier = nn.Linear(64*(28-6)*(28-6), 10)
+        self.classifier = nn.Linear(128, 10)
     
     def forward(self, x):
-        features = self.feature_extractor(x)
-        return self.classifier(features)
+        # Full forward pass through all layers
+        conv_features = self.conv_layers(x)
+        embedding = self.embedding(conv_features)
+        embedding = self.embedding_activation(embedding)
+        return self.classifier(embedding)
     
     def get_features(self, x):
-        """Extract features before final classification layer"""
-        return self.feature_extractor(x)
+        """Extract compact 128-d embedding features (penultimate layer)"""
+        conv_features = self.conv_layers(x)
+        embedding = self.embedding(conv_features)
+        embedding = self.embedding_activation(embedding)
+        return embedding

@@ -2,8 +2,14 @@
 # Interactive single-image detection with detailed output
 
 from detection_utils import load_models, predict_image
+import sys
 
-def main():
+def main(image_path=None):
+    """Detect digit in a single image
+    
+    Args:
+        image_path (str): Path to image file. If None, will prompt user for input.
+    """
     print("="*60)
     print("MNIST Digit Detector with 2-Stage OOD Detection")
     print("="*60)
@@ -17,9 +23,12 @@ def main():
     
     print("✓ All models loaded successfully!")
     
-    # Get image filename from user
+    # Get image filename from user or parameter
     print("\n" + "-"*60)
-    image_path = input("Enter image filename (e.g., test_images/img_1.jpg): ")
+    if image_path is None:
+        image_path = input("Enter image filename (e.g., test_images/img_1.jpg): ")
+    else:
+        print(f"Processing image: {image_path}")
     
     try:
         # Make prediction
@@ -27,7 +36,16 @@ def main():
             image_path, clf, autoencoder, ood_detector, ae_threshold
         )
         
-        mahal_threshold = ood_detector.threshold_95
+        # Get class-specific threshold (prefer 90th percentile if available)
+        if ood_detector.class_thresholds_90 and prediction in ood_detector.class_thresholds_90:
+            mahal_threshold = ood_detector.class_thresholds_90[prediction]
+            threshold_type = f"class-{prediction} 90%"
+        elif ood_detector.class_thresholds_95 and prediction in ood_detector.class_thresholds_95:
+            mahal_threshold = ood_detector.class_thresholds_95[prediction]
+            threshold_type = f"class-{prediction} 95%"
+        else:
+            mahal_threshold = ood_detector.threshold_95
+            threshold_type = "global"
         
         # Display results
         print("\n" + "="*60)
@@ -43,7 +61,7 @@ def main():
             else:
                 print("❌ REJECTED AT STAGE 2: MAHALANOBIS DISTANCE TOO HIGH")
                 print(f"\nReconstruction error: {recon_error:.6f} ✓ (passed stage 1)")
-                print(f"Mahalanobis distance: {distance:.2f} ✗ (threshold: {mahal_threshold:.2f})")
+                print(f"Mahalanobis distance: {distance:.2f} ✗ ({threshold_type} threshold: {mahal_threshold:.2f})")
                 print(f"\nClassifier's guess: {prediction} ({confidence*100:.1f}%)")
                 print("\n💡 Stage 1 passed, but Stage 2 Mahalanobis distance REJECTED")
                 print("   Image reconstructs OK but doesn't match digit prototypes.")
@@ -52,7 +70,7 @@ def main():
             print(f"\n🔢 Predicted Digit: {prediction}")
             print(f"   Confidence: {confidence*100:.1f}%")
             print(f"\nStage 1 - Reconstruction error: {recon_error:.6f} ✓ (threshold: {ae_threshold:.6f})")
-            print(f"Stage 2 - Mahalanobis distance: {distance:.2f} ✓ (threshold: {mahal_threshold:.2f})")
+            print(f"Stage 2 - Mahalanobis distance: {distance:.2f} ✓ ({threshold_type} threshold: {mahal_threshold:.2f})")
             
             relative_recon = recon_error / ae_threshold * 100
             relative_mahal = distance / mahal_threshold * 100
