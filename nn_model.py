@@ -1,9 +1,21 @@
-# Shared model architecture for MNIST digit classification
-# Import this in both training (torchnn.py) and detection (detect.py)
+# CNN model architecture for MNIST digit classification
+# Shared between training (nn_train.py) and inference (detect.py, detect_batch.py, etc.)
 
 from torch import nn
 
 class ImageClassifier(nn.Module):
+    """
+    Convolutional Neural Network for MNIST digit classification (0-9).
+    
+    Architecture:
+    - 3 convolutional layers for feature extraction
+    - 128-dimensional embedding layer (used for OOD detection)
+    - 10-class softmax output
+    
+    The embedding layer serves dual purposes:
+    1. Compact representation for classification
+    2. Feature vector for Mahalanobis distance OOD detection
+    """
     def __init__(self):
         super().__init__()
         # Convolutional feature extractor
@@ -31,7 +43,18 @@ class ImageClassifier(nn.Module):
         return self.classifier(embedding)
     
     def get_features(self, x):
-        """Extract compact 128-d embedding features (penultimate layer)"""
+        """
+        Extract compact 128-d embedding features from penultimate layer.
+        
+        Used for Mahalanobis distance computation in Stage 2 OOD detection.
+        These features capture high-level digit characteristics in a compact space.
+        
+        Args:
+            x: Input images [batch_size, 1, 28, 28]
+        
+        Returns:
+            embedding: Feature vectors [batch_size, 128]
+        """
         conv_features = self.conv_layers(x)
         embedding = self.embedding(conv_features)
         embedding = self.embedding_activation(embedding)

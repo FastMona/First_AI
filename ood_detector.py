@@ -28,7 +28,8 @@ class MahalanobisOODDetector:
         self.feature_dim = params['feature_dim']
         self.num_classes = len(self.class_means)
         
-        # Load class-conditional thresholds if available (default to 90th percentile)
+        # Load class-conditional thresholds if available
+        # Priority: 90th percentile (stricter) > 95th percentile > global threshold
         self.class_thresholds_90 = params.get('class_thresholds_90', {})
         self.class_thresholds_95 = params.get('class_thresholds_95', {})
         self.class_thresholds_99 = params.get('class_thresholds_99', {})
@@ -54,7 +55,6 @@ class MahalanobisOODDetector:
                     print(f"    Class {i}: {self.class_thresholds_95[i]:.2f}")
         else:
             print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
-            print(f"  Global threshold (95%): {self.threshold_95:.2f}")
             print(f"  Global threshold (95%): {self.threshold_95:.2f}")
     
     def mahalanobis_distance(self, features, class_idx):
@@ -87,17 +87,18 @@ class MahalanobisOODDetector:
             predicted_class: Predicted class from classifier
             threshold: Mahalanobis distance threshold (uses class-conditional if None)
         
-        Returns: (prefer 90th percentile), else global threshold
+        Returns:
+            belongs: True if sample is in-distribution, False if OOD
+            distance: Mahalanobis distance to predicted class prototype
+            min_distance: Minimum distance to any class prototype
+            nearest_class: Class with minimum distance
+            all_distances: Dict of distances to all class prototypes
+        """
+        # Select threshold: Custom > Class-90th > Class-95th > Global-95th
         if threshold is None:
             if self.class_thresholds_90 and predicted_class in self.class_thresholds_90:
                 threshold = self.class_thresholds_90[predicted_class]
-            eldistance: Mahalanobis distance to predicted class prototype
-            min_distance: Minimum distance to any class prototype
-            nearest_class: Class with minimum distance
-        """
-        # Use class-conditional threshold if available, else global threshold
-        if threshold is None:
-            if self.class_thresholds_95 and predicted_class in self.class_thresholds_95:
+            elif self.class_thresholds_95 and predicted_class in self.class_thresholds_95:
                 threshold = self.class_thresholds_95[predicted_class]
             else:
                 threshold = self.threshold_95
@@ -114,7 +115,7 @@ class MahalanobisOODDetector:
         min_distance = min(all_distances.values())
         nearest_class = min(all_distances, key=all_distances.get)
         
-        # Sample belongs if distance to any class is below threshold
+        # Sample is in-distribution if minimum distance to any class prototype is below threshold
         belongs = min_distance < threshold
         
         return belongs, distance, min_distance, nearest_class, all_distances

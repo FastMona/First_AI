@@ -1,5 +1,5 @@
-# Tis is the training program for a CNN (Convolutional Neural Network) in nn_model.py
-# for MNIST digit classification
+# Training program for CNN (Convolutional Neural Network) and autoencoder
+# Trains digit classifier, autoencoder, and computes OOD detection parameters
 
 import torch
 import numpy as np
@@ -16,9 +16,10 @@ from autoencoder_model import MNISTAutoencoder
 full_train = datasets.MNIST(root='data', train=True, download=True, transform=ToTensor())
 test = datasets.MNIST(root='data', train=False, download=True, transform=ToTensor())
 
-# Split training data: 80% train, 20% validation (for threshold calibration)
-train_size = int(0.8 * len(full_train))  # 48,000
-val_size = len(full_train) - train_size  # 12,000
+# Split training data: 80% train, 20% validation
+# Validation set used for OOD threshold calibration (not for early stopping)
+train_size = int(0.8 * len(full_train))  # 48,000 samples
+val_size = len(full_train) - train_size  # 12,000 samples
 
 train, validation = random_split(full_train, [train_size, val_size], 
                                  generator=torch.Generator().manual_seed(42))
@@ -152,9 +153,10 @@ def main():
     
     all_features_centered = torch.cat(all_features_centered, dim=0)
     
-    # Use diagonal covariance only (assume feature independence)
+    # Use diagonal covariance matrix (assumes feature independence for efficiency)
+    # Diagonal approach: much faster than full covariance with acceptable accuracy
     variance = torch.var(all_features_centered, dim=0)
-    variance += 1e-4  # Small regularization
+    variance += 1e-4  # Regularization to prevent division by zero
     precision_diag = 1.0 / variance
     
     print(f"✓ Diagonal covariance computed: {variance.shape}")
@@ -187,15 +189,8 @@ def main():
     print(f"✓ Computed distances on {sum(len(v) for v in class_distances.values())} validation samples")
     
     # Compute per-class thresholds from VALIDATION distances
-    variance += 1e-4  # Small regularization
-    
-    # Precision is just 1/variance for diagonal covariance
-    precision_diag = 1.0 / variance
-    
-    print(f"✓ Computed distances on {sum(len(v) for v in class_distances.values())} validation samples")
-    
-    # Compute per-class thresholds from VALIDATION distances
-    # Use 90th percentile for stricter rejection (was 95th)
+    # 90th percentile = stricter (reject more), better for OOD detection
+    # 95th percentile = moderate, 99th = lenient (accept more)
     class_thresholds_90 = {}
     class_thresholds_95 = {}
     class_thresholds_99 = {}
@@ -310,12 +305,13 @@ def main():
             X, y_true = batch
             X = X.to('cuda')
             
-            # Get classifier predictions (simulating inference scenario)
+            # Get classifier predictions (simulates real-world inference)
             output = clf(X)
             y_pred = torch.argmax(output, dim=1)
             
-            # Compute reconstruction error using PREDICTED class
-            # This simulates real inference: "I think this is a 3, does it look like a 3?"
+            # Compute reconstruction error using PREDICTED class (not true label)
+            # Biological perception: "I think this is a 3 — does it look like a 3?"
+            # This matches how the system operates during actual inference
             errors = autoencoder.reconstruction_error(X, y_pred)
             recon_errors.extend(errors.cpu().tolist())
     

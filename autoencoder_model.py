@@ -1,5 +1,5 @@
-# Autoencoder for MNIST digit reconstruction
-# Used as a gate to detect non-digits via reconstruction error
+# Class-conditional autoencoder for MNIST digit reconstruction
+# Stage 1 OOD detection gate: rejects non-digits via high reconstruction error
 
 import torch
 from torch import nn
@@ -7,13 +7,21 @@ import torch.nn.functional as F
 
 class MNISTAutoencoder(nn.Module):
     """
-    Class-conditional autoencoder that learns separate manifolds for each digit.
+    Class-conditional autoencoder that learns separate reconstruction manifolds for each digit.
     
-    This implements the biological perception model:
-    "I think this is a 3 — does it look like a 3?"
+    Implements biological perception model: "I think this is a 3 — does it look like a 3?"
     
-    Training: Input (image, label) → learns 10 separate reconstruction manifolds
+    Key differences from standard autoencoder:
+    - Standard AE: Learns ONE global manifold for all digits
+    - Class-conditional AE: Learns TEN separate manifolds (one per digit class)
+    
+    Training: Input (image, label) pairs → learns 10 distinct reconstruction manifolds
     Inference: Classifier predicts digit k → reconstruct using manifold k
+    
+    Benefits:
+    - Better class separation: Wrong class manifolds produce higher reconstruction error
+    - More interpretable: Each class has its own quality check
+    - Improved OOD detection: Non-digits fail reconstruction with ALL manifolds
     """
     
     def __init__(self, latent_dim=64, num_classes=10, embedding_dim=16):
