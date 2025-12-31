@@ -149,9 +149,10 @@ def main():
     print(f"  Mean variance: {variance.mean().item():.4f}")
     print(f"  Min variance: {variance.min().item():.4f}")
     
-    # Calibrate threshold on training data
-    print("\nCalibrating threshold on training data...")
-    all_distances = []
+    # Calibrate per-class thresholds on training data
+    print("\nCalibrating class-conditional thresholds on training data...")
+    class_distances = {i: [] for i in range(num_classes)}
+    
     with torch.no_grad():
         for i in range(num_classes):
             if class_features[i]:
@@ -160,39 +161,54 @@ def main():
                 num_samples = min(50, len(features))
                 indices = torch.randperm(len(features))[:num_samples]
                 
-                print(f"  Class {i}: computing {num_samples} distances...", end='\r')
+                print(f"  Class {i}: computing {num_samples} distances to class-{i} prototype...", end='\r')
                 for idx in indices:
                     feat = features[idx]
                     mean = class_means[i]
                     diff = feat - mean
                     # Diagonal Mahalanobis: sqrt(sum((x-μ)^2 / σ^2))
                     distance = torch.sqrt(torch.sum(diff**2 * precision_diag)).item()
-                    all_distances.append(distance)
+                    class_distances[i].append(distance)
         
-        print(f"  Computed {len(all_distances)} total distances" + " "*20)
+        print(f"  Computed per-class distances" + " "*30)
     
-    all_distances = np.array(all_distances)
-    threshold_95 = np.percentile(all_distances, 95)
-    threshold_99 = np.percentile(all_distances, 99)
-    mean_dist = np.mean(all_distances)
-    std_dist = np.std(all_distances)
+    # Compute per-class thresholds
+    class_thresholds_95 = {}
+    class_thresholds_99 = {}
+    class_mean_distances = {}
+    class_std_distances = {}
     
-    print(f"Distance statistics on training data:")
-    print(f"  Mean: {mean_dist:.2f}")
-    print(f"  Std: {std_dist:.2f}")
-    print(f"  95th percentile: {threshold_95:.2f}")
-    print(f"  99th percentile: {threshold_99:.2f}")
-    print(f"\nRecommended threshold: {threshold_95:.2f} (captures 95% of training data)")
+    print(f"\nClass-conditional threshold statistics:")
+    for i in range(num_classes):
+        if class_distances[i]:
+            distances = np.array(class_distances[i])
+            class_thresholds_95[i] = np.percentile(distances, 95)
+            class_thresholds_99[i] = np.percentile(distances, 99)
+            class_mean_distances[i] = np.mean(distances)
+            class_std_distances[i] = np.std(distances)
+            print(f"  Class {i}: mean={class_mean_distances[i]:.2f} ± {class_std_distances[i]:.2f}, "
+                  f"95th={class_thresholds_95[i]:.2f}, 99th={class_thresholds_99[i]:.2f}")
+    
+    # Also compute global statistics for reference
+    all_distances = [d for distances in class_distances.values() for d in distances]
+    global_threshold_95 = np.percentile(all_distances, 95)
+    global_mean = np.mean(all_distances)
+    print(f"\nGlobal statistics (for reference):")
+    print(f"  Mean: {global_mean:.2f}")
+    print(f"  95th percentile: {global_threshold_95:.2f}")
     
     # Save OOD detection parameters
     ood_params = {
         'class_means': class_means,
         'precision_diag': precision_diag,  # Diagonal precision instead of full matrix
         'feature_dim': feature_dim,
-        'threshold_95': threshold_95,
-        'threshold_99': threshold_99,
-        'mean_distance': mean_dist,
-        'std_distance': std_dist
+        'class_thresholds_95': class_thresholds_95,  # Per-class thresholds
+        'class_thresholds_99': class_thresholds_99,  # Per-class thresholds
+        'class_mean_distances': class_mean_distances,
+        'class_std_distances': class_std_distances,
+        # Keep global stats for backward compatibility
+        'threshold_95': global_threshold_95,
+        'mean_distance': global_mean,
     }
     
     with open('ood_params.pth', 'wb') as f:
@@ -200,7 +216,7 @@ def main():
     print(f"\n✓ OOD detection parameters saved to ood_params.pth")
     print("  - Class prototypes (means) for all 10 digits")
     print("  - Precision matrix for Mahalanobis distance")
-    print(f"  - Calibrated threshold: {threshold_95:.2f}")
+    print(f"  - Class-conditional thresholds (95th percentile per class)")
     print("="*60)
     
     # Train autoencoder for reconstruction-based OOD detection

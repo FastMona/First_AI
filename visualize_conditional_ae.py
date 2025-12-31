@@ -183,7 +183,8 @@ def analyze_manifold_separation(autoencoder, test_dataset, num_samples=1000):
     print("\nHigher values indicate better manifold separation!")
 
 
-if __name__ == "__main__":
+def main():
+    """Main entry point for visualization"""
     # Load models
     print("Loading models...")
     
@@ -221,3 +222,7 @@ if __name__ == "__main__":
     
     # Analyze manifold separation
     analyze_manifold_separation(autoencoder, test_dataset, num_samples=1000)
+
+
+if __name__ == "__main__":
+    main()

@@ -36,7 +36,13 @@ def main(image_path=None):
             image_path, clf, autoencoder, ood_detector, ae_threshold
         )
         
-        mahal_threshold = ood_detector.threshold_95
+        # Get class-specific threshold
+        if ood_detector.class_thresholds_95 and prediction in ood_detector.class_thresholds_95:
+            mahal_threshold = ood_detector.class_thresholds_95[prediction]
+            threshold_type = f"class-{prediction}"
+        else:
+            mahal_threshold = ood_detector.threshold_95
+            threshold_type = "global"
         
         # Display results
         print("\n" + "="*60)
@@ -52,7 +58,7 @@ def main(image_path=None):
             else:
                 print("❌ REJECTED AT STAGE 2: MAHALANOBIS DISTANCE TOO HIGH")
                 print(f"\nReconstruction error: {recon_error:.6f} ✓ (passed stage 1)")
-                print(f"Mahalanobis distance: {distance:.2f} ✗ (threshold: {mahal_threshold:.2f})")
+                print(f"Mahalanobis distance: {distance:.2f} ✗ ({threshold_type} threshold: {mahal_threshold:.2f})")
                 print(f"\nClassifier's guess: {prediction} ({confidence*100:.1f}%)")
                 print("\n💡 Stage 1 passed, but Stage 2 Mahalanobis distance REJECTED")
                 print("   Image reconstructs OK but doesn't match digit prototypes.")
@@ -61,7 +67,7 @@ def main(image_path=None):
             print(f"\n🔢 Predicted Digit: {prediction}")
             print(f"   Confidence: {confidence*100:.1f}%")
             print(f"\nStage 1 - Reconstruction error: {recon_error:.6f} ✓ (threshold: {ae_threshold:.6f})")
-            print(f"Stage 2 - Mahalanobis distance: {distance:.2f} ✓ (threshold: {mahal_threshold:.2f})")
+            print(f"Stage 2 - Mahalanobis distance: {distance:.2f} ✓ ({threshold_type} threshold: {mahal_threshold:.2f})")
             
             relative_recon = recon_error / ae_threshold * 100
             relative_mahal = distance / mahal_threshold * 100

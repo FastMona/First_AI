@@ -28,16 +28,26 @@ class MahalanobisOODDetector:
         self.feature_dim = params['feature_dim']
         self.num_classes = len(self.class_means)
         
-        # Load calibrated threshold if available
+        # Load class-conditional thresholds if available
+        self.class_thresholds_95 = params.get('class_thresholds_95', {})
+        self.class_thresholds_99 = params.get('class_thresholds_99', {})
+        self.class_mean_distances = params.get('class_mean_distances', {})
+        self.class_std_distances = params.get('class_std_distances', {})
+        
+        # Keep global threshold for backward compatibility
         self.threshold_95 = params.get('threshold_95', 10.0)
         self.threshold_99 = params.get('threshold_99', 15.0)
-        self.mean_distance = params.get('mean_distance', 5.0)
-        self.std_distance = params.get('std_distance', 2.0)
         
         cov_type = "diagonal" if self.use_diagonal else "full"
-        print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
-        print(f"  Calibrated threshold (95%): {self.threshold_95:.2f}")
-        print(f"  Mean training distance: {self.mean_distance:.2f} ± {self.std_distance:.2f}")
+        if self.class_thresholds_95:
+            print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
+            print(f"  Using class-conditional thresholds (95th percentile):")
+            for i in range(min(10, self.num_classes)):
+                if i in self.class_thresholds_95:
+                    print(f"    Class {i}: {self.class_thresholds_95[i]:.2f}")
+        else:
+            print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
+            print(f"  Global threshold (95%): {self.threshold_95:.2f}")
     
     def mahalanobis_distance(self, features, class_idx):
         """
@@ -67,7 +77,7 @@ class MahalanobisOODDetector:
         Args:
             features: Feature vector from model (before final layer)
             predicted_class: Predicted class from classifier
-            threshold: Mahalanobis distance threshold (uses calibrated if None)
+            threshold: Mahalanobis distance threshold (uses class-conditional if None)
         
         Returns:
             belongs: True if sample belongs to predicted class, False if OOD
@@ -75,9 +85,12 @@ class MahalanobisOODDetector:
             min_distance: Minimum distance to any class prototype
             nearest_class: Class with minimum distance
         """
-        # Use calibrated threshold if not provided
+        # Use class-conditional threshold if available, else global threshold
         if threshold is None:
-            threshold = self.threshold_95
+            if self.class_thresholds_95 and predicted_class in self.class_thresholds_95:
+                threshold = self.class_thresholds_95[predicted_class]
+            else:
+                threshold = self.threshold_95
         
         features = features.cpu()
         
