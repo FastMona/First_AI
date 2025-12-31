@@ -25,8 +25,8 @@ clf = ImageClassifier().to('cuda')
 opt = Adam(clf.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
-# Training loop
-if __name__ == "__main__":
+def main():
+    """Main training function for CNN classifier and autoencoder"""
     best_test_loss = float('inf')
     patience = 3
     patience_counter = 0
@@ -301,3 +301,6 @@ if __name__ == "__main__":
     print(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
     print("  - Use as first gate before digit classifier")
     print("="*60)
+
+if __name__ == "__main__":
+    main()
