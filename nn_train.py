@@ -13,8 +13,8 @@ from nn_model import ImageClassifier
 from autoencoder_model import MNISTAutoencoder
 
 # Load MNIST dataset
-full_train = datasets.MNIST(root='data', train=True, download=True, transform=ToTensor())
-test = datasets.MNIST(root='data', train=False, download=True, transform=ToTensor())
+full_train = datasets.MNIST(root='training_data', train=True, download=True, transform=ToTensor())
+test = datasets.MNIST(root='training_data', train=False, download=True, transform=ToTensor())
 
 # Split training data: 80% train, 20% validation
 # Validation set used for OOD threshold calibration (not for early stopping)

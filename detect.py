@@ -1,6 +1,6 @@
 # Single-image digit detection program for MNIST model
 # Interactive interface with detailed two-stage OOD detection output
-# Uses refactored utilities from detection_utils.py
+# Uses shared utilities from detection_utils.py
 
 from detection_utils import (load_models, predict_image, format_detection_result, 
                             print_separator, print_header)

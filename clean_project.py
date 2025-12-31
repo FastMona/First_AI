@@ -1,6 +1,6 @@
 # Clean project - Remove generated files for a fresh start
 # Removes .pth model files, .md reports, and cache folders
-# Preserves MNIST training data in data/ folder
+# Preserves MNIST training data in training_data/ folder
 
 import os
 import shutil
@@ -66,7 +66,7 @@ def clean_project(interactive=True):
     print("\n" + "="*80)
     print("PRESERVED (NOT deleted):")
     print("-"*80)
-    print("  ✓ data/ folder (MNIST training data)")
+    print("  ✓ training_data/ folder (MNIST training data)")
     print("  ✓ test_images/ folder (if exists)")
     print("  ✓ README.md (if exists)")
     print("  ✓ All Python source files (.py)")
@@ -119,7 +119,7 @@ def clean_project(interactive=True):
     print("  1. Run 'python nn_train.py' to train fresh models")
     print("  2. Run 'python test_accuracy.py' to evaluate performance")
     print("  3. Run 'python generate_report.py' to create visual report")
-    print("\n💡 To also remove MNIST data, delete the data/ folder manually")
+    print("\n💡 To also remove MNIST data, delete the training_data/ folder manually")
     print("   (This will require re-downloading ~10MB on next training)")
 
 def main():

@@ -7,14 +7,42 @@ import sys
 import os
 
 def check_environment():
-    """Check if running in the correct PyTorch environment"""
+    """Check if running in the correct PyTorch environment and return environment info"""
     try:
         import torch
+        import platform
+        import subprocess
+        
         # Check if CUDA is available (optional but good to know)
         cuda_available = torch.cuda.is_available()
         
         # Check conda environment name
         conda_env = os.environ.get('CONDA_DEFAULT_ENV', 'Unknown')
+        
+        # Get CPU information - try multiple methods for Windows
+        cpu_name = None
+        if platform.system() == 'Windows':
+            try:
+                # Try WMIC on Windows for detailed CPU info
+                result = subprocess.run(
+                    ['wmic', 'cpu', 'get', 'name'],
+                    capture_output=True,
+                    text=True,
+                    timeout=2
+                )
+                if result.returncode == 0:
+                    lines = result.stdout.strip().split('\n')
+                    if len(lines) > 1:
+                        cpu_name = lines[1].strip()
+            except:
+                pass
+        
+        # Fallback to platform.processor()
+        if not cpu_name:
+            cpu_name = platform.processor()
+        
+        if not cpu_name or cpu_name == '':
+            cpu_name = f"Unknown CPU ({platform.machine()})"
         
         # Verify we're in pytorch environment
         if conda_env != 'pytorch':
@@ -30,12 +58,16 @@ def check_environment():
             print("="*80 + "\n")
             sys.exit(1)
         
-        # Show environment info
-        print(f"\n✓ Environment: {conda_env}")
-        print(f"✓ PyTorch version: {torch.__version__}")
-        print(f"✓ CUDA available: {cuda_available}")
-        if cuda_available:
-            print(f"✓ CUDA device: {torch.cuda.get_device_name(0)}")
+        # Return environment info to be displayed in header
+        gpu_name = torch.cuda.get_device_name(0) if cuda_available else None
+        
+        return {
+            'conda_env': conda_env,
+            'pytorch_version': torch.__version__,
+            'cpu_name': cpu_name,
+            'cuda_available': cuda_available,
+            'gpu_name': gpu_name
+        }
         
     except ImportError:
         print("\n" + "="*80)
@@ -52,10 +84,20 @@ def clear_screen():
     """Clear the console screen"""
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def print_header():
-    """Print dashboard header"""
+def print_header(env_info):
+    """Print dashboard header with environment information"""
     print("\n" + "="*80)
     print("  MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD".center(80))
+    print("="*80)
+    
+    # Display environment info
+    print(f"\n  Environment: {env_info['conda_env']} | PyTorch: {env_info['pytorch_version']}")
+    print(f"  CPU: {env_info['cpu_name']}")
+    if env_info['cuda_available']:
+        print(f"  GPU: {env_info['gpu_name']}")
+        print(f"  ⚡ Compute Device: GPU - {env_info['gpu_name']}")
+    else:
+        print(f"  💻 Compute Device: CPU")
     print("="*80)
 
 def print_menu():
@@ -171,11 +213,11 @@ def run_detect_batch():
 def main():
     """Main dashboard loop"""
     # Check environment at startup
-    check_environment()
+    env_info = check_environment()
     
     while True:
         clear_screen()
-        print_header()
+        print_header(env_info)
         print_menu()
         
         choice = input("\n➤ Select option (0-8): ").strip()

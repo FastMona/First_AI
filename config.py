@@ -47,7 +47,7 @@ class Config:
     OOD_PARAMS_PATH = 'ood_params.pth'
     
     # Data paths
-    DATA_DIR = 'data'
+    DATA_DIR = 'training_data'
     TEST_IMAGES_DIR = 'test_images'
     
     # OOD detection thresholds (percentiles of in-distribution distances)
