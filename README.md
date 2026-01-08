@@ -5,15 +5,17 @@ A PyTorch-based digit classification system with robust out-of-distribution (OOD
 ## Quick Start
 
 **Run the Dashboard (Recommended):**
+
 ```bash
 python dashboard.py
 ```
+
 The dashboard provides easy access to all project functionalities through an interactive menu.
 
 ## Author
 
-David Cronin 
-cronind@sympatico.ca
+David Cronin
+<cronind@sympatico.ca>
 December 2025
 
 ## Project Overview
@@ -44,18 +46,21 @@ The project features a **maintainable, modular codebase** with centralized confi
 Traditional autoencoders learn **one global manifold** for all digits, which can make it hard to distinguish between digit classes during OOD detection. Our class-conditional autoencoder implements a more biologically-inspired approach:
 
 **Training Phase:**
+
 - Input: `(image, label)` pairs
 - The autoencoder learns **10 separate reconstruction manifolds**
 - Each digit learns its own unique geometry
 - Example: The "3 manifold" learns what makes a 3 look like a 3
 
 **Inference Phase:**
+
 1. Classifier predicts: "I think this is a 3"
 2. Autoencoder reconstructs using the "3 manifold"
 3. Check: Does the reconstruction match? → Low error = looks like a 3
 4. If reconstruction error is high → doesn't look like a 3 → reject
 
 **Benefits:**
+
 - ✅ Better class separation: Wrong class manifolds produce higher reconstruction error
 - ✅ More interpretable: Each class has its own quality check
 - ✅ Biological plausibility: Mimics how humans verify perceptions
@@ -64,6 +69,7 @@ Traditional autoencoders learn **one global manifold** for all digits, which can
 ### Manifold Separation
 
 The key advantage is **manifold separation**. When you try to reconstruct:
+
 - A true "3" using the "3 manifold" → **LOW** error
 - A true "3" using the "5 manifold" → **HIGH** error
 - A random letter using ANY digit manifold → **VERY HIGH** error
@@ -75,7 +81,9 @@ This creates natural boundaries between classes and makes OOD detection more rob
 ### Core Training & Models
 
 #### `nn_train.py`
+
 Main training script that:
+
 - Trains the CNN digit classifier on MNIST dataset (10 epochs max)
 - Implements early stopping with patience=3 (monitors test loss)
 - Trains class-conditional autoencoder for Stage 1 OOD detection (5 epochs)
@@ -86,13 +94,17 @@ Main training script that:
 **Usage**: `python nn_train.py`
 
 #### `nn_model.py`
+
 CNN model architecture for digit classification:
+
 - 3 convolutional layers with ReLU activation
 - Feature extraction and classification layers separated
 - Provides `get_features()` method for OOD detection
 
 #### `autoencoder_model.py`
+
 **Class-Conditional Autoencoder** for biological-style perception:
+
 - Learns **10 separate reconstruction manifolds** (one per digit)
 - Training: Takes (image, label) pairs → learns digit-specific geometry
 - Inference: Uses predicted class to reconstruct → "Does it look like a 3?"
@@ -103,19 +115,24 @@ CNN model architecture for digit classification:
 - Trained only on digits to reject non-digit inputs
 
 **Key difference from standard autoencoders:**
+
 - Standard: Learns one global manifold for all digits
 - Conditional: Learns 10 separate manifolds, one per digit class
 - Better separation: Wrong class manifolds have higher reconstruction error
 
 #### `ood_detector.py`
+
 Mahalanobis distance-based OOD detector (Stage 2):
+
 - Computes distance to class prototypes using diagonal covariance matrix
 - Supports class-conditional thresholds (90th/95th/99th percentiles)
 - Hierarchical threshold selection: Class-90th > Class-95th > Global-95th
 - Returns "belongs/doesn't belong" signal with distance metrics
 
 #### `config.py`
+
 Centralized configuration module:
+
 - All hyperparameters (batch size, learning rates, epochs, thresholds)
 - Model architecture constants (feature dimensions, layer sizes)
 - File paths and data directories
@@ -125,7 +142,9 @@ Centralized configuration module:
 ### Detection Programs
 
 #### `detection_utils.py`
+
 Shared utility functions to eliminate code duplication:
+
 - `load_models()`: Loads classifier, autoencoder, and OOD detector from config paths
 - `predict_image()`: Two-stage prediction pipeline with OOD detection
 - `get_class_threshold()`: Hierarchical threshold selection logic
@@ -136,7 +155,9 @@ Shared utility functions to eliminate code duplication:
 Used by: `detect.py`, `detect_batch.py`, `test_accuracy.py`, `generate_report.py`
 
 #### `detect.py`
+
 Interactive single-image detection:
+
 - Prompts user for image filename (or pass as argument)
 - Uses `format_detection_result()` for consistent, detailed output
 - Shows classifier prediction with confidence
@@ -144,14 +165,17 @@ Interactive single-image detection:
 - Reports Stage 2 Mahalanobis distance vs class-conditional threshold
 - Indicates rejection stage and reasoning
 
-**Usage**: 
+**Usage**:
+
 ```bash
 python detect.py                    # Interactive mode
 python detect.py test_images/img_3.jpg  # Direct file
 ```
 
 #### `detect_batch.py`
+
 Batch processing for multiple images:
+
 - Processes all images in a specified folder
 - Displays summary table with predictions
 - Groups results by detected digit
@@ -162,7 +186,9 @@ Batch processing for multiple images:
 ### Testing & Reporting
 
 #### `test_accuracy.py`
+
 Automated accuracy evaluation:
+
 - Tests against labeled images in `test_images/` folder
 - Filename convention: `img_X.jpg` where X is digit (0-9) or OOD marker
 - Calculates digit classification accuracy and OOD detection accuracy
@@ -172,7 +198,9 @@ Automated accuracy evaluation:
 **Usage**: `python test_accuracy.py`
 
 #### `visualize_conditional_ae.py`
+
 Visualize class-conditional autoencoder manifolds:
+
 - Shows original images with classifier predictions
 - Displays reconstructions using ALL 10 class manifolds
 - Color-coded: Green = predicted class, Blue = true class
@@ -187,7 +215,9 @@ Visualize class-conditional autoencoder manifolds:
 **Usage**: `python visualize_conditional_ae.py`
 
 #### `generate_report.py`
+
 Visual markdown report generator:
+
 - Creates `test_results_report.md` with image thumbnails
 - Shows true labels vs predictions in formatted tables
 - Separates digit samples from OOD samples
@@ -198,7 +228,9 @@ Visual markdown report generator:
 ### Utilities
 
 #### `dashboard.py`
+
 Interactive menu system for all project functionality:
+
 - Easy navigation to all features
 - Environment validation (checks PyTorch, CUDA)
 - Training, detection, testing, and visualization options
@@ -207,7 +239,9 @@ Interactive menu system for all project functionality:
 **Usage**: `python dashboard.py` (Recommended entry point)
 
 #### `camera.py`
+
 Webcam-based image capture utility:
+
 - Captures images from default camera
 - Preprocesses to MNIST format (28×28 grayscale)
 - Applies adaptive thresholding for digit isolation
@@ -216,7 +250,9 @@ Webcam-based image capture utility:
 **Usage**: `python camera.py`
 
 #### `clean_project.py`
+
 Project cleanup utility:
+
 - Removes generated files (`.pth` models, `.md` reports, `.png` plots)
 - Cleans `__pycache__/` folders
 - Preserves source code, test images, and MNIST data
@@ -227,34 +263,40 @@ Project cleanup utility:
 ## Workflow
 
 ### 1. Training
+
 ```bash
 python nn_train.py
 ```
+
 This generates:
+
 - `model_state.pth` - Trained classifier weights
 - `autoencoder.pth` - Autoencoder with calibrated threshold
 - `ood_params.pth` - Class prototypes and covariance parameters
 
 ### 2. Testing
+
 ```bash
 python test_accuracy.py          # Automated accuracy test
 python generate_report.py        # Generate visual report
 ```
 
 ### 3. Detection
+
 ```bash
 python detect.py                 # Single image (interactive)
 python detect_batch.py           # Batch processing
 ```
 
 ### 4. Cleanup
+
 ```bash
 python clean_project.py          # Remove generated files
 ```
 
 ## Directory Structure
 
-```
+```text
 pytorch_env/
 ├── config.py                   # Centralized configuration
 ├── nn_train.py                 # Main training script
@@ -306,13 +348,15 @@ conda activate pytorch
 ### 4. VS Code Setup
 
 Set the Python interpreter to:
-```
+
+```text
 C:\Users\David\Miniconda3\envs\pytorch\python.exe
 ```
 
 ## Model Architecture Details
 
 ### CNN Classifier
+
 - **Input**: 28×28 grayscale images
 - **Convolutional layers**: 3 layers (32→64→64 channels, 3×3 kernels)
 - **Embedding layer**: 128-dimensional feature vector (penultimate layer)
@@ -320,6 +364,7 @@ C:\Users\David\Miniconda3\envs\pytorch\python.exe
 - **Total parameters**: ~150K
 
 ### Class-Conditional Autoencoder
+
 - **Input**: 28×28 image + class label (0-9)
 - **Label embedding**: 16-dimensional learned embedding per class
 - **Encoder**: 784+16 → 256 → 128 → 64 (latent)
@@ -328,6 +373,7 @@ C:\Users\David\Miniconda3\envs\pytorch\python.exe
 - **Training**: 10 separate manifolds, one per digit class
 
 ### Data Split
+
 - **Training**: 48,000 samples (80% of MNIST train) - used for model training
 - **Validation**: 12,000 samples (20% of MNIST train) - used for threshold calibration
 - **Test**: 10,000 samples (MNIST test set) - used for final evaluation
@@ -348,13 +394,15 @@ C:\Users\David\Miniconda3\envs\pytorch\python.exe
 
 ### Two-Stage Detection
 
-**Stage 1: Autoencoder Reconstruction Gate**
+#### Stage 1: Autoencoder Reconstruction Gate
+
 - Class-conditional autoencoder trained only on MNIST digits (10 manifolds)
 - Non-digit inputs produce high reconstruction error
 - Threshold calibrated at **95th percentile of validation data** (using predicted labels)
 - Fast rejection: catches obvious non-digits early
 
-**Stage 2: Mahalanobis Distance to Prototypes**
+#### Stage 2: Mahalanobis Distance to Prototypes
+
 - Measures distance from 128-d feature embedding to nearest class prototype
 - Uses **diagonal covariance matrix** (faster, robust for high dimensions)
 - **Class-conditional thresholds** at 90th percentile (stricter, default)
@@ -362,6 +410,7 @@ C:\Users\David\Miniconda3\envs\pytorch\python.exe
 - Rejects samples far from all digit prototypes
 
 Benefits:
+
 - Stage 1 catches obvious non-digits early
 - Stage 2 refines detection for ambiguous cases
 - Provides interpretable rejection reasons
@@ -371,15 +420,18 @@ Benefits:
 Place test images in `test_images/` folder with this naming scheme:
 
 **Digit Samples** (for classification accuracy):
+
 - `img_0.jpg` to `img_9.jpg` - Images containing digits 0-9
 - Example: `img_3.jpg` should contain the digit "3"
 
 **OOD Samples** (for rejection accuracy):
+
 - `img_A.jpg`, `img_letter.jpg` - Letters
 - `img_+.jpg`, `img_symbol.png` - Symbols  
 - `img_cat.jpg`, `img_noise.png` - Non-digit images
 
 The filename pattern `img_X.ext` allows automated testing:
+
 - Single digit X (0-9) → Ground truth digit label
 - Non-digit X → OOD sample (should be rejected)
 
@@ -390,27 +442,32 @@ Test programs automatically parse filenames to compute accuracy metrics.
 The system reports comprehensive accuracy metrics:
 
 ### Classification Performance
+
 - **Digit Classification Accuracy**: Percentage of true digits (0-9) correctly classified
 - **Confidence Scores**: Softmax probability for predicted class
 - **Per-Class Accuracy**: Breakdown by individual digits
 
-### OOD Detection Performance  
+### OOD Detection Performance
+
 - **OOD Detection Accuracy**: Percentage of non-digits correctly rejected
 - **False Acceptance Rate**: Non-digits incorrectly classified as digits
 - **False Rejection Rate**: True digits incorrectly rejected as OOD
 - **Overall Accuracy**: Combined metric (correct classifications + correct rejections)
 
 ### Stage Analysis
+
 - **Stage 1 Rejections**: Count rejected by autoencoder (reconstruction error)
 - **Stage 2 Rejections**: Count rejected by Mahalanobis distance
 - **Stage Distribution**: Where in the pipeline samples are caught
 
 ### Threshold Calibration
+
 - **90th Percentile** (default): Stricter, fewer false acceptances, more false rejections
 - **95th Percentile**: Balanced tradeoff
 - **99th Percentile**: Lenient, fewer false rejections, more false acceptances
 
 Typical performance:
+
 - Digit accuracy: 98-99% (MNIST digits)
 - OOD accuracy: 95-98% (non-digit rejection)
 - Overall: 97-99% depending on threshold choice
@@ -419,7 +476,7 @@ Typical performance:
 
 - **Device Selection**: Models automatically use CUDA GPU if available, otherwise CPU
 - **MNIST Dataset**: ~10MB, downloads automatically on first run to `training_data/` folder
-- **Training Time**: 
+- **Training Time**:
   - GPU (RTX 4070): ~2-3 minutes total
   - CPU: ~15-20 minutes total
 - **Early Stopping**: Prevents overfitting with patience=3 epochs (monitors test loss)
@@ -431,19 +488,25 @@ Typical performance:
 ## Recent Refactoring (December 2025)
 
 ### Code Quality Improvements
+
 ✅ **Centralized Configuration** - Created `config.py` to eliminate magic numbers
 ✅ **Fixed Critical Bugs** - Removed syntax errors and duplicate code in `ood_detector.py`, `nn_train.py`
 ✅ **Extracted Common Logic** - Added utility functions to `detection_utils.py`:
-   - `get_class_threshold()` - Hierarchical threshold selection
-   - `format_detection_result()` - Unified output formatting
-   - Display helpers for consistent UI
+
+- `get_class_threshold()` - Hierarchical threshold selection
+- `format_detection_result()` - Unified output formatting
+- Display helpers for consistent UI
+
 ✅ **Enhanced Documentation** - Comprehensive docstrings and comments explaining:
-   - Algorithm choices (diagonal covariance, percentile thresholds)
-   - Biological perception model
-   - Two-stage detection rationale
+
+- Algorithm choices (diagonal covariance, percentile thresholds)
+- Biological perception model
+- Two-stage detection rationale
+
 ✅ **Improved Maintainability** - Single source of truth, DRY principle, clear separation of concerns
 
 ### Architecture Benefits
+
 - **Modularity**: Clear separation between models, detection logic, and utilities
 - **Consistency**: All scripts use shared config and utilities
 - **Testability**: Isolated functions easier to test and debug
