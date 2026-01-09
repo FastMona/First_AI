@@ -1,23 +1,5 @@
 # MNIST Digit Detection with Out-of-Distribution Detection
 
-A PyTorch-based digit classification system with robust out-of-distribution (OOD) detection using a two-stage approach: autoencoder reconstruction and Mahalanobis distance to class prototypes.
-
-## Quick Start
-
-**Run the Dashboard (Recommended):**
-
-```bash
-python dashboard.py
-```
-
-The dashboard provides easy access to all project functionalities through an interactive menu.
-
-## Author
-
-David Cronin
-<cronind@sympatico.ca>
-December 2025
-
 ## Project Overview
 
 This project implements a convolutional neural network for MNIST digit classification with advanced out-of-distribution (OOD) detection capabilities. The system accurately classifies handwritten digits (0-9) while rejecting non-digit inputs (letters, symbols, corrupted images) through a **two-stage validation process**:
@@ -75,6 +57,22 @@ The key advantage is **manifold separation**. When you try to reconstruct:
 - A random letter using ANY digit manifold → **VERY HIGH** error
 
 This creates natural boundaries between classes and makes OOD detection more robust.
+
+## Quick Start
+
+**Run the Dashboard (Recommended):**
+
+```bash
+python dashboard.py
+```
+
+The dashboard provides easy access to all project functionalities through an interactive menu.
+
+## Author
+
+David Cronin
+<cronind@sympatico.ca>
+December 2025
 
 ## Python Programs
 
