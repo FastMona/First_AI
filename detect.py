@@ -45,6 +45,9 @@ def main(image_path=None):
         )
         print("\n" + result_message)
         
+    except ValueError as e:
+        # Feature dimension mismatch
+        print(f"\n❌ ERROR: {e}")
     except FileNotFoundError:
         print(f"\nError: Image file '{image_path}' not found!")
     except Exception as e:

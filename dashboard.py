@@ -114,9 +114,9 @@ def print_header(env_info):
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train with CNN            - Train CNN classifier and autoencoder       │")
-    print("│  2. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
-    print("│  3. Train with FFN            - Train simple feedforward network (baseline)│")
+    print("│  1. Train with FFN            - Train simple feedforward network (baseline)│")
+    print("│  2. Train with CNN            - Train CNN classifier and autoencoder       │")
+    print("│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
     print("│  4. Test Accuracy             - Compare all trained models                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
@@ -203,12 +203,8 @@ def run_detect_batch():
         print("\n" + "─"*80)
         import detect_batch
         
-        # Prompt for folder path
-        folder_path = input("Enter folder path (default: test_images): ").strip()
-        if not folder_path:
-            folder_path = "test_images"
-        
-        detect_batch.main(folder_path)
+        # detect_batch.main() will handle model selection internally
+        detect_batch.main()
             
     except ImportError as e:
         print(f"Error importing detect_batch: {e}")
@@ -231,11 +227,11 @@ def main():
         choice = input("\n➤ Select option (0-8): ").strip()
         
         if choice == '1':
-            run_module("nn_train_cnn")
-        elif choice == '2':
-            run_module("nn_train_art")
-        elif choice == '3':
             run_module("nn_train_ffn")
+        elif choice == '2':
+            run_module("nn_train_cnn")
+        elif choice == '3':
+            run_module("nn_train_art")
         elif choice == '4':
             run_module("test_accuracy")
         elif choice == '5':

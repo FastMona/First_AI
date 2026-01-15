@@ -114,10 +114,11 @@ def main():
                 eta_seconds = eta_batches * avg_batch_time
                 eta_min = int(eta_seconds // 60)
                 eta_sec = int(eta_seconds % 60)
+                current_time = time.strftime("%H:%M")
                 
-                print(f"  [{progress_pct:5.1f}%] Batch {batch_idx + 1:4d}/{total_batches} | "
-                      f"Samples: {total_samples:6d} | Categories: {art.num_committed:3d}/{Config.ART_MAX_CATEGORIES} | "
-                      f"Speed: {samples_per_sec:5.1f} samples/s | ETA: {eta_min:02d}:{eta_sec:02d}")
+                print(f"{progress_pct:.1f}% complete | Batch {batch_idx + 1}/{total_batches} | "
+                      f"Samples Processed: {total_samples} | Speed: {samples_per_sec:.1f} samp/sec | "
+                      f"Time remaining: {eta_min:02d}:{eta_sec:02d} | {current_time}")
         
         pass_time = time.time() - pass_start_time
         pass_min = int(pass_time // 60)

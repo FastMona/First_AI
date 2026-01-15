@@ -86,7 +86,7 @@ def load_models(model_type=None):
                 input_size=Config.INPUT_SIZE * Config.INPUT_SIZE,
                 num_classes=Config.NUM_CLASSES,
                 hidden_sizes=Config.FFN_HIDDEN_SIZES,
-                embedding_dim=Config.EMBEDDING_DIM
+                embedding_size=Config.FEATURE_DIM
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_FFN, 'rb') as f:
                 clf.load_state_dict(load(f, weights_only=False))
@@ -160,6 +160,21 @@ def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
         
         # Stage 2: Mahalanobis distance
         features = model.get_features(img_tensor)
+        
+        # Validate feature dimensions match OOD detector expectations
+        expected_dim = ood_detector.feature_dim
+        actual_dim = features.shape[1]
+        if actual_dim != expected_dim:
+            raise ValueError(
+                f"Feature dimension mismatch!\n"
+                f"  Model produces: {actual_dim}-dimensional features\n"
+                f"  OOD detector expects: {expected_dim}-dimensional features\n\n"
+                f"This happens when you train with one model type and try to use another.\n"
+                f"Solution: Retrain the models to match:\n"
+                f"  - For CNN (128-dim): Run 'python nn_train_cnn.py'\n"
+                f"  - For ART (1568-dim): Run 'python nn_train_art.py'\n"
+                f"  - For FFN (128-dim): Run 'python nn_train_ffn.py'\n"
+            )
         
         belongs, mahal_distance, min_distance, nearest_class, all_distances = ood_detector.detect(
             features[0], prediction

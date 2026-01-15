@@ -4,8 +4,10 @@ Processes all images in a folder and reports comprehensive results including
 accuracy metrics and OOD rejection statistics.
 """
 
+import os
 from pathlib import Path
 from detection_utils import load_models, predict_image
+from config import Config
 
 def main(folder_path=None):
     """Process all images in a folder for digit detection
@@ -17,9 +19,52 @@ def main(folder_path=None):
     print("MNIST Batch Digit Detector with 2-Stage OOD Detection")
     print("="*80)
     
+    # Check which models are available
+    cnn_available = os.path.exists(Config.MODEL_PATH)
+    art_available = os.path.exists(Config.MODEL_PATH_ART)
+    ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
+    
+    print("\nAvailable trained models:")
+    print(f"  1. CNN  {'✓ Trained' if cnn_available else '✗ Not trained'}")
+    print(f"  2. ART  {'✓ Trained' if art_available else '✗ Not trained'}")
+    print(f"  3. FFN  {'✓ Trained' if ffn_available else '✗ Not trained'}")
+    
+    if not (cnn_available or art_available or ffn_available):
+        print("\n❌ ERROR: No trained models found!")
+        print("Please train at least one model first:")
+        print("  - For CNN: Run 'python nn_train_cnn.py'")
+        print("  - For ART: Run 'python nn_train_art.py'")
+        print("  - For FFN: Run 'python nn_train_ffn.py'")
+        return
+    
+    # Ask user to select model
+    while True:
+        choice = input("\nSelect model to test (1=CNN, 2=ART, 3=FFN): ").strip()
+        
+        if choice == '1':
+            if not cnn_available:
+                print("❌ CNN model not trained. Please run 'python nn_train_cnn.py' first.")
+                continue
+            model_type = 'cnn'
+            break
+        elif choice == '2':
+            if not art_available:
+                print("❌ ART model not trained. Please run 'python nn_train_art.py' first.")
+                continue
+            model_type = 'art'
+            break
+        elif choice == '3':
+            if not ffn_available:
+                print("❌ FFN model not trained. Please run 'python nn_train_ffn.py' first.")
+                continue
+            model_type = 'ffn'
+            break
+        else:
+            print("❌ Invalid choice. Please enter 1, 2, or 3.")
+    
     # Load models
-    print("\nLoading models...")
-    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
+    print(f"\nLoading {model_type.upper()} model...")
+    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models(model_type)
     
     if clf is None:
         return
@@ -63,7 +108,12 @@ def main(folder_path=None):
                 'distance': distance,
                 'rejection_stage': stage
             })
+        except ValueError as e:
+            # Feature dimension mismatch - this is a critical error that affects all images
+            print(f"\n❌ ERROR: {e}")
+            return
         except Exception as e:
+            print(f"Error processing {img_path.name}: {e}")
             results.append({
                 'filename': img_path.name,
                 'prediction': None,
