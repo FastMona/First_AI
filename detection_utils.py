@@ -1,30 +1,98 @@
-# Shared utilities for MNIST digit detection
-# Common functions for model loading, prediction, result formatting, and display
-# Used by: detect.py, detect_batch.py, test_accuracy.py, generate_report.py
+"""Shared utilities for MNIST digit detection.
+
+Provides common functions for model loading, prediction, result formatting, and display.
+Used by: detect.py, detect_batch.py, test_accuracy.py, generate_report.py
+"""
 
 import torch
 import re
+import os
 from torch import load
 from PIL import Image
 from torchvision.transforms import ToTensor
-from nn_model import ImageClassifier
+from nn_model_cnn import ImageClassifier
+from nn_model_art import FuzzyARTClassifier
+from nn_model_ffn import FeedforwardClassifier
 from autoencoder_model import MNISTAutoencoder
 from ood_detector import MahalanobisOODDetector
 from config import Config
 
-def load_models():
+def detect_model_type():
+    """
+    Automatically detect which model type has been trained.
+    
+    Returns:
+        str: 'cnn', 'art', or 'ffn' based on which model exists, or the configured default
+    """
+    # Check which model files exist
+    cnn_exists = os.path.exists(Config.MODEL_PATH)
+    art_exists = os.path.exists(Config.MODEL_PATH_ART)
+    ffn_exists = os.path.exists(Config.MODEL_PATH_FFN)
+    
+    # Priority order if multiple exist: use the configured type first
+    if Config.MODEL_TYPE == 'cnn' and cnn_exists:
+        return 'cnn'
+    elif Config.MODEL_TYPE == 'art' and art_exists:
+        return 'art'
+    elif Config.MODEL_TYPE == 'ffn' and ffn_exists:
+        return 'ffn'
+    
+    # Otherwise, return first available
+    if cnn_exists:
+        return 'cnn'
+    elif art_exists:
+        return 'art'
+    elif ffn_exists:
+        return 'ffn'
+    else:
+        # Default to configured type
+        return Config.MODEL_TYPE
+
+def load_models(model_type=None):
     """
     Load all required models for digit detection.
     
+    Args:
+        model_type: 'cnn', 'art', or 'ffn'. If None, auto-detect from available model files.
+    
     Returns:
-        tuple: (classifier, autoencoder, ood_detector, ae_threshold)
-        Returns (None, None, None, None) if any model fails to load
+        tuple: (classifier, autoencoder, ood_detector, ae_threshold, model_type_used)
+        Returns (None, None, None, None, None) if any model fails to load
     """
     try:
-        # Load classifier
-        clf = ImageClassifier().to(Config.DEVICE)
-        with open(Config.MODEL_PATH, 'rb') as f:
-            clf.load_state_dict(load(f, weights_only=False))
+        # Auto-detect model type if not specified
+        if model_type is None:
+            model_type = detect_model_type()
+        
+        print(f"Loading {model_type.upper()} model...")
+        
+        # Load appropriate classifier
+        if model_type == 'cnn':
+            clf = ImageClassifier().to(Config.DEVICE)
+            with open(Config.MODEL_PATH, 'rb') as f:
+                clf.load_state_dict(load(f, weights_only=False))
+        elif model_type == 'art':
+            clf = FuzzyARTClassifier(
+                input_dim=Config.INPUT_SIZE * Config.INPUT_SIZE,
+                max_categories=Config.ART_MAX_CATEGORIES,
+                vigilance=Config.ART_VIGILANCE,
+                learning_rate=Config.ART_LEARNING_RATE,
+                choice_alpha=Config.ART_CHOICE_ALPHA
+            ).to(Config.DEVICE)
+            with open(Config.MODEL_PATH_ART, 'rb') as f:
+                clf.load_state_dict(load(f, weights_only=False))
+        elif model_type == 'ffn':
+            clf = FeedforwardClassifier(
+                input_size=Config.INPUT_SIZE * Config.INPUT_SIZE,
+                num_classes=Config.NUM_CLASSES,
+                hidden_sizes=Config.FFN_HIDDEN_SIZES,
+                embedding_dim=Config.EMBEDDING_DIM
+            ).to(Config.DEVICE)
+            with open(Config.MODEL_PATH_FFN, 'rb') as f:
+                clf.load_state_dict(load(f, weights_only=False))
+        else:
+            raise ValueError(f"Unknown model type: {model_type}")
+        
         clf.eval()
         
         # Load autoencoder
@@ -38,12 +106,12 @@ def load_models():
         # Load OOD detector
         ood_detector = MahalanobisOODDetector(Config.OOD_PARAMS_PATH)
         
-        return clf, autoencoder, ood_detector, ae_threshold
+        return clf, autoencoder, ood_detector, ae_threshold, model_type
         
     except FileNotFoundError as e:
         print(f"Error loading models: {e}")
-        print("Please train the models first using nn_train.py")
-        return None, None, None, None
+        print(f"Please train the models first using nn_train_cnn.py (CNN), nn_train_art.py (ART), or nn_train_ffn.py (FFN)")
+        return None, None, None, None, None
 
 def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
     """

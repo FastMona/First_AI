@@ -1,5 +1,8 @@
-# Generate markdown report with image thumbnails and results
-# Creates a visual report of test accuracy
+"""Generate markdown report with image thumbnails and results.
+
+Creates a visual report of test accuracy with embedded image thumbnails,
+prediction results, and comprehensive accuracy metrics.
+"""
 
 from pathlib import Path
 from detection_utils import load_models, predict_image, parse_filename
@@ -11,12 +14,12 @@ def main():
     
     # Load models
     print("\nLoading models...")
-    clf, autoencoder, ood_detector, ae_threshold = load_models()
+    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
     
     if clf is None:
         return
     
-    print("✓ All models loaded\n")
+    print(f"✓ All models loaded (Using {model_type.upper()} classifier)\n")
     
     # Get test images
     folder_path = Path("test_images")

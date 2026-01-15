@@ -1,5 +1,8 @@
-# CNN model architecture for MNIST digit classification
-# Shared between training (nn_train.py) and inference (detect.py, detect_batch.py, etc.)
+"""CNN model architecture for MNIST digit classification.
+
+Defines the convolutional neural network architecture shared between training
+(nn_train_cnn.py) and inference (detect.py, detect_batch.py, etc.).
+"""
 
 from torch import nn
 

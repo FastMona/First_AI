@@ -13,8 +13,12 @@ def check_environment():
         import platform
         import subprocess
         
+        # Get Python version
+        python_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+        
         # Check if CUDA is available (optional but good to know)
         cuda_available = torch.cuda.is_available()
+        cuda_version = torch.version.cuda if cuda_available else None
         
         # Check conda environment name
         conda_env = os.environ.get('CONDA_DEFAULT_ENV', 'Unknown')
@@ -63,7 +67,9 @@ def check_environment():
         
         return {
             'conda_env': conda_env,
+            'python_version': python_version,
             'pytorch_version': torch.__version__,
+            'cuda_version': cuda_version,
             'cpu_name': cpu_name,
             'cuda_available': cuda_available,
             'gpu_name': gpu_name
@@ -91,7 +97,12 @@ def print_header(env_info):
     print("="*80)
     
     # Display environment info
-    print(f"\n  Environment: {env_info['conda_env']} | PyTorch: {env_info['pytorch_version']}")
+    print(f"\n  Environment: {env_info['conda_env']}")
+    print(f"  Python: {env_info['python_version']} | PyTorch: {env_info['pytorch_version']}", end="")
+    if env_info['cuda_version']:
+        print(f" | CUDA: {env_info['cuda_version']}")
+    else:
+        print()
     print(f"  CPU: {env_info['cpu_name']}")
     if env_info['cuda_available']:
         print(f"  GPU: {env_info['gpu_name']}")
@@ -103,22 +114,19 @@ def print_header(env_info):
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train Models              - Train CNN classifier and autoencoder       │")
-    print("│  2. Test Accuracy             - Test model accuracy on labeled images      │")
-    print("│  3. Generate Report           - Create markdown report with visualizations │")
+    print("│  1. Train with CNN            - Train CNN classifier and autoencoder       │")
+    print("│  2. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
+    print("│  3. Train with FFN            - Train simple feedforward network (baseline)│")
+    print("│  4. Test Accuracy             - Compare all trained models                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐")
-    print("│  4. Single Image Detection    - Detect digit in one image (detailed)       │")
-    print("│  5. Batch Image Detection     - Process all images in a folder             │")
+    print("│  5. Single Image Detection    - Detect digit in one image (detailed)       │")
+    print("│  6. Batch Image Detection     - Process all images in a folder             │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐")
-    print("│  6. Camera Capture            - Capture images from webcam                 │")
-    print("└────────────────────────────────────────────────────────────────────────────┘")
-    
-    print("\n┌─ VISUALIZATION & ANALYSIS ─────────────────────────────────────────────────┐")
-    print("│  7. Visualize Conditional AE  - Show class-conditional autoencoder         │")
+    print("│  7. Camera Capture            - Capture images from webcam                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ UTILITIES ────────────────────────────────────────────────────────────────┐")
@@ -223,19 +231,19 @@ def main():
         choice = input("\n➤ Select option (0-8): ").strip()
         
         if choice == '1':
-            run_module("nn_train")
+            run_module("nn_train_cnn")
         elif choice == '2':
-            run_module("test_accuracy")
+            run_module("nn_train_art")
         elif choice == '3':
-            run_module("generate_report")
+            run_module("nn_train_ffn")
         elif choice == '4':
-            run_detect()
+            run_module("test_accuracy")
         elif choice == '5':
-            run_detect_batch()
+            run_detect()
         elif choice == '6':
-            run_module("camera")
+            run_detect_batch()
         elif choice == '7':
-            run_module("visualize_conditional_ae")
+            run_module("camera")
         elif choice == '8':
             run_clean_project()
         elif choice == '0':

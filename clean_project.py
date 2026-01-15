@@ -1,6 +1,8 @@
-# Clean project - Remove generated files for a fresh start
-# Removes .pth model files, .md reports, and cache folders
-# Preserves MNIST training data in training_data/ folder
+"""Clean project - Remove generated files for a fresh start.
+
+Removes .pth model files, .md reports, and cache folders while preserving
+MNIST training data in training_data/ folder.
+"""
 
 import os
 import shutil
@@ -23,9 +25,22 @@ def clean_project(interactive=True):
     files_to_remove = []
     folders_to_remove = []
     
-    # Find .pth files (model checkpoints)
+    # Find .pth files (model checkpoints - includes both CNN and ART models)
     pth_files = list(workspace.glob("*.pth"))
     files_to_remove.extend(pth_files)
+    
+    # Explicitly check for all model files
+    model_files_found = []
+    if Path('model_state.pth').exists():
+        model_files_found.append('model_state.pth (CNN)')
+    if Path('model_state_art.pth').exists():
+        model_files_found.append('model_state_art.pth (ART)')
+    if Path('model_state_ffn.pth').exists():
+        model_files_found.append('model_state_ffn.pth (FFN)')
+    if Path('autoencoder.pth').exists():
+        model_files_found.append('autoencoder.pth')
+    if Path('ood_params.pth').exists():
+        model_files_found.append('ood_params.pth')
     
     # Find .md files (reports)
     md_files = list(workspace.glob("*.md"))
@@ -47,9 +62,18 @@ def clean_project(interactive=True):
     
     if files_to_remove:
         print("\n📄 Files:")
+        if model_files_found:
+            print("  Model files:")
+            for model_name in model_files_found:
+                filename = model_name.split(' (')[0]
+                if Path(filename).exists():
+                    size = Path(filename).stat().st_size / 1024
+                    print(f"    - {model_name} ({size:.1f} KB)")
+        print("  Other files:")
         for f in sorted(files_to_remove):
-            size = f.stat().st_size / 1024  # KB
-            print(f"  - {f.name} ({size:.1f} KB)")
+            if f.name not in ['model_state.pth', 'model_state_art.pth', 'model_state_ffn.pth', 'autoencoder.pth', 'ood_params.pth']:
+                size = f.stat().st_size / 1024  # KB
+                print(f"    - {f.name} ({size:.1f} KB)")
     else:
         print("  No files to remove")
     
@@ -116,8 +140,10 @@ def clean_project(interactive=True):
     
     # Show next steps
     print("\nNEXT STEPS:")
-    print("  1. Run 'python nn_train.py' to train fresh models")
-    print("  2. Run 'python test_accuracy.py' to evaluate performance")
+    print("  1. Train models via dashboard:")
+    print("     - Option 1: Train with CNN")
+    print("     - Option 2: Train with ART")
+    print("  2. Run 'python test_accuracy.py' to compare both models")
     print("  3. Run 'python generate_report.py' to create visual report")
     print("\n💡 To also remove MNIST data, delete the training_data/ folder manually")
     print("   (This will require re-downloading ~10MB on next training)")

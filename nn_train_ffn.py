@@ -1,7 +1,7 @@
-"""Training program for CNN (Convolutional Neural Network) and autoencoder.
+"""Training program for FFN (Feedforward Neural Network) and autoencoder.
 
-Trains digit classifier, class-conditional autoencoder, and computes OOD detection
-parameters (Mahalanobis distance thresholds).
+Trains simple MLP classifier, class-conditional autoencoder, and computes OOD
+detection parameters for baseline comparison.
 """
 
 import torch
@@ -12,7 +12,7 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-from nn_model_cnn import ImageClassifier
+from nn_model_ffn import FeedforwardClassifier
 from autoencoder_model import MNISTAutoencoder
 
 # Load MNIST dataset
@@ -45,7 +45,7 @@ test_loader = DataLoader(test, batch_size=BATCH_SIZE, shuffle=False,
                         num_workers=NUM_WORKERS, pin_memory=True, persistent_workers=True)
 
 # Initialize model, optimizer, and loss function
-clf = ImageClassifier().to('cuda')
+clf = FeedforwardClassifier(input_size=784, hidden_sizes=[512, 256], embedding_size=128, num_classes=10).to('cuda')
 opt = Adam(clf.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
@@ -59,7 +59,7 @@ print(f"  • Mixed precision: True (fp16 for 2-3x speedup)")
 print()
 
 def main():
-    """Main training function for CNN classifier and autoencoder"""
+    """Main training function for FFN classifier and autoencoder"""
     best_test_loss = float('inf')
     patience = 3
     patience_counter = 0
@@ -119,7 +119,7 @@ def main():
         if test_loss < best_test_loss:
             best_test_loss = test_loss
             patience_counter = 0
-            with open('model_state.pth', 'wb') as f:
+            with open('model_state_ffn.pth', 'wb') as f:
                 save(clf.state_dict(), f)
             print(f"  ✓ New best model saved (test loss: {test_loss:.6f})")
         else:
@@ -179,7 +179,6 @@ def main():
     
     all_features_centered = torch.cat(all_features_centered, dim=0)
     
-    # Use diagonal covariance matrix (assumes feature independence for efficiency)
     # Diagonal approach: much faster than full covariance with acceptable accuracy
     variance = torch.var(all_features_centered, dim=0)
     variance += 1e-4  # Regularization to prevent division by zero
@@ -255,8 +254,7 @@ def main():
         'class_thresholds_99': class_thresholds_99,  # Per-class thresholds
         'class_mean_distances': class_mean_distances,
         'class_std_distances': class_std_distances,
-        # Keep global stats for backward compatibility
-        'threshold_95': global_threshold_95,
+        'threshold_95': global_threshold_95,  # Global threshold for reference
         'mean_distance': global_mean,
     }
     
@@ -374,9 +372,22 @@ def main():
             'std_error': recon_std
         }, f)
     
-    print(f"\n✓ Autoencoder saved to autoencoder.pth")
-    print(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
-    print("  - Use as first gate before digit classifier")
+    print(f"✓ Autoencoder saved to autoencoder.pth")
+    print(f"  Default threshold: {recon_threshold_95:.6f} (95th percentile)")
+    print("="*60)
+    
+    print("\n" + "="*60)
+    print("TRAINING COMPLETE!")
+    print("="*60)
+    print("All models and parameters saved:")
+    print("  ✓ model_state_ffn.pth - FFN classifier")
+    print("  ✓ autoencoder.pth - Class-conditional autoencoder")
+    print("  ✓ ood_params.pth - OOD detection parameters")
+    print("\nNext steps:")
+    print("  1. Test accuracy: python test_accuracy.py")
+    print("  2. Single image: python detect.py <image_path>")
+    print("  3. Batch detect: python detect_batch.py <folder_path>")
+    print("  4. Generate report: python generate_report.py")
     print("="*60)
 
 if __name__ == "__main__":

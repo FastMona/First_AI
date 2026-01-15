@@ -1,5 +1,8 @@
-# Test and visualize class-conditional thresholds
-# Shows threshold differences and tests rejection behavior
+"""Test and visualize class-conditional thresholds.
+
+Shows threshold differences across digit classes and tests OOD rejection
+behavior with noisy samples and non-digit images.
+"""
 
 import torch
 import numpy as np

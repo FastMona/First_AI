@@ -1,5 +1,7 @@
-# Camera-based image capture for MNIST model testing
-# Captures images from webcam and saves them in the correct format
+"""Camera-based image capture for MNIST model testing.
+
+Captures images from webcam and saves them in the correct format for MNIST model testing.
+"""
 
 import cv2
 import numpy as np

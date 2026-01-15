@@ -1,5 +1,8 @@
-# Batch digit detection for MNIST model
-# Processes all images in a folder and reports results
+"""Batch digit detection for MNIST model.
+
+Processes all images in a folder and reports comprehensive results including
+accuracy metrics and OOD rejection statistics.
+"""
 
 from pathlib import Path
 from detection_utils import load_models, predict_image
@@ -16,10 +19,12 @@ def main(folder_path=None):
     
     # Load models
     print("\nLoading models...")
-    clf, autoencoder, ood_detector, ae_threshold = load_models()
+    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
     
     if clf is None:
         return
+    
+    print(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
     
     # Get folder path
     if folder_path is None:

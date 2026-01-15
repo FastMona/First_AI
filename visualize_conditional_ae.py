@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 from autoencoder_model import MNISTAutoencoder
-from nn_model import ImageClassifier
+from nn_model_cnn import ImageClassifier
 import numpy as np
 
 def visualize_conditional_reconstruction(autoencoder, classifier, test_dataset, num_samples=5):

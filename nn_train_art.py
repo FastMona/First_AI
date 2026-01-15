@@ -1,5 +1,8 @@
-# Training program for Fuzzy ART (Adaptive Resonance Theory) and autoencoder
-# Trains ART classifier, autoencoder, and computes OOD detection parameters
+"""Training program for Fuzzy ART (Adaptive Resonance Theory) and autoencoder.
+
+Trains ART classifier, class-conditional autoencoder, and computes OOD detection
+parameters using template matching and vigilance-based learning.
+"""
 
 import torch
 import numpy as np
@@ -8,7 +11,7 @@ from torch import nn, save, load
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets
 from torchvision.transforms import ToTensor
-from nn_model2 import FuzzyARTClassifier
+from nn_model_art import FuzzyARTClassifier
 from autoencoder_model import MNISTAutoencoder
 from config import Config
 

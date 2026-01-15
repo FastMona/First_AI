@@ -1,5 +1,8 @@
-# Out-of-Distribution detector using Mahalanobis distance
-# Provides "belongs / doesn't belong" signal for MNIST digit classification
+"""Out-of-Distribution detector using Mahalanobis distance.
+
+Provides 'belongs / doesn't belong' signal for MNIST digit classification
+using class-conditional Mahalanobis distance to feature prototypes.
+"""
 
 import torch
 import numpy as np

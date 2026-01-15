@@ -1,6 +1,8 @@
-# Single-image digit detection program for MNIST model
-# Interactive interface with detailed two-stage OOD detection output
-# Uses shared utilities from detection_utils.py
+"""Single-image digit detection program for MNIST model.
+
+Provides interactive interface with detailed two-stage OOD detection output.
+Uses shared utilities from detection_utils.py for model loading and predictions.
+"""
 
 from detection_utils import (load_models, predict_image, format_detection_result, 
                             print_separator, print_header)
@@ -16,12 +18,12 @@ def main(image_path=None):
     
     # Load models
     print("\nLoading models...")
-    clf, autoencoder, ood_detector, ae_threshold = load_models()
+    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
     
     if clf is None:
         return
     
-    print("✓ All models loaded successfully!")
+    print(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
     
     # Get image filename from user or parameter
     print_separator('-')

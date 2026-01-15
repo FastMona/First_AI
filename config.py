@@ -1,5 +1,8 @@
-# Configuration file for MNIST digit detection project
-# Centralizes all magic numbers, paths, and hyperparameters
+"""Configuration file for MNIST digit detection project.
+
+Centralizes all magic numbers, paths, and hyperparameters to provide
+a single source of truth for the entire project.
+"""
 
 import torch
 
@@ -41,8 +44,23 @@ class Config:
     # Autoencoder architecture
     AE_HIDDEN_LAYERS = [256, 128]  # Encoder/decoder hidden layers
     
+    # Fuzzy ART parameters
+    ART_MAX_CATEGORIES = 100  # Maximum number of category nodes
+    ART_VIGILANCE = 0.75      # Vigilance parameter (0-1, higher = more specific)
+    ART_LEARNING_RATE = 0.5   # Template update rate
+    ART_CHOICE_ALPHA = 0.001  # Choice parameter for category selection
+    
+    # FFN (Feedforward Network) parameters
+    FFN_HIDDEN_SIZES = [512, 256]  # Hidden layer sizes for simple MLP
+    
+    # Model selection
+    MODEL_TYPE = 'cnn'  # Options: 'cnn', 'art', or 'ffn'
+    
     # Model file paths
-    MODEL_PATH = 'model_state.pth'
+    MODEL_PATH = 'model_state.pth'          # Legacy CNN path
+    MODEL_PATH_CNN = 'model_state_cnn.pth'  # CNN model
+    MODEL_PATH_ART = 'model_state_art.pth'  # ART model
+    MODEL_PATH_FFN = 'model_state_ffn.pth'  # FFN model
     AUTOENCODER_PATH = 'autoencoder.pth'
     OOD_PARAMS_PATH = 'ood_params.pth'
     

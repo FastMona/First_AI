@@ -1,5 +1,8 @@
-# Adaptive Resonance Theory (Fuzzy ART) model for MNIST digit classification
-# Alternative architecture to the CNN in nn_model.py
+"""Adaptive Resonance Theory (Fuzzy ART) model for MNIST digit classification.
+
+Provides an alternative architecture to the CNN, using biologically-inspired
+template matching with vigilance-based resonance search.
+"""
 
 import torch
 from torch import nn

@@ -1,22 +1,28 @@
-# Automated accuracy test for MNIST digit detector
-# Tests against labeled images in test_images folder
+"""Automated accuracy test for MNIST digit detector.
+
+Tests against labeled images in test_images folder and compares all available
+models: CNN, ART, and FFN.
+"""
 
 from pathlib import Path
+import os
 from detection_utils import load_models, predict_image, parse_filename
 
-def main():
-    print("="*80)
-    print("AUTOMATED ACCURACY TEST - MNIST Digit Detector")
+def test_single_model(model_name, model_type_override=None):
+    """Test a single model and return results"""
+    print(f"\n{'='*80}")
+    print(f"Testing {model_name} Model")
     print("="*80)
     
     # Load models
     print("\nLoading models...")
-    clf, autoencoder, ood_detector, ae_threshold = load_models()
+    clf, autoencoder, ood_detector, ae_threshold, model_type = load_models(model_type=model_type_override)
     
     if clf is None:
-        return
+        print(f"\n⚠️  {model_name} model not trained yet. Skipping.")
+        return None
     
-    print("✓ All models loaded successfully\n")
+    print(f"✓ All models loaded successfully (Using {model_type.upper()} classifier)\n")
     
     # Get test images
     folder_path = "test_images"
@@ -27,7 +33,7 @@ def main():
     
     if not image_files:
         print(f"No images found in {folder_path}")
-        return
+        return None
     
     print(f"Testing on {len(image_files)} images from {folder_path}...")
     print("="*80)
@@ -140,15 +146,127 @@ def main():
     
     # Final verdict
     if overall_accuracy >= 90:
-        print("✓ EXCELLENT PERFORMANCE!")
+        verdict = "✓ EXCELLENT PERFORMANCE!"
     elif overall_accuracy >= 75:
-        print("✓ GOOD PERFORMANCE")
+        verdict = "✓ GOOD PERFORMANCE"
     elif overall_accuracy >= 60:
-        print("⚠ MODERATE PERFORMANCE - Room for improvement")
+        verdict = "⚠ MODERATE PERFORMANCE - Room for improvement"
     else:
-        print("✗ POOR PERFORMANCE - Needs tuning")
+        verdict = "✗ POOR PERFORMANCE - Needs tuning"
     
+    print(verdict)
     print("="*80)
+    
+    # Return summary for comparison
+    return {
+        'model_name': model_name,
+        'total_samples': total_samples,
+        'correct_digits': correct_digits,
+        'total_digits': len(digit_samples),
+        'correct_rejections': correct_rejections,
+        'total_ood': len(ood_samples),
+        'overall_accuracy': overall_accuracy,
+        'digit_accuracy': digit_accuracy if digit_samples else 0,
+        'ood_accuracy': ood_accuracy if ood_samples else 0,
+        'verdict': verdict
+    }
+
+def main():
+    """Main function - tests all available models: CNN, ART, and FFN"""
+    print("="*80)
+    print("AUTOMATED ACCURACY TEST - MNIST Digit Detector")
+    print("="*80)
+    
+    # Check which models are available
+    cnn_available = os.path.exists('model_state.pth')
+    art_available = os.path.exists('model_state_art.pth')
+    ffn_available = os.path.exists('model_state_ffn.pth')
+    
+    if not cnn_available and not art_available and not ffn_available:
+        print("\n⚠️  No trained models found!")
+        print("\nPlease train a model first:")
+        print("  - Option 1: Train with CNN")
+        print("  - Option 2: Train with ART")
+        print("  - Option 3: Train with FFN")
+        return
+    
+    results = []
+    
+    # Test CNN if available
+    if cnn_available:
+        result = test_single_model("CNN", model_type_override='cnn')
+        if result:
+            results.append(result)
+    else:
+        print("\n⚠️  CNN model (model_state.pth) not found. Skipping CNN test.")
+    
+    # Test ART if available
+    if art_available:
+        result = test_single_model("ART", model_type_override='art')
+        if result:
+            results.append(result)
+    else:
+        print("\n⚠️  ART model (model_state_art.pth) not found. Skipping ART test.")
+    
+    # Test FFN if available
+    if ffn_available:
+        result = test_single_model("FFN", model_type_override='ffn')
+        if result:
+            results.append(result)
+    else:
+        print("\n⚠️  FFN model (model_state_ffn.pth) not found. Skipping FFN test.")
+    
+    # Comparison summary if multiple models were tested
+    if len(results) >= 2:
+        print("\n" + "="*80)
+        print("MODEL COMPARISON SUMMARY")
+        print("="*80)
+        
+        # Create header
+        header_parts = ['Metric']
+        for r in results:
+            header_parts.append(r['model_name'])
+        
+        print(f"\n{header_parts[0]:<30}", end='')
+        for i in range(1, len(header_parts)):
+            print(f"{header_parts[i]:<20}", end='')
+        print()
+        print("-"*80)
+        
+        # Overall accuracy
+        print(f"{'Overall Accuracy:':<30}", end='')
+        for r in results:
+            print(f"{r['overall_accuracy']:<19.1f}%", end='')
+        print()
+        
+        # Digit classification
+        print(f"{'Digit Classification:':<30}", end='')
+        for r in results:
+            print(f"{r['digit_accuracy']:<19.1f}%", end='')
+        print()
+        
+        # OOD detection
+        print(f"{'OOD Detection:':<30}", end='')
+        for r in results:
+            print(f"{r['ood_accuracy']:<19.1f}%", end='')
+        print()
+        
+        print("\n" + "-"*80)
+        
+        # Determine winner
+        best_model = max(results, key=lambda x: x['overall_accuracy'])
+        best_accuracy = best_model['overall_accuracy']
+        
+        # Check if there's a tie
+        winners = [r for r in results if r['overall_accuracy'] == best_accuracy]
+        
+        if len(winners) == 1:
+            print(f"\n🏆 Winner: {best_model['model_name']} (best overall accuracy: {best_accuracy:.1f}%)")
+        else:
+            winner_names = ', '.join([w['model_name'] for w in winners])
+            print(f"\n🤝 Tie: {winner_names} (tied at {best_accuracy:.1f}%)")
+        
+        print("="*80)
 
 if __name__ == "__main__":
     main()
