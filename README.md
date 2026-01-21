@@ -2,16 +2,19 @@
 
 ## Project Overview
 
-This project implements a convolutional neural network for MNIST digit classification with advanced out-of-distribution (OOD) detection capabilities. The system accurately classifies handwritten digits (0-9) while rejecting non-digit inputs (letters, symbols, corrupted images) through a **two-stage validation process**:
+This project implements **three different classifier architectures** (CNN, FFN, and Fuzzy ART) for MNIST digit classification with advanced out-of-distribution (OOD) detection capabilities. The system accurately classifies handwritten digits (0-9) while rejecting non-digit inputs (letters, symbols, corrupted images) through a **two-stage validation process**:
 
 1. **Stage 1 - Reconstruction Gate**: Class-conditional autoencoder checks if input can be reconstructed as the predicted digit
 2. **Stage 2 - Prototype Distance**: Mahalanobis distance verifies input is close to digit class prototypes
 
-The project features a **maintainable, modular codebase** with centralized configuration and shared utilities.
+The project features a **maintainable, modular codebase** with centralized configuration and shared utilities, allowing easy comparison between traditional neural networks (CNN, FFN) and biologically-inspired architectures (Fuzzy ART).
 
 ## Key Features
 
-- ✅ CNN (Convolutional Neural Network) -based digit classifier with early stopping
+- ✅ **Three classifier architectures for comparison**:
+  - CNN (Convolutional Neural Network) with early stopping
+  - FFN (Feedforward Neural Network / MLP) baseline
+  - Fuzzy ART (Adaptive Resonance Theory) biologically-inspired classifier
 - ✅ **Class-Conditional Autoencoder** - Biological perception model
 - ✅ Two-stage OOD detection:
   - **Stage 1**: Class-conditional reconstruction error (rejects non-reconstructible inputs)
