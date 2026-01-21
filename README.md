@@ -72,15 +72,17 @@ The dashboard provides easy access to all project functionalities through an int
 
 David Cronin
 <cronind@sympatico.ca>
-December 2025
+January 2026
 
 ## Python Programs
 
 ### Core Training & Models
 
-#### `nn_train.py`
+The project includes **three different classifier architectures** for comparison:
 
-Main training script that:
+#### `nn_train_cnn.py`
+
+CNN training script that:
 
 - Trains the CNN digit classifier on MNIST dataset (10 epochs max)
 - Implements early stopping with patience=3 (monitors test loss)
@@ -89,15 +91,51 @@ Main training script that:
 - Calibrates OOD thresholds at 90th/95th/99th percentiles (validation data)
 - Saves all trained models and parameters (`.pth` files)
 
-**Usage**: `python nn_train.py`
+**Usage**: `python nn_train_cnn.py`
 
-#### `nn_model.py`
+#### `nn_train_ffn.py`
+
+Feedforward network training script (baseline comparison):
+
+- Trains simple MLP (Multi-Layer Perceptron) classifier
+- Same training pipeline as CNN but with fully-connected layers
+- Provides baseline performance for comparison
+
+**Usage**: `python nn_train_ffn.py`
+
+#### `nn_train_art.py`
+
+Fuzzy ART (Adaptive Resonance Theory) training script:
+
+- Trains biologically-inspired template matching classifier
+- Uses vigilance-based resonance search
+- Stable incremental learning without catastrophic forgetting
+
+**Usage**: `python nn_train_art.py`
+
+#### `nn_model_cnn.py`
 
 CNN model architecture for digit classification:
 
 - 3 convolutional layers with ReLU activation
 - Feature extraction and classification layers separated
 - Provides `get_features()` method for OOD detection
+
+#### `nn_model_ffn.py`
+
+Feedforward Neural Network (MLP) architecture:
+
+- Fully-connected layers: 784 → 512 → 256 → 128 → 10
+- Simple baseline for comparison against CNN and ART
+- Uses same 128-dim embedding for consistent OOD detection
+
+#### `nn_model_art.py`
+
+Fuzzy ART classifier architecture:
+
+- Complement coding for pattern matching
+- Dynamic category growth with vigilance parameter
+- Template-based learning with resonance search
 
 #### `autoencoder_model.py`
 
@@ -223,6 +261,17 @@ Visual markdown report generator:
 
 **Usage**: `python generate_report.py`
 
+#### `test_class_thresholds.py`
+
+Class-conditional threshold analysis tool:
+
+- Displays per-class threshold information (90th/95th/99th percentiles)
+- Shows mean distances and standard deviations for each digit class
+- Tests OOD rejection with noisy samples and non-digit images
+- Visualizes threshold differences across classes
+
+**Usage**: `python test_class_thresholds.py`
+
 ### Utilities
 
 #### `dashboard.py`
@@ -231,7 +280,8 @@ Interactive menu system for all project functionality:
 
 - Easy navigation to all features
 - Environment validation (checks PyTorch, CUDA)
-- Training, detection, testing, and visualization options
+- **Three training options**: FFN (baseline), CNN (standard), ART (biological)
+- Detection, testing, and visualization options
 - Integrated cleanup utility
 
 **Usage**: `python dashboard.py` (Recommended entry point)
@@ -261,11 +311,15 @@ Project cleanup utility:
 ## Workflow
 
 ### 1. Training
+Choose one of the three training options:
 
 ```bash
-python nn_train.py
+python nn_train_cnn.py   # Train CNN classifier (recommended)
+python nn_train_ffn.py   # Train FFN classifier (baseline)
+python nn_train_art.py   # Train ART classifier (biological)
 ```
 
+Each
 This generates:
 
 - `model_state.pth` - Trained classifier weights
@@ -293,14 +347,19 @@ python clean_project.py          # Remove generated files
 ```
 
 ## Directory Structure
-
-```text
-pytorch_env/
-├── config.py                   # Centralized configuration
-├── nn_train.py                 # Main training script
-├── nn_model.py                 # CNN architecture
+_cnn.py             # CNN training script
+├── nn_train_ffn.py             # FFN training script (baseline)
+├── nn_train_art.py             # ART training script (biological)
+├── nn_model_cnn.py             # CNN architecture
+├── nn_model_ffn.py             # FFN (MLP) architecture
+├── nn_model_art.py             # Fuzzy ART architecture
 ├── autoencoder_model.py        # Class-conditional autoencoder
 ├── ood_detector.py             # Mahalanobis OOD detector (Stage 2)
+├── detection_utils.py          # Shared utilities
+├── detect.py                   # Single image detection
+├── detect_batch.py             # Batch detection
+├── test_accuracy.py            # Accuracy testing
+├── test_class_thresholds.py    # Threshold analysisdetector (Stage 2)
 ├── detection_utils.py          # Shared utilities
 ├── detect.py                   # Single image detection
 ├── detect_batch.py             # Batch detection
@@ -344,13 +403,31 @@ conda activate pytorch
 ```
 
 ### 4. VS Code Setup
+Three Classifier Architectures
 
-Set the Python interpreter to:
+#### CNN Classifier (Recommended)
 
-```text
-C:\Users\David\Miniconda3\envs\pytorch\python.exe
-```
+- **Input**: 28×28 grayscale images
+- **Convolutional layers**: 3 layers (32→64→64 channels, 3×3 kernels)
+- **Embedding layer**: 128-dimensional feature vector (penultimate layer)
+- **Output**: 10-class softmax (digits 0-9)
+- **Total parameters**: ~150K
 
+#### FFN Classifier (Baseline)
+
+- **Input**: 28×28 flattened to 784 dimensions
+- **Hidden layers**: 784 → 512 → 256
+- **Embedding layer**: 128-dimensional feature vector
+- **Output**: 10-class softmax
+- **Total parameters**: ~550K (more than CNN but less effective)
+
+#### ART Classifier (Biological)
+
+- **Input**: 28×28 flattened to 784 dimensions with complement coding
+- **Category layer**: Dynamically grown templates (max 500 categories)
+- **Learning**: Template matching with vigilance parameter (ρ = 0.7)
+- **Output**: Category resonance → class mapping
+- **Characteristics**: Stable incremental learning, no catastrophic forgetting
 ## Model Architecture Details
 
 ### CNN Classifier
@@ -456,7 +533,16 @@ The system reports comprehensive accuracy metrics:
 
 - **Stage 1 Rejections**: Count rejected by autoencoder (reconstruction error)
 - **Stage 2 Rejections**: Count rejected by Mahalanobis distance
-- **Stage Distribution**: Where in the pipeline samples are caught
+- **Stage Changes
+
+### January 2026 - Multiple Architecture Support
+
+✅ **Three Classifier Options** - Added FFN and ART architectures for comparison
+✅ **Unified Training Pipeline** - All three architectures share same OOD detection system
+✅ **Dashboard Enhancement** - Updated menu to support all three training options
+✅ **Threshold Analysis Tool** - Added `test_class_thresholds.py` for per-class analysis
+
+### December 2025 - Code Quality Improvementse pipeline samples are caught
 
 ### Threshold Calibration
 
