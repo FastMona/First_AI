@@ -81,6 +81,9 @@ def main():
             print("Error: No camera found")
             return
     
+    # Set camera properties for better responsiveness
+    cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    
     print("\n" + "="*60)
     print("MNIST Image Capture Tool")
     print("="*60)
@@ -88,47 +91,57 @@ def main():
     print("  1. Write a digit (0-9) on WHITE PAPER with a DARK pen")
     print("  2. Hold it up to the camera")
     print("  3. Press SPACE to capture and save as img_X.jpg")
-    print("  4. Press 'Q' to quit")
+    print("  4. Press 'Q' or 'ESC' to quit")
     print(f"\nNext image will be saved as: img_{img_counter}.jpg")
     print("Preprocessing steps will be shown continuously.")
     print("="*60 + "\n")
     
-    while True:
-        # Capture frame
-        ret, frame = cap.read()
-        if not ret:
-            print("Error: Failed to capture frame")
-            break
-        
-        # Display the camera feed
-        cv2.imshow('Camera Feed - Press SPACE to capture', frame)
-        
-        # Always show preprocessing in real-time
-        processed = preprocess_for_mnist(frame, show_steps=True)
-        
-        # Wait for key press
-        key = cv2.waitKey(1) & 0xFF
-        
-        if key == ord('q'):
-            # Quit
-            break
-        elif key == ord(' '):
-            # Space bar: capture and save
-            print(f"\nCapturing and saving img_{img_counter}.jpg...")
+    try:
+        while True:
+            # Capture frame
+            ret, frame = cap.read()
+            if not ret:
+                print("Error: Failed to capture frame")
+                break
             
-            # Save the processed image
-            filename = f'img_{img_counter}.jpg'
-            cv2.imwrite(filename, processed)
-            print(f"Saved: {filename}")
+            # Display the camera feed
+            cv2.imshow('Camera Feed - Press SPACE to capture', frame)
             
-            # Increment counter for next image
-            img_counter += 1
-            print(f"Next image will be: img_{img_counter}.jpg")
+            # Always show preprocessing in real-time
+            processed = preprocess_for_mnist(frame, show_steps=True)
+            
+            # Wait for key press (increase to 30ms for better responsiveness)
+            key = cv2.waitKey(30) & 0xFF
+            
+            if key == ord('q') or key == ord('Q') or key == 27:  # 27 is ESC key
+                # Quit
+                print("\nQuitting...")
+                break
+            elif key == ord(' '):
+                # Space bar: capture and save
+                print(f"\nCapturing and saving img_{img_counter}.jpg...")
+                
+                # Save the processed image
+                filename = f'img_{img_counter}.jpg'
+                cv2.imwrite(filename, processed)
+                print(f"Saved: {filename}")
+                
+                # Increment counter for next image
+                img_counter += 1
+                print(f"Next image will be: img_{img_counter}.jpg")
     
-    # Cleanup
-    cap.release()
-    cv2.destroyAllWindows()
-    print("\nCamera closed. Goodbye!")
+    except KeyboardInterrupt:
+        print("\n\nInterrupted by user (Ctrl+C)")
+    except Exception as e:
+        print(f"\n\nError occurred: {e}")
+    finally:
+        # Cleanup - ensure this always runs
+        print("\nCleaning up...")
+        cap.release()
+        cv2.destroyAllWindows()
+        # Force window destruction with a small delay
+        cv2.waitKey(1)
+        print("Camera closed. Goodbye!")
 
 if __name__ == "__main__":
     main()
