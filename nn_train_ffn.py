@@ -50,7 +50,7 @@ opt = Adam(clf.parameters(), lr=1e-3)
 loss_fn = nn.CrossEntropyLoss()
 
 # Mixed precision training for better GPU utilization and faster training
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.amp.GradScaler('cuda')
 print("\n🚀 GPU Optimization enabled:")
 print(f"  • Batch size: {BATCH_SIZE} (4x larger for better parallelization)")
 print(f"  • Data workers: {NUM_WORKERS} (parallel CPU data loading)")
