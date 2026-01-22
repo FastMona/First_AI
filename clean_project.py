@@ -48,6 +48,10 @@ def clean_project(interactive=True):
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
     files_to_remove.extend(md_files)
     
+    # Find .txt log files (dashboard_log.txt)
+    txt_files = list(workspace.glob("dashboard_log.txt"))
+    files_to_remove.extend(txt_files)
+    
     # Find .png files (generated visualizations/plots)
     png_files = list(workspace.glob("*.png"))
     files_to_remove.extend(png_files)

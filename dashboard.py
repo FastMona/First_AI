@@ -5,6 +5,64 @@ Central console for accessing all project functionalities
 
 import sys
 import os
+from datetime import datetime
+
+# Log file for terminal output
+LOG_FILE = "dashboard_log.txt"
+
+class TeeOutput:
+    """Class to write to both file and terminal"""
+    def __init__(self, file_obj, original_stream):
+        self.file_obj = file_obj
+        self.original_stream = original_stream
+    
+    def write(self, text):
+        self.file_obj.write(text)
+        self.file_obj.flush()
+        self.original_stream.write(text)
+        self.original_stream.flush()
+    
+    def flush(self):
+        self.file_obj.flush()
+        self.original_stream.flush()
+
+def setup_logging():
+    """Setup terminal output logging to file"""
+    try:
+        # Open log file in append mode
+        log_file = open(LOG_FILE, 'a', encoding='utf-8')
+        
+        # Write session header
+        log_file.write("\n" + "="*80 + "\n")
+        log_file.write(f"Dashboard Session Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        log_file.write("="*80 + "\n\n")
+        log_file.flush()
+        
+        # Redirect stdout and stderr to both file and console
+        sys.stdout = TeeOutput(log_file, sys.__stdout__)
+        sys.stderr = TeeOutput(log_file, sys.__stderr__)
+        
+        return log_file
+    except Exception as e:
+        print(f"Warning: Could not setup logging: {e}")
+        return None
+
+def close_logging(log_file):
+    """Close log file and restore stdout/stderr"""
+    try:
+        if log_file:
+            # Write session footer
+            log_file.write("\n" + "="*80 + "\n")
+            log_file.write(f"Dashboard Session Ended: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            log_file.write("="*80 + "\n\n")
+            
+            # Restore original stdout/stderr
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+            
+            log_file.close()
+    except Exception as e:
+        print(f"Warning: Could not close logging: {e}")
 
 def check_environment():
     """Check if running in the correct PyTorch environment and return environment info"""
@@ -216,48 +274,65 @@ def run_detect_batch():
 
 def main():
     """Main dashboard loop"""
+    # Setup logging
+    log_file = setup_logging()
+    
     # Check environment at startup
     env_info = check_environment()
     
-    while True:
-        clear_screen()
-        print_header(env_info)
-        print_menu()
-        
-        choice = input("\n➤ Select option (0-8): ").strip()
-        
-        if choice == '1':
-            run_module("nn_train_ffn")
-        elif choice == '2':
-            run_module("nn_train_cnn")
-        elif choice == '3':
-            run_module("nn_train_art")
-        elif choice == '4':
-            run_module("test_accuracy")
-        elif choice == '5':
-            run_detect()
-        elif choice == '6':
-            run_detect_batch()
-        elif choice == '7':
-            run_module("camera")
-        elif choice == '8':
-            run_clean_project()
-        elif choice == '0':
+    try:
+        while True:
             clear_screen()
-            print("\n" + "="*80)
-            print("  Thank you for using MNIST Digit Recognition System!".center(80))
-            print("="*80 + "\n")
-            sys.exit(0)
-        else:
-            print("\n❌ Invalid option. Please select 0-8.")
-            input("Press Enter to continue...")
+            print_header(env_info)
+            print_menu()
+            
+            choice = input("\n➤ Select option (0-8): ").strip()
+            
+            if choice == '1':
+                run_module("nn_train_ffn")
+            elif choice == '2':
+                run_module("nn_train_cnn")
+            elif choice == '3':
+                run_module("nn_train_art")
+            elif choice == '4':
+                run_module("test_accuracy")
+            elif choice == '5':
+                run_detect()
+            elif choice == '6':
+                run_detect_batch()
+            elif choice == '7':
+                run_module("camera")
+            elif choice == '8':
+                run_module("clean_project")
+            elif choice == '0':
+                close_logging(log_file)
+                clear_screen()
+                print("\n" + "="*80)
+                print("  Thank you for using MNIST Digit Recognition System!".center(80))
+                print("="*80 + "\n")
+                sys.exit(0)
+            else:
+                print("\n❌ Invalid option. Please select 0-8.")
+                input("Press Enter to continue...")
+    except KeyboardInterrupt:
+        close_logging(log_file)
+        clear_screen()
+        print("\n" + "="*80)
+        print("  Goodbye!".center(80))
+        print("="*80 + "\n")
 
 if __name__ == "__main__":
+    log_file = None
     try:
         main()
     except KeyboardInterrupt:
+        close_logging(log_file)
         clear_screen()
         print("\n\n" + "="*80)
         print("  Dashboard closed.".center(80))
         print("="*80 + "\n")
         sys.exit(0)
+    except Exception as e:
+        close_logging(log_file)
+        print(f"\nError: {e}")
+        sys.exit(1)

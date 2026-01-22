@@ -1,0 +1,231 @@
+
+================================================================================
+Dashboard Session Started: 2026-01-21 20:31:52
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+❌ Invalid option. Please select 0-8.
+Press Enter to continue...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+❌ Invalid option. Please select 0-8.
+Press Enter to continue...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+❌ Invalid option. Please select 0-8.
+Press Enter to continue...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+================================================================================
+Dashboard Session Started: 2026-01-21 20:34:29
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+CLEAN PROJECT - Remove Generated Files
+================================================================================
+
+Files to be removed:
+--------------------------------------------------------------------------------
+
+📄 Files:
+  Other files:
+    - dashboard_log.txt (16.2 KB)
+
+📁 Folders:
+  - __pycache__ (8.7 KB)
+
+================================================================================
+PRESERVED (NOT deleted):
+--------------------------------------------------------------------------------
+  ✓ training_data/ folder (MNIST training data)
+  ✓ test_images/ folder (if exists)
+  ✓ README.md (if exists)
+  ✓ All Python source files (.py)
+================================================================================
+
+⚠️  WARNING: This action cannot be undone!
+Do you want to proceed? (yes/no): 
+================================================================================
+CLEANING...
+--------------------------------------------------------------------------------
+  ✗ Failed to remove dashboard_log.txt: [WinError 32] The process cannot access the file because it is being used by another process: 'dashboard_log.txt'
+  ✓ Removed: __pycache__
+--------------------------------------------------------------------------------
+
+✓ Cleanup complete! Removed 1 items
+================================================================================
+
+NEXT STEPS:
+  1. Train models via dashboard:
+     - Option 1: Train with CNN
+     - Option 2: Train with ART
+  2. Run 'python test_accuracy.py' to compare both models
+  3. Run 'python generate_report.py' to create visual report
+
+💡 To also remove MNIST data, delete the training_data/ folder manually
+   (This will require re-downloading ~10MB on next training)
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
