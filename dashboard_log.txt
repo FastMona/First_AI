@@ -229,3 +229,36 @@ NEXT STEPS:
 ────────────────────────────────────────────────────────────────────────────────
 
 Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
