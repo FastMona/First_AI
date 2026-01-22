@@ -262,3 +262,1157 @@ Press Enter to return to dashboard...
 └────────────────────────────────────────────────────────────────────────────┘
 
 ➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+CLEAN PROJECT - Remove Generated Files
+================================================================================
+
+Files to be removed:
+--------------------------------------------------------------------------------
+
+📄 Files:
+  Other files:
+    - dashboard_log.txt (21.5 KB)
+  No folders to remove
+
+================================================================================
+PRESERVED (NOT deleted):
+--------------------------------------------------------------------------------
+  ✓ training_data/ folder (MNIST training data)
+  ✓ test_images/ folder (if exists)
+  ✓ README.md (if exists)
+  ✓ All Python source files (.py)
+================================================================================
+
+⚠️  WARNING: This action cannot be undone!
+Do you want to proceed? (yes/no): 
+================================================================================
+CLEANING...
+--------------------------------------------------------------------------------
+  ✗ Failed to remove dashboard_log.txt: [WinError 32] The process cannot access the file because it is being used by another process: 'dashboard_log.txt'
+--------------------------------------------------------------------------------
+
+✓ Cleanup complete! Removed 0 items
+================================================================================
+
+NEXT STEPS:
+  1. Train models via dashboard:
+     - Option 1: Train with CNN
+     - Option 2: Train with ART
+  2. Run 'python test_accuracy.py' to compare both models
+  3. Run 'python generate_report.py' to create visual report
+
+💡 To also remove MNIST data, delete the training_data/ folder manually
+   (This will require re-downloading ~10MB on next training)
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+================================================================================
+Dashboard Session Started: 2026-01-21 20:38:41
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+CLEAN PROJECT - Remove Generated Files
+================================================================================
+
+Files to be removed:
+--------------------------------------------------------------------------------
+
+📄 Files:
+  Other files:
+    - dashboard_log.txt (30.0 KB)
+
+📁 Folders:
+  - __pycache__ (8.7 KB)
+
+================================================================================
+PRESERVED (NOT deleted):
+--------------------------------------------------------------------------------
+  ✓ training_data/ folder (MNIST training data)
+  ✓ test_images/ folder (if exists)
+  ✓ README.md (if exists)
+  ✓ All Python source files (.py)
+================================================================================
+
+⚠️  WARNING: This action cannot be undone!
+Do you want to proceed? (yes/no): 
+================================================================================
+CLEANING...
+--------------------------------------------------------------------------------
+  ✗ Failed to remove dashboard_log.txt: [WinError 32] The process cannot access the file because it is being used by another process: 'dashboard_log.txt'
+  ✓ Removed: __pycache__
+--------------------------------------------------------------------------------
+
+✓ Cleanup complete! Removed 1 items
+================================================================================
+
+NEXT STEPS:
+  1. Train models via dashboard:
+     - Option 1: Train with CNN
+     - Option 2: Train with ART
+  2. Run 'python test_accuracy.py' to compare both models
+  3. Run 'python generate_report.py' to create visual report
+
+💡 To also remove MNIST data, delete the training_data/ folder manually
+   (This will require re-downloading ~10MB on next training)
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+================================================================================
+Dashboard Session Ended: 2026-01-21 20:39:42
+================================================================================
+
+
+================================================================================
+Dashboard Session Started: 2026-01-21 20:39:48
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+
+⚠️  This will remove all generated files (.pth, .md, .png, __pycache__)
+⚠️  MNIST data and source code will be preserved
+
+Are you sure you want to clean the project? (yes/no): ================================================================================
+CLEAN PROJECT - Remove Generated Files
+================================================================================
+
+Files to be removed:
+--------------------------------------------------------------------------------
+
+📄 Files:
+  Other files:
+    - dashboard_log.txt (38.9 KB)
+
+📁 Folders:
+  - __pycache__ (8.7 KB)
+
+================================================================================
+PRESERVED (NOT deleted):
+--------------------------------------------------------------------------------
+  ✓ training_data/ folder (MNIST training data)
+  ✓ test_images/ folder (if exists)
+  ✓ README.md (if exists)
+  ✓ All Python source files (.py)
+================================================================================
+
+================================================================================
+CLEANING...
+--------------------------------------------------------------------------------
+  ✗ Failed to remove dashboard_log.txt: [WinError 32] The process cannot access the file because it is being used by another process: 'dashboard_log.txt'
+  ✓ Removed: __pycache__
+--------------------------------------------------------------------------------
+
+✓ Cleanup complete! Removed 1 items
+================================================================================
+
+NEXT STEPS:
+  1. Train models via dashboard:
+     - Option 1: Train with CNN
+     - Option 2: Train with ART
+  2. Run 'python test_accuracy.py' to compare both models
+  3. Run 'python generate_report.py' to create visual report
+
+💡 To also remove MNIST data, delete the training_data/ folder manually
+   (This will require re-downloading ~10MB on next training)
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+
+⚠️  This will remove all generated files (.pth, .md, .png, __pycache__)
+⚠️  MNIST data and source code will be preserved
+
+Are you sure you want to clean the project? (yes/no): ================================================================================
+CLEAN PROJECT - Remove Generated Files
+================================================================================
+
+Files to be removed:
+--------------------------------------------------------------------------------
+
+📄 Files:
+  Other files:
+    - dashboard_log.txt (44.4 KB)
+  No folders to remove
+
+================================================================================
+PRESERVED (NOT deleted):
+--------------------------------------------------------------------------------
+  ✓ training_data/ folder (MNIST training data)
+  ✓ test_images/ folder (if exists)
+  ✓ README.md (if exists)
+  ✓ All Python source files (.py)
+================================================================================
+
+================================================================================
+CLEANING...
+--------------------------------------------------------------------------------
+  ✗ Failed to remove dashboard_log.txt: [WinError 32] The process cannot access the file because it is being used by another process: 'dashboard_log.txt'
+--------------------------------------------------------------------------------
+
+✓ Cleanup complete! Removed 0 items
+================================================================================
+
+NEXT STEPS:
+  1. Train models via dashboard:
+     - Option 1: Train with CNN
+     - Option 2: Train with ART
+  2. Run 'python test_accuracy.py' to compare both models
+  3. Run 'python generate_report.py' to create visual report
+
+💡 To also remove MNIST data, delete the training_data/ folder manually
+   (This will require re-downloading ~10MB on next training)
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+================================================================================
+Dashboard Session Ended: 2026-01-21 20:40:48
+================================================================================
+
+
+================================================================================
+Dashboard Session Started: 2026-01-21 20:40:54
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+Dataset split:
+  Training: 48000 samples (for model training)
+  Validation: 12000 samples (for threshold calibration)
+  Test: 10000 samples (for final evaluation)
+
+🚀 GPU Optimization enabled:
+  • Batch size: 256 (4x larger for better parallelization)
+  • Data workers: 4 (parallel CPU data loading)
+  • Pinned memory: True (faster CPU→GPU transfers)
+  • Mixed precision: True (fp16 for 2-3x speedup)
+
+Epoch 0: Train Loss = 0.476273, Test Loss = 0.178739, Test Accuracy = 94.43%
+  ✓ New best model saved (test loss: 0.178739)
+Epoch 1: Train Loss = 0.162239, Test Loss = 0.112733, Test Accuracy = 96.33%
+  ✓ New best model saved (test loss: 0.112733)
+Epoch 2: Train Loss = 0.110358, Test Loss = 0.090795, Test Accuracy = 97.11%
+  ✓ New best model saved (test loss: 0.090795)
+Epoch 3: Train Loss = 0.083818, Test Loss = 0.101837, Test Accuracy = 96.76%
+  No improvement (1/3)
+Epoch 4: Train Loss = 0.068026, Test Loss = 0.075357, Test Accuracy = 97.71%
+  ✓ New best model saved (test loss: 0.075357)
+Epoch 5: Train Loss = 0.055034, Test Loss = 0.073762, Test Accuracy = 97.72%
+  ✓ New best model saved (test loss: 0.073762)
+Epoch 6: Train Loss = 0.045203, Test Loss = 0.064513, Test Accuracy = 98.00%
+  ✓ New best model saved (test loss: 0.064513)
+Epoch 7: Train Loss = 0.040081, Test Loss = 0.078851, Test Accuracy = 97.61%
+  No improvement (1/3)
+Epoch 8: Train Loss = 0.032634, Test Loss = 0.067984, Test Accuracy = 98.03%
+  No improvement (2/3)
+Epoch 9: Train Loss = 0.027929, Test Loss = 0.067348, Test Accuracy = 98.09%
+  No improvement (3/3)
+
+Early stopping at epoch 9. Best test loss: 0.064513
+
+============================================================
+Computing Mahalanobis distance parameters for OOD detection
+============================================================
+Using compact 128-d embedding layer for manifold representation
+Calibrating on VALIDATION set (held-out data, not training)
+
+Step 1: Computing class prototypes from TRAINING data...
+  Class 0: 4735 training samples, mean computed
+  Class 1: 5383 training samples, mean computed
+  Class 2: 4762 training samples, mean computed
+  Class 3: 4886 training samples, mean computed
+  Class 4: 4681 training samples, mean computed
+  Class 5: 4368 training samples, mean computed
+  Class 6: 4752 training samples, mean computed
+  Class 7: 4983 training samples, mean computed
+  Class 8: 4674 training samples, mean computed
+  Class 9: 4776 training samples, mean computed
+
+Step 2: Computing covariance matrix from TRAINING data...
+✓ Diagonal covariance computed: torch.Size([128])
+  Mean variance: 0.9248
+
+Step 3: Calibrating class-conditional thresholds on VALIDATION data...
+(This reflects generalization, not memorization)
+✓ Computed distances on 12000 validation samples
+
+Class-conditional threshold statistics (from VALIDATION data):
+  Class 0: n=1188, mean=10.44 ± 4.22, 90th=16.09, 95th=18.70, 99th=22.93
+  Class 1: n=1359, mean=6.77 ± 3.28, 90th=10.41, 95th=12.61, 99th=20.90
+  Class 2: n=1196, mean=12.92 ± 4.95, 90th=19.46, 95th=22.76, 99th=27.65
+  Class 3: n=1245, mean=11.74 ± 5.14, 90th=18.94, 95th=21.76, 99th=26.34
+  Class 4: n=1161, mean=9.47 ± 3.82, 90th=14.61, 95th=16.73, 99th=20.88
+  Class 5: n=1053, mean=12.49 ± 4.69, 90th=18.73, 95th=20.99, 99th=25.35
+  Class 6: n=1166, mean=10.14 ± 4.16, 90th=15.68, 95th=18.03, 99th=23.10
+  Class 7: n=1282, mean=10.76 ± 4.44, 90th=16.53, 95th=19.11, 99th=24.83
+  Class 8: n=1177, mean=8.93 ± 3.41, 90th=13.48, 95th=15.11, 99th=20.33
+  Class 9: n=1173, mean=8.84 ± 3.58, 90th=13.61, 95th=15.89, 99th=19.62
+
+Global statistics (for reference):
+  Mean: 10.19
+  95th percentile: 19.00
+
+✓ OOD detection parameters saved to ood_params.pth
+  - Class prototypes (means) for all 10 digits
+  - Precision matrix for Mahalanobis distance
+  - Class-conditional thresholds (90th/95th/99th percentiles per class)
+  - Default: 90th percentile (stricter for better OOD detection)
+============================================================
+
+============================================================
+Training Class-Conditional Autoencoder
+============================================================
+Learning 10 separate digit manifolds (one per class)
+Biological perception: 'I think this is a 3 — does it look like a 3?'
+C:\Users\David\Documents_local\Repository_local\PythonProjects\pytorch_env\nn_train_ffn.py:280: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  ae_scaler = torch.cuda.amp.GradScaler()  # Separate scaler for autoencoder
+
+Training autoencoder for 5 epochs...
+Epoch 0: Train Recon Loss = 0.063981, Test Recon Loss = 0.037259
+Epoch 1: Train Recon Loss = 0.031459, Test Recon Loss = 0.026569
+Epoch 2: Train Recon Loss = 0.024468, Test Recon Loss = 0.021852
+Epoch 3: Train Recon Loss = 0.020769, Test Recon Loss = 0.018896
+Epoch 4: Train Recon Loss = 0.018400, Test Recon Loss = 0.016789
+
+Calibrating reconstruction error threshold on VALIDATION data...
+Using classifier predictions to determine which manifold to use...
+(Validation reflects generalization, not training memorization)
+
+Reconstruction error statistics on VALIDATION data:
+  Samples: 12000
+  Mean: 0.017448
+  Std: 0.009241
+  95th percentile: 0.034237
+  99th percentile: 0.044056
+
+Recommended threshold: 0.034237
+✓ Autoencoder saved to autoencoder.pth
+  Default threshold: 0.034237 (95th percentile)
+============================================================
+
+============================================================
+TRAINING COMPLETE!
+============================================================
+All models and parameters saved:
+  ✓ model_state_ffn.pth - FFN classifier
+  ✓ autoencoder.pth - Class-conditional autoencoder
+  ✓ ood_params.pth - OOD detection parameters
+
+Next steps:
+  1. Test accuracy: python test_accuracy.py
+  2. Single image: python detect.py <image_path>
+  3. Batch detect: python detect_batch.py <folder_path>
+  4. Generate report: python generate_report.py
+============================================================
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+Dataset split:
+  Training: 48000 samples (for model training)
+  Validation: 12000 samples (for threshold calibration)
+  Test: 10000 samples (for final evaluation)
+
+🚀 GPU Optimization enabled:
+  • Batch size: 256 (4x larger for better parallelization)
+  • Data workers: 4 (parallel CPU data loading)
+  • Pinned memory: True (faster CPU→GPU transfers)
+  • Mixed precision: True (fp16 for 2-3x speedup)
+
+Epoch 0: Train Loss = 0.243535, Test Loss = 0.063728, Test Accuracy = 97.98%
+  ✓ New best model saved (test loss: 0.063728)
+Epoch 1: Train Loss = 0.055490, Test Loss = 0.047212, Test Accuracy = 98.45%
+  ✓ New best model saved (test loss: 0.047212)
+Epoch 2: Train Loss = 0.034006, Test Loss = 0.035955, Test Accuracy = 98.81%
+  ✓ New best model saved (test loss: 0.035955)
+Epoch 3: Train Loss = 0.021799, Test Loss = 0.040900, Test Accuracy = 98.65%
+  No improvement (1/3)
+Epoch 4: Train Loss = 0.017660, Test Loss = 0.037444, Test Accuracy = 98.88%
+  No improvement (2/3)
+Epoch 5: Train Loss = 0.011336, Test Loss = 0.039640, Test Accuracy = 98.78%
+  No improvement (3/3)
+
+Early stopping at epoch 5. Best test loss: 0.035955
+
+============================================================
+Computing Mahalanobis distance parameters for OOD detection
+============================================================
+Using compact 128-d embedding layer for manifold representation
+Calibrating on VALIDATION set (held-out data, not training)
+
+Step 1: Computing class prototypes from TRAINING data...
+  Class 0: 4735 training samples, mean computed
+  Class 1: 5383 training samples, mean computed
+  Class 2: 4762 training samples, mean computed
+  Class 3: 4886 training samples, mean computed
+  Class 4: 4681 training samples, mean computed
+  Class 5: 4368 training samples, mean computed
+  Class 6: 4752 training samples, mean computed
+  Class 7: 4983 training samples, mean computed
+  Class 8: 4674 training samples, mean computed
+  Class 9: 4776 training samples, mean computed
+
+Step 2: Computing covariance matrix from TRAINING data...
+✓ Diagonal covariance computed: torch.Size([128])
+  Mean variance: 13.4141
+
+Step 3: Calibrating class-conditional thresholds on VALIDATION data...
+(This reflects generalization, not memorization)
+✓ Computed distances on 12000 validation samples
+
+Class-conditional threshold statistics (from VALIDATION data):
+  Class 0: n=1188, mean=9.91 ± 2.67, 90th=13.39, 95th=14.80, 99th=17.43
+  Class 1: n=1359, mean=7.37 ± 2.35, 90th=10.30, 95th=11.70, 99th=14.61
+  Class 2: n=1196, mean=9.96 ± 2.10, 90th=12.52, 95th=13.45, 99th=15.81
+  Class 3: n=1245, mean=9.90 ± 2.31, 90th=12.80, 95th=13.95, 99th=15.80
+  Class 4: n=1161, mean=9.42 ± 2.24, 90th=12.47, 95th=13.35, 99th=16.05
+  Class 5: n=1053, mean=10.24 ± 1.91, 90th=12.88, 95th=13.62, 99th=15.12
+  Class 6: n=1166, mean=8.72 ± 2.39, 90th=12.05, 95th=12.93, 99th=14.95
+  Class 7: n=1282, mean=8.38 ± 2.58, 90th=11.34, 95th=12.26, 99th=16.56
+  Class 8: n=1177, mean=9.72 ± 2.31, 90th=12.59, 95th=13.70, 99th=16.44
+  Class 9: n=1173, mean=9.16 ± 2.56, 90th=12.86, 95th=14.20, 99th=16.96
+
+Global statistics (for reference):
+  Mean: 9.24
+  95th percentile: 13.52
+
+✓ OOD detection parameters saved to ood_params.pth
+  - Class prototypes (means) for all 10 digits
+  - Precision matrix for Mahalanobis distance
+  - Class-conditional thresholds (90th/95th/99th percentiles per class)
+  - Default: 90th percentile (stricter for better OOD detection)
+============================================================
+
+============================================================
+Training Class-Conditional Autoencoder
+============================================================
+Learning 10 separate digit manifolds (one per class)
+Biological perception: 'I think this is a 3 — does it look like a 3?'
+C:\Users\David\Documents_local\Repository_local\PythonProjects\pytorch_env\nn_train_cnn.py:282: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  ae_scaler = torch.cuda.amp.GradScaler()  # Separate scaler for autoencoder
+
+Training autoencoder for 5 epochs...
+Epoch 0: Train Recon Loss = 0.062759, Test Recon Loss = 0.036177
+Epoch 1: Train Recon Loss = 0.030835, Test Recon Loss = 0.026047
+Epoch 2: Train Recon Loss = 0.024405, Test Recon Loss = 0.021986
+Epoch 3: Train Recon Loss = 0.020979, Test Recon Loss = 0.019110
+Epoch 4: Train Recon Loss = 0.018406, Test Recon Loss = 0.016763
+
+Calibrating reconstruction error threshold on VALIDATION data...
+Using classifier predictions to determine which manifold to use...
+(Validation reflects generalization, not training memorization)
+
+Reconstruction error statistics on VALIDATION data:
+  Samples: 12000
+  Mean: 0.017373
+  Std: 0.009268
+  95th percentile: 0.034721
+  99th percentile: 0.043761
+
+Recommended threshold: 0.034721
+
+✓ Autoencoder saved to autoencoder.pth
+  - Reconstruction threshold (95%): 0.034721
+  - Use as first gate before digit classifier
+============================================================
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+Dataset split:
+  Training: 48000 samples (for model training)
+  Validation: 12000 samples (for threshold calibration)
+  Test: 10000 samples (for final evaluation)
+
+================================================================================
+              Training Fuzzy Adaptive Resonance Theory (ART) Network            
+================================================================================
+
+ART Parameters:
+  Max Categories: 100
+  Vigilance: 0.75
+  Learning Rate: 0.5
+  Device: CUDA (NVIDIA GeForce RTX 4070 SUPER)
+
+🚀 GPU Optimizations:
+  • Data workers: 4 (parallel loading)
+  • Pinned memory: True (faster transfers)
+  • Mixed precision: True (fp16 for evaluation)
+  • Eval batch size: 256 (parallelized)
+  Note: ART trains sequentially (inherent to algorithm)
+
+================================================================================
+
+Phase 1: ART Incremental Learning (Online Training)
+--------------------------------------------------------------------------------
+
+================================================================================
+  PASS 1/3 - Processing 48000 training samples
+================================================================================
+6.7% complete | Batch 50/750 | Samples Processed: 3200 | Speed: 28.1 samp/sec | Time remaining: 26:33 | 20:44
+13.3% complete | Batch 100/750 | Samples Processed: 6400 | Speed: 23.4 samp/sec | Time remaining: 29:36 | 20:46
+20.0% complete | Batch 150/750 | Samples Processed: 9600 | Speed: 23.4 samp/sec | Time remaining: 27:20 | 20:48
+26.7% complete | Batch 200/750 | Samples Processed: 12800 | Speed: 23.3 samp/sec | Time remaining: 25:12 | 20:51
+33.3% complete | Batch 250/750 | Samples Processed: 16000 | Speed: 23.2 samp/sec | Time remaining: 22:58 | 20:53
+40.0% complete | Batch 300/750 | Samples Processed: 19200 | Speed: 23.2 samp/sec | Time remaining: 20:43 | 20:55
+46.7% complete | Batch 350/750 | Samples Processed: 22400 | Speed: 23.1 samp/sec | Time remaining: 18:26 | 20:58
+53.3% complete | Batch 400/750 | Samples Processed: 25600 | Speed: 23.2 samp/sec | Time remaining: 16:03 | 21:00
+60.0% complete | Batch 450/750 | Samples Processed: 28800 | Speed: 23.2 samp/sec | Time remaining: 13:48 | 21:02
+66.7% complete | Batch 500/750 | Samples Processed: 32000 | Speed: 23.2 samp/sec | Time remaining: 11:30 | 21:04
+73.3% complete | Batch 550/750 | Samples Processed: 35200 | Speed: 23.2 samp/sec | Time remaining: 09:11 | 21:07
+80.0% complete | Batch 600/750 | Samples Processed: 38400 | Speed: 23.2 samp/sec | Time remaining: 06:53 | 21:09
+86.7% complete | Batch 650/750 | Samples Processed: 41600 | Speed: 23.3 samp/sec | Time remaining: 04:34 | 21:11
+93.3% complete | Batch 700/750 | Samples Processed: 44800 | Speed: 23.3 samp/sec | Time remaining: 02:17 | 21:14
+100.0% complete | Batch 750/750 | Samples Processed: 48000 | Speed: 23.2 samp/sec | Time remaining: 00:00 | 21:16
+
+✓ Pass 1 complete in 34m 9s
+  Total samples processed: 48000
+  Categories committed: 100/100
+  Average speed: 23.4 samples/s
+
+  Evaluating on test set... done in 74.7s
+  Test Accuracy: 10.23% (1023/10000 correct)
+
+================================================================================
+  PASS 2/3 - Processing 48000 training samples
+================================================================================
+6.7% complete | Batch 50/750 | Samples Processed: 3200 | Speed: 23.3 samp/sec | Time remaining: 32:04 | 21:19
+13.3% complete | Batch 100/750 | Samples Processed: 6400 | Speed: 23.3 samp/sec | Time remaining: 29:48 | 21:22
+20.0% complete | Batch 150/750 | Samples Processed: 9600 | Speed: 23.3 samp/sec | Time remaining: 27:28 | 21:24
+26.7% complete | Batch 200/750 | Samples Processed: 12800 | Speed: 23.3 samp/sec | Time remaining: 25:13 | 21:26
+33.3% complete | Batch 250/750 | Samples Processed: 16000 | Speed: 23.3 samp/sec | Time remaining: 22:54 | 21:29
+40.0% complete | Batch 300/750 | Samples Processed: 19200 | Speed: 22.8 samp/sec | Time remaining: 21:02 | 21:31
+46.7% complete | Batch 350/750 | Samples Processed: 22400 | Speed: 22.7 samp/sec | Time remaining: 18:50 | 21:33
+53.3% complete | Batch 400/750 | Samples Processed: 25600 | Speed: 23.1 samp/sec | Time remaining: 16:10 | 21:36
+60.0% complete | Batch 450/750 | Samples Processed: 28800 | Speed: 23.1 samp/sec | Time remaining: 13:49 | 21:38
+66.7% complete | Batch 500/750 | Samples Processed: 32000 | Speed: 23.0 samp/sec | Time remaining: 11:35 | 21:40
+73.3% complete | Batch 550/750 | Samples Processed: 35200 | Speed: 21.9 samp/sec | Time remaining: 09:43 | 21:43
+80.0% complete | Batch 600/750 | Samples Processed: 38400 | Speed: 22.3 samp/sec | Time remaining: 07:09 | 21:45
+86.7% complete | Batch 650/750 | Samples Processed: 41600 | Speed: 22.2 samp/sec | Time remaining: 04:48 | 21:47
+93.3% complete | Batch 700/750 | Samples Processed: 44800 | Speed: 22.2 samp/sec | Time remaining: 02:24 | 21:50
+100.0% complete | Batch 750/750 | Samples Processed: 48000 | Speed: 22.2 samp/sec | Time remaining: 00:00 | 21:52
+
+✓ Pass 2 complete in 35m 6s
+  Total samples processed: 48000
+  Categories committed: 100/100
+  Average speed: 22.8 samples/s
+
+  Evaluating on test set... done in 72.0s
+  Test Accuracy: 9.08% (908/10000 correct)
+
+================================================================================
+  PASS 3/3 - Processing 48000 training samples
+================================================================================
+6.7% complete | Batch 50/750 | Samples Processed: 3200 | Speed: 22.3 samp/sec | Time remaining: 33:33 | 21:56
+13.3% complete | Batch 100/750 | Samples Processed: 6400 | Speed: 22.2 samp/sec | Time remaining: 31:13 | 21:58
+20.0% complete | Batch 150/750 | Samples Processed: 9600 | Speed: 22.3 samp/sec | Time remaining: 28:45 | 22:01
+26.7% complete | Batch 200/750 | Samples Processed: 12800 | Speed: 22.3 samp/sec | Time remaining: 26:15 | 22:03
+33.3% complete | Batch 250/750 | Samples Processed: 16000 | Speed: 22.3 samp/sec | Time remaining: 23:56 | 22:05
+40.0% complete | Batch 300/750 | Samples Processed: 19200 | Speed: 22.3 samp/sec | Time remaining: 21:30 | 22:08
+46.7% complete | Batch 350/750 | Samples Processed: 22400 | Speed: 22.3 samp/sec | Time remaining: 19:09 | 22:10
+53.3% complete | Batch 400/750 | Samples Processed: 25600 | Speed: 22.2 samp/sec | Time remaining: 16:47 | 22:13
+60.0% complete | Batch 450/750 | Samples Processed: 28800 | Speed: 22.2 samp/sec | Time remaining: 14:23 | 22:15
+66.7% complete | Batch 500/750 | Samples Processed: 32000 | Speed: 22.2 samp/sec | Time remaining: 12:00 | 22:17
+73.3% complete | Batch 550/750 | Samples Processed: 35200 | Speed: 22.1 samp/sec | Time remaining: 09:37 | 22:20
+80.0% complete | Batch 600/750 | Samples Processed: 38400 | Speed: 22.2 samp/sec | Time remaining: 07:12 | 22:22
+86.7% complete | Batch 650/750 | Samples Processed: 41600 | Speed: 22.2 samp/sec | Time remaining: 04:48 | 22:25
+93.3% complete | Batch 700/750 | Samples Processed: 44800 | Speed: 22.2 samp/sec | Time remaining: 02:24 | 22:27
+100.0% complete | Batch 750/750 | Samples Processed: 48000 | Speed: 22.1 samp/sec | Time remaining: 00:00 | 22:29
+
+✓ Pass 3 complete in 35m 59s
+  Total samples processed: 48000
+  Categories committed: 100/100
+  Average speed: 22.2 samples/s
+
+  Evaluating on test set... done in 73.8s
+  Test Accuracy: 10.42% (1042/10000 correct)
+
+✓ Saving ART model to model_state_art.pth
+
+============================================================
+Computing OOD Detection Parameters for ART Model
+============================================================
+Using ART category templates as feature representations
+Calibrating on VALIDATION set (held-out data, not training)
+
+Step 1: Computing class prototypes from TRAINING data...
+  Processing 750 batches...
+  [ 13.3%] Batch 100/750  [ 26.7%] Batch 200/750  [ 40.0%] Batch 300/750  [ 53.3%] Batch 400/750  [ 66.7%] Batch 500/750  [ 80.0%] Batch 600/750  [ 93.3%] Batch 700/750  [100.0%] Batch 750/750
+  Class 0: 4735 training samples, mean computed
+  Class 1: 5383 training samples, mean computed
+  Class 2: 4762 training samples, mean computed
+  Class 3: 4886 training samples, mean computed
+  Class 4: 4681 training samples, mean computed
+  Class 5: 4368 training samples, mean computed
+  Class 6: 4752 training samples, mean computed
+  Class 7: 4983 training samples, mean computed
+  Class 8: 4674 training samples, mean computed
+  Class 9: 4776 training samples, mean computed
+✓ Step 1 complete in 2.2s
+
+Step 2: Computing covariance matrix from TRAINING data...
+  Class 0: 4735 samples centered  Class 1: 5383 samples centered  Class 2: 4762 samples centered  Class 3: 4886 samples centered  Class 4: 4681 samples centered  Class 5: 4368 samples centered  Class 6: 4752 samples centered  Class 7: 4983 samples centered  Class 8: 4674 samples centered  Class 9: 4776 samples centered
+✓ Step 2 complete in 0.1s
+  Diagonal covariance computed: torch.Size([1568])
+  Mean variance: 0.0011
+
+Step 3: Calibrating class-conditional thresholds on VALIDATION data...
+  Processing 47 batches...
+  [ 42.6%] Batch 20/47  [ 85.1%] Batch 40/47  [100.0%] Batch 47/47
+✓ Step 3 complete in 3.7s
+  Computed distances on 12000 validation samples
+
+Class-conditional threshold statistics (from VALIDATION data):
+  Class 0: n=1188, mean=1.50 ± 0.00, 90th=1.50, 95th=1.50, 99th=1.50
+  Class 1: n=1359, mean=10.78 ± 44.88, 90th=4.94, 95th=4.94, 99th=325.89
+  Class 2: n=1196, mean=1.31 ± 0.00, 90th=1.31, 95th=1.31, 99th=1.31
+  Class 3: n=1245, mean=1.12 ± 0.00, 90th=1.12, 95th=1.12, 99th=1.12
+  Class 4: n=1161, mean=1.07 ± 0.00, 90th=1.07, 95th=1.07, 99th=1.07
+  Class 5: n=1053, mean=0.56 ± 0.00, 90th=0.56, 95th=0.56, 99th=0.56
+  Class 6: n=1166, mean=0.95 ± 0.00, 90th=0.95, 95th=0.95, 99th=0.95
+  Class 7: n=1282, mean=1.90 ± 9.15, 90th=1.65, 95th=1.65, 99th=1.65
+  Class 8: n=1177, mean=0.78 ± 0.00, 90th=0.78, 95th=0.78, 99th=0.78
+  Class 9: n=1173, mean=1.37 ± 13.58, 90th=0.81, 95th=0.81, 99th=0.81
+
+Global statistics (for reference):
+  Mean: 2.28
+  95th percentile: 4.94
+
+✓ OOD detection parameters saved to ood_params.pth
+  - Class prototypes (means) for all 10 digits
+  - Precision matrix for Mahalanobis distance
+  - Class-conditional thresholds (90th/95th/99th percentiles per class)
+  - Default: 90th percentile (stricter for better OOD detection)
+============================================================
+
+============================================================
+Training Class-Conditional Autoencoder
+============================================================
+Learning 10 separate digit manifolds (one per class)
+C:\Users\David\Documents_local\Repository_local\PythonProjects\pytorch_env\nn_train_art.py:329: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  ae_scaler = torch.cuda.amp.GradScaler()
+
+Training autoencoder for 5 epochs...
+  Epoch 1/5: Training... Evaluating... Done in 2.2s
+    Train Loss: 0.038656 | Test Loss: 0.022957
+  Epoch 2/5: Training... Evaluating... Done in 2.2s
+    Train Loss: 0.020279 | Test Loss: 0.016950
+  Epoch 3/5: Training... Evaluating... Done in 2.2s
+    Train Loss: 0.015386 | Test Loss: 0.013673
+  Epoch 4/5: Training... Evaluating... Done in 2.2s
+    Train Loss: 0.012862 | Test Loss: 0.011759
+  Epoch 5/5: Training... Evaluating... Done in 2.3s
+    Train Loss: 0.011330 | Test Loss: 0.010488
+
+Calibrating reconstruction error threshold on VALIDATION data...
+  Processing 47 batches... Done in 88.7s
+
+Reconstruction error statistics on VALIDATION data:
+  Samples: 12000
+  Mean: 0.013661
+  Std: 0.007307
+  95th percentile: 0.027215
+  99th percentile: 0.035983
+
+Recommended threshold: 0.027215
+
+✓ Autoencoder saved to autoencoder.pth
+  - Reconstruction threshold (95%): 0.027215
+  - Use as first gate before digit classifier
+============================================================
+
+================================================================================
+                              ART Training Complete!                            
+================================================================================
+
+Model files saved:
+  - model_state_art.pth (ART classifier)
+  - autoencoder.pth (Autoencoder)
+  - ood_params.pth (OOD detection parameters)
+
+You can now use detect.py or detect_batch.py for inference.
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+================================================================================
+MNIST Batch Digit Detector with 2-Stage OOD Detection
+================================================================================
+
+Available trained models:
+  1. CNN  ✓ Trained
+  2. ART  ✓ Trained
+  3. FFN  ✓ Trained
+
+Select model to test (1=CNN, 2=ART, 3=FFN): 
+Loading ART model...
+Loading ART model...
+✓ OOD detector loaded: 10 class prototypes (diagonal covariance)
+  Using class-conditional thresholds (90th percentile - stricter):
+    Class 0: 1.50
+    Class 1: 4.94
+    Class 2: 1.31
+    Class 3: 1.12
+    Class 4: 1.07
+    Class 5: 0.56
+    Class 6: 0.95
+    Class 7: 1.65
+    Class 8: 0.78
+    Class 9: 0.81
+✓ All models loaded successfully! (Using ART classifier)
+
+Enter folder path (default: test_images): 
+Processing 15 images from test_images...
+--------------------------------------------------------------------------------
+
+================================================================================
+RESULTS SUMMARY
+================================================================================
+
+Total images: 15
+In-distribution (digits): 0
+Out-of-distribution (not digits): 15
+
+--------------------------------------------------------------------------------
+Filename             Status               Pred   Conf     Recon Err    Stage          
+--------------------------------------------------------------------------------
+img_+.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0276       Reject: reconstruction
+img_0.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0103       Reject: mahalanobis
+img_2.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0159       Reject: mahalanobis
+img_3.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0084       Reject: mahalanobis
+img_4.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0098       Reject: mahalanobis
+img_5.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0468       Reject: reconstruction
+img_7.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0421       Reject: reconstruction
+img_9.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0161       Reject: mahalanobis
+img_A.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0261       Reject: mahalanobis
+img_AA.jpg           ❌ NOT DIGIT          (0)    10.0%    0.0196       Reject: mahalanobis
+img_C.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0131       Reject: mahalanobis
+img_Eps.jpg          ❌ NOT DIGIT          (0)    10.0%    0.0410       Reject: reconstruction
+img_M.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0077       Reject: mahalanobis
+img_Str.jpg          ❌ NOT DIGIT          (0)    10.0%    0.0755       Reject: reconstruction
+img_T.jpg            ❌ NOT DIGIT          (0)    10.0%    0.0218       Reject: mahalanobis
+--------------------------------------------------------------------------------
+
+================================================================================
+DIGITS DETECTED (In-Distribution Only)
+================================================================================
+No valid digits detected
+
+================================================================================
+OUT-OF-DISTRIBUTION SAMPLES
+================================================================================
+
+These samples were REJECTED:
+
+Stage 1 Rejections (Autoencoder - 5 samples):
+  - img_+.jpg                 recon_error=0.0276 (classifier guessed: 0)
+  - img_5.jpg                 recon_error=0.0468 (classifier guessed: 0)
+  - img_7.jpg                 recon_error=0.0421 (classifier guessed: 0)
+  - img_Eps.jpg               recon_error=0.0410 (classifier guessed: 0)
+  - img_Str.jpg               recon_error=0.0755 (classifier guessed: 0)
+
+Stage 2 Rejections (Mahalanobis - 10 samples):
+  - img_0.jpg                 distance=1110.84 (classifier guessed: 0)
+  - img_2.jpg                 distance=1097.36 (classifier guessed: 0)
+  - img_3.jpg                 distance=914.13 (classifier guessed: 0)
+  - img_4.jpg                 distance=869.82 (classifier guessed: 0)
+  - img_9.jpg                 distance=846.08 (classifier guessed: 0)
+  - img_A.jpg                 distance=927.48 (classifier guessed: 0)
+  - img_AA.jpg                distance=874.38 (classifier guessed: 0)
+  - img_C.jpg                 distance=915.96 (classifier guessed: 0)
+  - img_M.jpg                 distance=878.49 (classifier guessed: 0)
+  - img_T.jpg                 distance=879.49 (classifier guessed: 0)
+
+================================================================================
+FINAL SUMMARY
+================================================================================
+
+Total samples processed: 15
+  ✓ Accepted as digits: 0 (0.0%)
+  ✗ Rejected as OOD: 15 (100.0%)
+
+Accuracy on labeled samples:
+  Overall accuracy: 0/7 (0.0%)
+  Digit acceptance rate: 0/7 (0.0%)
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+================================================================================
+Dashboard Session Ended: 2026-01-21 22:40:44
+================================================================================
+

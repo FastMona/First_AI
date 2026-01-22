@@ -303,7 +303,7 @@ def main():
             elif choice == '7':
                 run_module("camera")
             elif choice == '8':
-                run_module("clean_project")
+                run_clean_project()
             elif choice == '0':
                 close_logging(log_file)
                 clear_screen()
