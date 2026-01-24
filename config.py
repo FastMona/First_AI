@@ -2,6 +2,8 @@
 
 Centralizes all magic numbers, paths, and hyperparameters to provide
 a single source of truth for the entire project.
+
+Dashboard Menu: Indirectly called via all options (imported by most modules for configuration settings)
 """
 
 import torch

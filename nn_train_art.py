@@ -2,6 +2,8 @@
 
 Trains ART classifier, class-conditional autoencoder, and computes OOD detection
 parameters using template matching and vigilance-based learning.
+
+Dashboard Menu: Called by Option 3 - "Train with ART"
 """
 
 import torch
@@ -294,6 +296,7 @@ def main():
         'class_means': class_means,
         'precision_diag': precision_diag,
         'feature_dim': feature_dim,
+        'model_type': 'art',  # Track which model type created these parameters
         'class_thresholds_90': class_thresholds_90,
         'class_thresholds_95': class_thresholds_95,
         'class_thresholds_99': class_thresholds_99,

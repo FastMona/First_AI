@@ -2,6 +2,8 @@
 
 Removes .pth model files, .md reports, and cache folders while preserving
 MNIST training data in training_data/ folder.
+
+Dashboard Menu: Called by Option 8 - "Clean Project"
 """
 
 import os

@@ -2,6 +2,8 @@
 
 Provides 'belongs / doesn't belong' signal for MNIST digit classification
 using class-conditional Mahalanobis distance to feature prototypes.
+
+Dashboard Menu: Indirectly called via Options 1, 2, 3, 4, 5, 6 (used by all training and detection modules)
 """
 
 import torch
@@ -29,6 +31,7 @@ class MahalanobisOODDetector:
             self.use_diagonal = False
         
         self.feature_dim = params['feature_dim']
+        self.model_type = params.get('model_type', 'unknown')  # Track which model created these params
         self.num_classes = len(self.class_means)
         
         # Load class-conditional thresholds if available
@@ -44,20 +47,21 @@ class MahalanobisOODDetector:
         self.threshold_99 = params.get('threshold_99', 15.0)
         
         cov_type = "diagonal" if self.use_diagonal else "full"
+        model_info = f" [{self.model_type.upper()} model]" if self.model_type != 'unknown' else ""
         if self.class_thresholds_90:
-            print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
+            print(f"✓ OOD detector loaded{model_info}: {self.num_classes} class prototypes ({cov_type} covariance)")
             print(f"  Using class-conditional thresholds (90th percentile - stricter):")
             for i in range(min(10, self.num_classes)):
                 if i in self.class_thresholds_90:
                     print(f"    Class {i}: {self.class_thresholds_90[i]:.2f}")
         elif self.class_thresholds_95:
-            print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
+            print(f"✓ OOD detector loaded{model_info}: {self.num_classes} class prototypes ({cov_type} covariance)")
             print(f"  Using class-conditional thresholds (95th percentile):")
             for i in range(min(10, self.num_classes)):
                 if i in self.class_thresholds_95:
                     print(f"    Class {i}: {self.class_thresholds_95[i]:.2f}")
         else:
-            print(f"✓ OOD detector loaded: {self.num_classes} class prototypes ({cov_type} covariance)")
+            print(f"✓ OOD detector loaded{model_info}: {self.num_classes} class prototypes ({cov_type} covariance)")
             print(f"  Global threshold (95%): {self.threshold_95:.2f}")
     
     def mahalanobis_distance(self, features, class_idx):

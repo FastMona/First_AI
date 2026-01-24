@@ -2,6 +2,8 @@
 
 Processes all images in a folder and reports comprehensive results including
 accuracy metrics and OOD rejection statistics.
+
+Dashboard Menu: Called by Option 6 - "Batch Image Detection"
 """
 
 import os

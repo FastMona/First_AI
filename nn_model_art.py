@@ -2,6 +2,8 @@
 
 Provides an alternative architecture to the CNN, using biologically-inspired
 template matching with vigilance-based resonance search.
+
+Dashboard Menu: Indirectly called via Options 3, 4, 5, 6 (through nn_train_art.py and detection utilities)
 """
 
 import torch

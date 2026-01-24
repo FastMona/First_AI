@@ -2,6 +2,8 @@
 
 Provides common functions for model loading, prediction, result formatting, and display.
 Used by: detect.py, detect_batch.py, test_accuracy.py, generate_report.py
+
+Dashboard Menu: Indirectly called via Options 4, 5, 6 (through detect.py, detect_batch.py, test_accuracy.py)
 """
 
 import torch
@@ -105,6 +107,29 @@ def load_models(model_type=None):
         
         # Load OOD detector
         ood_detector = MahalanobisOODDetector(Config.OOD_PARAMS_PATH)
+        
+        # Check model type compatibility
+        if hasattr(ood_detector, 'model_type') and ood_detector.model_type != 'unknown':
+            if ood_detector.model_type != model_type:
+                print(f"\n{'='*80}")
+                print(f"  ⚠️  WARNING: MODEL TYPE MISMATCH")
+                print(f"{'='*80}")
+                print(f"OOD parameters were trained with: {ood_detector.model_type.upper()} model")
+                print(f"Current classifier is: {model_type.upper()} model")
+                print(f"\nThis will cause feature dimension mismatch!")
+                print(f"  - {ood_detector.model_type.upper()} features: {ood_detector.feature_dim} dimensions")
+                print(f"  - {model_type.upper()} model: different dimensions")
+                print(f"\n{'='*80}")
+                print(f"SOLUTION: Retrain the OOD parameters to match your classifier")
+                print(f"{'='*80}")
+                if model_type == 'cnn':
+                    print(f"Run: python nn_train_cnn.py")
+                elif model_type == 'art':
+                    print(f"Run: python nn_train_art.py")
+                elif model_type == 'ffn':
+                    print(f"Run: python nn_train_ffn.py")
+                print(f"{'='*80}\n")
+                return None, None, None, None, None
         
         return clf, autoencoder, ood_detector, ae_threshold, model_type
         

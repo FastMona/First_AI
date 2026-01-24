@@ -2,6 +2,8 @@
 
 Creates a visual report of test accuracy with embedded image thumbnails,
 prediction results, and comprehensive accuracy metrics.
+
+Dashboard Menu: Not directly called by dashboard (standalone utility script)
 """
 
 from pathlib import Path

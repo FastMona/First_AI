@@ -1,6 +1,8 @@
 """Camera-based image capture for MNIST model testing.
 
 Captures images from webcam and saves them in the correct format for MNIST model testing.
+
+Dashboard Menu: Called by Option 7 - "Camera Capture"
 """
 
 import cv2

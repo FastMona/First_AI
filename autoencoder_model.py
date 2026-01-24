@@ -1,5 +1,7 @@
 # Class-conditional autoencoder for MNIST digit reconstruction
 # Stage 1 OOD detection gate: rejects non-digits via high reconstruction error
+#
+# Dashboard Menu: Indirectly called via Options 1, 2, 3, 4, 5, 6 (used by all training and detection modules)
 
 import torch
 from torch import nn

@@ -12,6 +12,8 @@ It shows:
 
 This illustrates the biological perception model:
 "I think this is a 3 — does it look like a 3?"
+
+Dashboard Menu: Not directly called by dashboard (standalone visualization utility)
 """
 
 import torch

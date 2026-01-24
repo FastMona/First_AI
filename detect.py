@@ -2,6 +2,8 @@
 
 Provides interactive interface with detailed two-stage OOD detection output.
 Uses shared utilities from detection_utils.py for model loading and predictions.
+
+Dashboard Menu: Called by Option 5 - "Single Image Detection"
 """
 
 from detection_utils import (load_models, predict_image, format_detection_result, 

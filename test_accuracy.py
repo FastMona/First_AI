@@ -2,6 +2,8 @@
 
 Tests against labeled images in test_images folder and compares all available
 models: CNN, ART, and FFN.
+
+Dashboard Menu: Called by Option 4 - "Test Accuracy"
 """
 
 from pathlib import Path

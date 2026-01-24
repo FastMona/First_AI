@@ -2,6 +2,8 @@
 
 Defines the convolutional neural network architecture shared between training
 (nn_train_cnn.py) and inference (detect.py, detect_batch.py, etc.).
+
+Dashboard Menu: Indirectly called via Options 2, 4, 5, 6 (through nn_train_cnn.py and detection utilities)
 """
 
 from torch import nn

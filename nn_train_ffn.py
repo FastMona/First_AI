@@ -2,6 +2,8 @@
 
 Trains simple MLP classifier, class-conditional autoencoder, and computes OOD
 detection parameters for baseline comparison.
+
+Dashboard Menu: Called by Option 1 - "Train with FFN"
 """
 
 import torch
@@ -249,6 +251,7 @@ def main():
         'class_means': class_means,
         'precision_diag': precision_diag,  # Diagonal precision instead of full matrix
         'feature_dim': feature_dim,
+        'model_type': 'ffn',  # Track which model type created these parameters
         'class_thresholds_90': class_thresholds_90,  # Stricter per-class thresholds (default)
         'class_thresholds_95': class_thresholds_95,  # Per-class thresholds
         'class_thresholds_99': class_thresholds_99,  # Per-class thresholds

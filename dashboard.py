@@ -1,7 +1,18 @@
 """
 MNIST Digit Recognition System - Main Dashboard
 Central console for accessing all project functionalities
-"""
+Dashboard Menu: This IS the main dashboard - entry point for all options
+
+Menu Structure:
+  1. Train with FFN            → calls nn_train_ffn.py
+  2. Train with CNN            → calls nn_train_cnn.py
+  3. Train with ART            → calls nn_train_art.py
+  4. Test Accuracy             → calls test_accuracy.py
+  5. Single Image Detection    → calls detect.py
+  6. Batch Image Detection     → calls detect_batch.py
+  7. Camera Capture            → calls camera.py
+  8. Clean Project             → calls clean_project.py
+  0. Exit                      → exits dashboard"""
 
 import sys
 import os

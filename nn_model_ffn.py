@@ -2,6 +2,8 @@
 
 Simple Multi-Layer Perceptron with backpropagation that provides baseline
 comparison against CNN and ART architectures.
+
+Dashboard Menu: Indirectly called via Options 1, 4, 5, 6 (through nn_train_ffn.py and detection utilities)
 """
 
 from torch import nn

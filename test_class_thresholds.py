@@ -2,6 +2,8 @@
 
 Shows threshold differences across digit classes and tests OOD rejection
 behavior with noisy samples and non-digit images.
+
+Dashboard Menu: Not directly called by dashboard (standalone testing utility)
 """
 
 import torch
