@@ -386,11 +386,6 @@ def main():
     print("  ✓ model_state_ffn.pth - FFN classifier")
     print("  ✓ autoencoder.pth - Class-conditional autoencoder")
     print("  ✓ ood_params.pth - OOD detection parameters")
-    print("\nNext steps:")
-    print("  1. Test accuracy: python test_accuracy.py")
-    print("  2. Single image: python detect.py <image_path>")
-    print("  3. Batch detect: python detect_batch.py <folder_path>")
-    print("  4. Generate report: python generate_report.py")
     print("="*60)
 
 if __name__ == "__main__":

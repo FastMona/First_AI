@@ -119,18 +119,50 @@ def test_single_model(model_name, model_type_override=None):
     print(f"  - Digit samples: {len(digit_samples)}")
     print(f"  - OOD samples: {len(ood_samples)}")
     
-    print(f"\n{'DIGIT CLASSIFICATION PERFORMANCE:':<40}")
+    # CONFUSION MATRIX
+    print(f"\n{'CONFUSION MATRIX (OOD Detection Context):':<40}")
+    print("┌─────────────────────────────┬──────────────────┬──────────────────┐")
+    print("│                             │  Predicted: DIGIT│ Predicted: OOD   │")
+    print("├─────────────────────────────┼──────────────────┼──────────────────┤")
+    
+    # Row 1: Actually Digit
+    tp = correct_digits + incorrect_digits  # All digits accepted (whether correct class or not)
+    fn = rejected_digits  # Digits rejected
+    print(f"│ Actually: DIGIT             │  {tp:3d} (TP+FP)    │  {fn:3d} (FN)       │")
+    
+    # Row 2: Actually OOD
+    fp = false_acceptances  # OOD accepted as digit
+    tn = correct_rejections  # OOD correctly rejected
+    print(f"│ Actually: OOD (non-digit)   │  {fp:3d} (FP)       │  {tn:3d} (TN)       │")
+    print("└─────────────────────────────┴──────────────────┴──────────────────┘")
+    
+    # Metrics
+    print(f"\n{'PERFORMANCE METRICS:':<40}")
+    
+    # For digit classification (of accepted digits)
     if digit_samples:
         digit_accuracy = correct_digits / len(digit_samples) * 100
-        print(f"  Correctly classified: {correct_digits}/{len(digit_samples)} ({digit_accuracy:.1f}%)")
-        print(f"  Incorrectly classified: {incorrect_digits}/{len(digit_samples)} ({incorrect_digits/len(digit_samples)*100:.1f}%)")
-        print(f"  Rejected (false negatives): {rejected_digits}/{len(digit_samples)} ({rejected_digits/len(digit_samples)*100:.1f}%)")
+        print(f"  Digit Classification (of accepted):")
+        print(f"    ✓ Correct class: {correct_digits}/{len(digit_samples)} ({digit_accuracy:.1f}%)")
+        print(f"    ✗ Wrong class:   {incorrect_digits}/{len(digit_samples)} ({incorrect_digits/len(digit_samples)*100:.1f}%)")
+        print(f"    ✗ Rejected (FN): {rejected_digits}/{len(digit_samples)} ({rejected_digits/len(digit_samples)*100:.1f}%)")
     
-    print(f"\n{'OOD DETECTION PERFORMANCE:':<40}")
+    # For OOD detection
     if ood_samples:
         ood_accuracy = correct_rejections / len(ood_samples) * 100
-        print(f"  Correctly rejected: {correct_rejections}/{len(ood_samples)} ({ood_accuracy:.1f}%)")
-        print(f"  False acceptances: {false_acceptances}/{len(ood_samples)} ({false_acceptances/len(ood_samples)*100:.1f}%)")
+        print(f"\n  OOD Detection:")
+        print(f"    ✓ True Negative (TN):  {correct_rejections}/{len(ood_samples)} ({ood_accuracy:.1f}%)")
+        print(f"    ✗ False Positive (FP): {false_acceptances}/{len(ood_samples)} ({false_acceptances/len(ood_samples)*100:.1f}%)")
+    
+    # Overall metrics
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0
+    f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+    
+    print(f"\n  Overall OOD Detection Metrics:")
+    print(f"    Precision: {precision:.3f} (of predicted digits, how many are real digits)")
+    print(f"    Recall:    {recall:.3f} (of real digits, how many were accepted)")
+    print(f"    F1-Score:  {f1_score:.3f}")
     
     print(f"\n{'OVERALL ACCURACY:':<40}")
     overall_accuracy = total_correct / total_samples * 100

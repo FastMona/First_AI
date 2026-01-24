@@ -10,11 +10,12 @@ import os
 import shutil
 from pathlib import Path
 
-def clean_project(interactive=True):
+def clean_project(interactive=True, current_log_file=None):
     """Remove generated files and folders
     
     Args:
         interactive (bool): If True, ask for confirmation. If False, proceed automatically.
+        current_log_file (str): Name of the current dashboard log file to include in cleanup
     """
     
     print("="*80)
@@ -50,9 +51,14 @@ def clean_project(interactive=True):
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
     files_to_remove.extend(md_files)
     
-    # Find .txt log files (dashboard_log.txt)
-    txt_files = list(workspace.glob("dashboard_log.txt"))
-    files_to_remove.extend(txt_files)
+    # Find session log files (dashboard_session_*.txt) - handled separately
+    session_logs = list(workspace.glob("dashboard_session_*.txt"))
+    
+    # Add current log file if provided (in case it's not found by glob because it's open)
+    if current_log_file:
+        current_log_path = Path(current_log_file)
+        if current_log_path.exists() and current_log_path not in session_logs:
+            session_logs.append(current_log_path)
     
     # Find .png files (generated visualizations/plots)
     png_files = list(workspace.glob("*.png"))
@@ -93,6 +99,16 @@ def clean_project(interactive=True):
     else:
         print("  No folders to remove")
     
+    # Display session logs separately
+    if session_logs:
+        print("\n📋 Session Logs (optional cleanup):")
+        total_log_size = 0
+        for log in sorted(session_logs):
+            size = log.stat().st_size / 1024
+            total_log_size += size
+            print(f"  - {log.name} ({size:.1f} KB)")
+        print(f"  Total: {len(session_logs)} files ({total_log_size:.1f} KB)")
+    
     print("\n" + "="*80)
     print("PRESERVED (NOT deleted):")
     print("-"*80)
@@ -100,18 +116,60 @@ def clean_project(interactive=True):
     print("  ✓ test_images/ folder (if exists)")
     print("  ✓ README.md (if exists)")
     print("  ✓ All Python source files (.py)")
+    if session_logs:
+        print("  ⚠️  dashboard_session_*.txt (Will ask separately)")
     print("="*80)
     
-    if not files_to_remove and not folders_to_remove:
+    # Initialize variables for optional cleanup
+    remove_session_logs = False
+    remove_mnist = False
+    mnist_folders = []
+    
+    # Check for MNIST data folders
+    if Path('training_data/MNIST').exists():
+        mnist_folders.append(Path('training_data/MNIST'))
+    if Path('data/MNIST').exists():
+        mnist_folders.append(Path('data/MNIST'))
+    
+    # Check if there's anything to clean
+    if not files_to_remove and not folders_to_remove and not session_logs and not mnist_folders:
         print("\n✓ Project is already clean!")
         return
     
-    # Ask for confirmation (only if interactive mode)
+    # Ask all questions first (in interactive mode)
+    proceed_with_main_cleanup = True
     if interactive:
-        print("\n⚠️  WARNING: This action cannot be undone!")
-        response = input("Do you want to proceed? (yes/no): ").strip().lower()
+        # Ask about main cleanup if there are files/folders to remove
+        if files_to_remove or folders_to_remove:
+            print("\n⚠️  WARNING: This action cannot be undone!")
+            response = input("Do you want to proceed with cleanup? (yes/no): ").strip().lower()
+            proceed_with_main_cleanup = response in ['yes', 'y']
         
-        if response not in ['yes', 'y']:
+        # Ask about session logs
+        if session_logs:
+            print("\n" + "-"*80)
+            print("📋 Session Log Files:")
+            print(f"   Found {len(session_logs)} session log file(s)")
+            print("   These files contain terminal output history for demos/documentation")
+            response_logs = input("Do you want to delete session logs? (yes/no): ").strip().lower()
+            remove_session_logs = response_logs in ['yes', 'y']
+        
+        # Ask about MNIST data
+        if mnist_folders:
+            print("\n" + "-"*80)
+            print("💾 MNIST Data:")
+            total_mnist_size = 0
+            for folder in mnist_folders:
+                size = sum(f.stat().st_size for f in folder.rglob("*") if f.is_file())
+                total_mnist_size += size
+                print(f"   - {folder} ({size / (1024*1024):.1f} MB)")
+            print(f"   Total: {total_mnist_size / (1024*1024):.1f} MB")
+            print("   ⚠️  This will require re-downloading on next training (~10MB)")
+            response_mnist = input("Do you want to delete MNIST data? (yes/no): ").strip().lower()
+            remove_mnist = response_mnist in ['yes', 'y']
+        
+        # If user said no to everything, exit
+        if not proceed_with_main_cleanup and not remove_session_logs and not remove_mnist:
             print("\n❌ Cleanup cancelled")
             return
     
@@ -122,37 +180,69 @@ def clean_project(interactive=True):
     
     removed_count = 0
     
-    # Remove files
-    for f in files_to_remove:
-        try:
-            f.unlink()
-            print(f"  ✓ Removed: {f.name}")
-            removed_count += 1
-        except Exception as e:
-            print(f"  ✗ Failed to remove {f.name}: {e}")
+    # Remove files (only if user agreed to main cleanup)
+    if files_to_remove and proceed_with_main_cleanup:
+        for f in files_to_remove:
+            try:
+                f.unlink()
+                print(f"  ✓ Removed: {f.name}")
+                removed_count += 1
+            except Exception as e:
+                print(f"  ✗ Failed to remove {f.name}: {e}")
     
-    # Remove folders
-    for folder in folders_to_remove:
-        try:
-            shutil.rmtree(folder)
-            print(f"  ✓ Removed: {folder}")
-            removed_count += 1
-        except Exception as e:
-            print(f"  ✗ Failed to remove {folder}: {e}")
+    # Remove folders (only if user agreed to main cleanup)
+    if folders_to_remove and proceed_with_main_cleanup:
+        for folder in folders_to_remove:
+            try:
+                shutil.rmtree(folder)
+                print(f"  ✓ Removed: {folder}")
+                removed_count += 1
+            except Exception as e:
+                print(f"  ✗ Failed to remove {folder}: {e}")
+    
+    # Handle session logs based on user choice
+    if session_logs and remove_session_logs:
+        if removed_count > 0:
+            print()
+        print("Removing session logs...")
+        for log in session_logs:
+            try:
+                log.unlink()
+                print(f"  ✓ Removed: {log.name}")
+                removed_count += 1
+            except Exception as e:
+                print(f"  ✗ Failed to remove {log.name}: {e}")
+    elif session_logs and not remove_session_logs:
+        if removed_count > 0:
+            print()
+        print(f"  ✓ Session logs preserved ({len(session_logs)} files)")
+    
+    # Handle MNIST data based on user choice
+    if mnist_folders and remove_mnist:
+        if removed_count > 0 or session_logs:
+            print()
+        print("Removing MNIST data...")
+        for folder in mnist_folders:
+            try:
+                shutil.rmtree(folder)
+                print(f"  ✓ Removed: {folder}")
+                removed_count += 1
+            except Exception as e:
+                print(f"  ✗ Failed to remove {folder}: {e}")
+    elif mnist_folders and not remove_mnist:
+        if removed_count > 0 or session_logs:
+            print()
+        print(f"  ✓ MNIST data preserved ({len(mnist_folders)} folders)")
     
     print("-"*80)
-    print(f"\n✓ Cleanup complete! Removed {removed_count} items")
+    if removed_count > 0:
+        print(f"\n✓ Cleanup complete! Removed {removed_count} items")
+    else:
+        print(f"\n✓ No items were removed (all optional items were preserved)")
     print("="*80)
     
-    # Show next steps
-    print("\nNEXT STEPS:")
-    print("  1. Train models via dashboard:")
-    print("     - Option 1: Train with CNN")
-    print("     - Option 2: Train with ART")
-    print("  2. Run 'python test_accuracy.py' to compare both models")
-    print("  3. Run 'python generate_report.py' to create visual report")
-    print("\n💡 To also remove MNIST data, delete the training_data/ folder manually")
-    print("   (This will require re-downloading ~10MB on next training)")
+    if remove_mnist:
+        print("\n💡 MNIST data was deleted - it will be re-downloaded (~10MB) on next training")
 
 def main():
     """Main entry point for direct execution"""

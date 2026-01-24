@@ -438,7 +438,6 @@ def main():
     print(f"  - {Config.MODEL_PATH_ART} (ART classifier)")
     print(f"  - {Config.AUTOENCODER_PATH} (Autoencoder)")
     print(f"  - {Config.OOD_PARAMS_PATH} (OOD detection parameters)")
-    print("\nYou can now use detect.py or detect_batch.py for inference.")
     print("="*80)
 
 if __name__ == "__main__":

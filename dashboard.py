@@ -18,8 +18,9 @@ import sys
 import os
 from datetime import datetime
 
-# Log file for terminal output
-LOG_FILE = "dashboard_log.txt"
+# Log file for terminal output - session-specific with timestamp
+SESSION_TIMESTAMP = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+LOG_FILE = f"dashboard_session_{SESSION_TIMESTAMP}.txt"
 
 class TeeOutput:
     """Class to write to both file and terminal"""
@@ -220,22 +221,21 @@ def run_module(module_name, function_name="main"):
         print("\n" + "─"*80)
         input("\nPress Enter to return to dashboard...")
 
-def run_clean_project():
+def run_clean_project(log_file=None):
     """Special handler for clean_project with confirmation"""
     try:
         print("\n" + "─"*80)
         import clean_project
         
-        # Ask for confirmation before running
-        print("\n⚠️  This will remove all generated files (.pth, .md, .png, __pycache__)")
-        print("⚠️  MNIST data and source code will be preserved")
-        response = input("\nAre you sure you want to clean the project? (yes/no): ").strip().lower()
+        # Close the current log file so it can be deleted
+        current_log_file = LOG_FILE
+        if log_file:
+            close_logging(log_file)
         
-        if response in ['yes', 'y']:
-            # Run cleanup without additional interactive prompts
-            clean_project.clean_project(interactive=False)
-        else:
-            print("\n❌ Cleanup cancelled")
+        # Run cleanup with interactive prompts for all options
+        clean_project.clean_project(interactive=True, current_log_file=current_log_file)
+        
+        # Don't reopen log file - assume user will exit after cleanup
             
     except ImportError as e:
         print(f"Error importing clean_project: {e}")
@@ -244,6 +244,8 @@ def run_clean_project():
     finally:
         print("\n" + "─"*80)
         input("\nPress Enter to return to dashboard...")
+    
+    return None  # Return None since log file is closed
 
 def run_detect():
     """Special handler for single image detection"""
@@ -314,7 +316,7 @@ def main():
             elif choice == '7':
                 run_module("camera")
             elif choice == '8':
-                run_clean_project()
+                log_file = run_clean_project(log_file)
             elif choice == '0':
                 close_logging(log_file)
                 clear_screen()
