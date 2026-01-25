@@ -52,6 +52,8 @@ def main(argv=None) -> int:
     train.add_argument("--batch-size", type=int, default=256)
     train.add_argument("--num-workers", type=int, default=4)
     train.add_argument("--epochs", type=int, default=10)
+    train.add_argument("--eval-batch-size", type=int, default=256, help="Eval batch size for ART")
+    train.add_argument("--passes", type=int, default=3, help="Number of ART passes over data")
 
     args = parser.parse_args(argv)
 
@@ -157,13 +159,24 @@ def main(argv=None) -> int:
             elif args.model_type == "art":
                 import nn_train_art
                 if hasattr(nn_train_art, "main"):
-                    nn_train_art.main()
+                    nn_train_art.main(
+                        device=args.device,
+                        train_batch_size=args.batch_size,
+                        eval_batch_size=args.eval_batch_size,
+                        num_workers=args.num_workers,
+                        passes=args.passes,
+                    )
                 else:
                     logger.warning("nn_train_art has no main(); executing module")
             elif args.model_type == "ffn":
                 import nn_train_ffn
                 if hasattr(nn_train_ffn, "main"):
-                    nn_train_ffn.main()
+                    nn_train_ffn.main(
+                        device=args.device,
+                        batch_size=args.batch_size,
+                        num_workers=args.num_workers,
+                        epochs=args.epochs,
+                    )
                 else:
                     logger.warning("nn_train_ffn has no main(); executing module")
             return 0
