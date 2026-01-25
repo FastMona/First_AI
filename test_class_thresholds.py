@@ -10,6 +10,7 @@ import torch
 import numpy as np
 from detection_utils import load_models, predict_image
 from torch import load
+from config import Config
 import os
 from PIL import Image
 
@@ -20,7 +21,7 @@ def show_threshold_info():
     print("="*70)
     
     # Load OOD parameters
-    with open('ood_params.pth', 'rb') as f:
+    with open(Config.OOD_PARAMS_PATH, 'rb') as f:
         params = load(f, weights_only=False)
     
     if 'class_thresholds_95' not in params:

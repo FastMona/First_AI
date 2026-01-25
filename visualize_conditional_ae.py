@@ -22,6 +22,7 @@ from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 from autoencoder_model import MNISTAutoencoder
 from nn_model_cnn import ImageClassifier
+from config import Config
 import numpy as np
 
 def visualize_conditional_reconstruction(autoencoder, classifier, test_dataset, num_samples=5):
@@ -192,12 +193,12 @@ def main():
     
     # Load classifier
     classifier = ImageClassifier().to('cuda')
-    with open('model_state.pth', 'rb') as f:
+    with open(Config.MODEL_PATH, 'rb') as f:
         classifier.load_state_dict(torch.load(f))
     classifier.eval()
     
     # Load autoencoder
-    with open('autoencoder.pth', 'rb') as f:
+    with open(Config.AUTOENCODER_PATH, 'rb') as f:
         ae_data = torch.load(f)
     autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
     autoencoder.load_state_dict(ae_data['model_state'])

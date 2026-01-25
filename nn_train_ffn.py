@@ -16,6 +16,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 from nn_model_ffn import FeedforwardClassifier
 from autoencoder_model import MNISTAutoencoder
+from config import Config
 
 # Load MNIST dataset
 full_train = datasets.MNIST(root='training_data', train=True, download=True, transform=ToTensor())
@@ -121,7 +122,7 @@ def main():
         if test_loss < best_test_loss:
             best_test_loss = test_loss
             patience_counter = 0
-            with open('model_state_ffn.pth', 'wb') as f:
+            with open(Config.MODEL_PATH_FFN, 'wb') as f:
                 save(clf.state_dict(), f)
             print(f"  ✓ New best model saved (test loss: {test_loss:.6f})")
         else:
@@ -261,9 +262,9 @@ def main():
         'mean_distance': global_mean,
     }
     
-    with open('ood_params.pth', 'wb') as f:
+    with open(Config.OOD_PARAMS_PATH, 'wb') as f:
         save(ood_params, f)
-    print(f"\n✓ OOD detection parameters saved to ood_params.pth")
+    print(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
     print("  - Class prototypes (means) for all 10 digits")
     print("  - Precision matrix for Mahalanobis distance")
     print(f"  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
@@ -366,7 +367,7 @@ def main():
     print(f"\nRecommended threshold: {recon_threshold_95:.6f}")
     
     # Save autoencoder and threshold
-    with open('autoencoder.pth', 'wb') as f:
+    with open(Config.AUTOENCODER_PATH, 'wb') as f:
         save({
             'model_state': autoencoder.state_dict(),
             'threshold_95': recon_threshold_95,
@@ -375,7 +376,7 @@ def main():
             'std_error': recon_std
         }, f)
     
-    print(f"✓ Autoencoder saved to autoencoder.pth")
+    print(f"✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
     print(f"  Default threshold: {recon_threshold_95:.6f} (95th percentile)")
     print("="*60)
     
@@ -383,9 +384,9 @@ def main():
     print("TRAINING COMPLETE!")
     print("="*60)
     print("All models and parameters saved:")
-    print("  ✓ model_state_ffn.pth - FFN classifier")
-    print("  ✓ autoencoder.pth - Class-conditional autoencoder")
-    print("  ✓ ood_params.pth - OOD detection parameters")
+    print(f"  ✓ {Config.MODEL_PATH_FFN} - FFN classifier")
+    print(f"  ✓ {Config.AUTOENCODER_PATH} - Class-conditional autoencoder")
+    print(f"  ✓ {Config.OOD_PARAMS_PATH} - OOD detection parameters")
     print("="*60)
 
 if __name__ == "__main__":

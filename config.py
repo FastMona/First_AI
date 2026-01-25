@@ -7,6 +7,7 @@ Dashboard Menu: Indirectly called via all options (imported by most modules for 
 """
 
 import torch
+from pathlib import Path
 
 class Config:
     """
@@ -58,13 +59,18 @@ class Config:
     # Model selection
     MODEL_TYPE = 'cnn'  # Options: 'cnn', 'art', or 'ffn'
     
-    # Model file paths
-    MODEL_PATH = 'model_state.pth'          # Legacy CNN path
-    MODEL_PATH_CNN = 'model_state_cnn.pth'  # CNN model
-    MODEL_PATH_ART = 'model_state_art.pth'  # ART model
-    MODEL_PATH_FFN = 'model_state_ffn.pth'  # FFN model
-    AUTOENCODER_PATH = 'autoencoder.pth'
-    OOD_PARAMS_PATH = 'ood_params.pth'
+    # Directory paths
+    MODELS_DIR = Path('models')
+    OUTPUTS_DIR = Path('outputs')
+    CAPTURES_DIR = Path('captures')
+    
+    # Model file paths (under models/ directory)
+    MODEL_PATH = MODELS_DIR / 'model_state.pth'          # Legacy CNN path
+    MODEL_PATH_CNN = MODELS_DIR / 'model_state_cnn.pth'  # CNN model
+    MODEL_PATH_ART = MODELS_DIR / 'model_state_art.pth'  # ART model
+    MODEL_PATH_FFN = MODELS_DIR / 'model_state_ffn.pth'  # FFN model
+    AUTOENCODER_PATH = MODELS_DIR / 'autoencoder.pth'
+    OOD_PARAMS_PATH = MODELS_DIR / 'ood_params.pth'
     
     # Data paths
     DATA_DIR = 'training_data'

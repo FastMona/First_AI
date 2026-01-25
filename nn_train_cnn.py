@@ -16,6 +16,7 @@ from torchvision import datasets
 from torchvision.transforms import ToTensor
 from nn_model_cnn import ImageClassifier
 from autoencoder_model import MNISTAutoencoder
+from config import Config
 
 # Load MNIST dataset
 full_train = datasets.MNIST(root='training_data', train=True, download=True, transform=ToTensor())
@@ -121,7 +122,7 @@ def main():
         if test_loss < best_test_loss:
             best_test_loss = test_loss
             patience_counter = 0
-            with open('model_state.pth', 'wb') as f:
+            with open(Config.MODEL_PATH, 'wb') as f:
                 save(clf.state_dict(), f)
             print(f"  ✓ New best model saved (test loss: {test_loss:.6f})")
         else:
@@ -263,9 +264,9 @@ def main():
         'mean_distance': global_mean,
     }
     
-    with open('ood_params.pth', 'wb') as f:
+    with open(Config.OOD_PARAMS_PATH, 'wb') as f:
         save(ood_params, f)
-    print(f"\n✓ OOD detection parameters saved to ood_params.pth")
+    print(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
     print("  - Class prototypes (means) for all 10 digits")
     print("  - Precision matrix for Mahalanobis distance")
     print(f"  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
@@ -368,7 +369,7 @@ def main():
     print(f"\nRecommended threshold: {recon_threshold_95:.6f}")
     
     # Save autoencoder and threshold
-    with open('autoencoder.pth', 'wb') as f:
+    with open(Config.AUTOENCODER_PATH, 'wb') as f:
         save({
             'model_state': autoencoder.state_dict(),
             'threshold_95': recon_threshold_95,
@@ -377,7 +378,7 @@ def main():
             'std_error': recon_std
         }, f)
     
-    print(f"\n✓ Autoencoder saved to autoencoder.pth")
+    print(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
     print(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
     print("  - Use as first gate before digit classifier")
     print("="*60)

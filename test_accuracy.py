@@ -9,6 +9,7 @@ Dashboard Menu: Called by Option 4 - "Test Accuracy"
 from pathlib import Path
 import os
 from detection_utils import load_models, predict_image, parse_filename
+from config import Config
 
 def test_single_model(model_name, model_type_override=None):
     """Test a single model and return results"""
@@ -212,9 +213,9 @@ def main():
     print("="*80)
     
     # Check which models are available
-    cnn_available = os.path.exists('model_state.pth')
-    art_available = os.path.exists('model_state_art.pth')
-    ffn_available = os.path.exists('model_state_ffn.pth')
+    cnn_available = os.path.exists(Config.MODEL_PATH)
+    art_available = os.path.exists(Config.MODEL_PATH_ART)
+    ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
     
     if not cnn_available and not art_available and not ffn_available:
         print("\n⚠️  No trained models found!")
