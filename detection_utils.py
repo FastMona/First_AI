@@ -1,9 +1,8 @@
-"""Shared utilities for MNIST digit detection.
+"""Shared detection utilities.
 
-Provides common functions for model loading, prediction, result formatting, and display.
-Used by: detect.py, detect_batch.py, test_accuracy.py, generate_report.py
-
-Dashboard Menu: Indirectly called via Options 4, 5, 6 (through detect.py, detect_batch.py, test_accuracy.py)
+Why: single source for loading models + two-stage OOD flow so detect*, tests,
+and reporting stay consistent. Any drift here would desync CLI/dashboard paths
+from the trained artifacts.
 """
 
 import torch

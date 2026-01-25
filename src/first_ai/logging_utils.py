@@ -1,3 +1,9 @@
+"""Shared logging configuration helpers.
+
+Used by the first_ai CLI and can be imported by training/detection scripts
+to ensure consistent logging outputs and optional file handlers.
+"""
+
 import logging
 from pathlib import Path
 from typing import Optional

@@ -1,9 +1,7 @@
-"""Configuration file for MNIST digit detection project.
+"""Configuration constants for MNIST project.
 
-Centralizes all magic numbers, paths, and hyperparameters to provide
-a single source of truth for the entire project.
-
-Dashboard Menu: Indirectly called via all options (imported by most modules for configuration settings)
+Why: single source of truth for devices, paths, and hyperparameters so training,
+detection, and CLI flows cannot drift. Imported by nearly every module.
 """
 
 import torch

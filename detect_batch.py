@@ -1,9 +1,8 @@
-"""Batch digit detection for MNIST model.
+"""Batch digit detection entrypoint.
 
-Processes all images in a folder and reports comprehensive results including
-accuracy metrics and OOD rejection statistics.
-
-Dashboard Menu: Called by Option 6 - "Batch Image Detection"
+Why: reuses the same two-stage OOD path as single-image detection to surface
+accuracy/acceptance stats across a folder, matching dashboard Option 6 and
+preventing drift from detection_utils behavior.
 """
 
 import logging

@@ -1,9 +1,7 @@
-"""Test and visualize class-conditional thresholds.
+"""Class-threshold analysis utility.
 
-Shows threshold differences across digit classes and tests OOD rejection
-behavior with noisy samples and non-digit images.
-
-Dashboard Menu: Not directly called by dashboard (standalone testing utility)
+Why: inspects Mahalanobis thresholds and OOD behavior under noise/non-digits to
+validate OOD params after training; standalone so it doesn't affect runtime.
 """
 
 import torch

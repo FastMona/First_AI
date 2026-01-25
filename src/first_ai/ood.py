@@ -1,4 +1,8 @@
-"""OOD computation utilities for Mahalanobis-based thresholds."""
+"""OOD computation utilities for Mahalanobis-based thresholds.
+
+Consumed by nn_train_cnn/ffn/art and the first_ai CLI. Models must expose
+get_features(X) returning embeddings used for distance calculations.
+"""
 
 import logging
 from typing import Any, Dict, Tuple

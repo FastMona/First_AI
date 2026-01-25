@@ -1,19 +1,8 @@
-"""
-Visualize Class-Conditional Autoencoder
+"""Visualize class-conditional AE behavior.
 
-This script demonstrates how the class-conditional autoencoder learns
-separate manifolds for each digit class.
-
-It shows:
-1. Original image
-2. Reconstruction using the CORRECT class manifold
-3. Reconstruction using WRONG class manifolds
-4. Reconstruction errors for all classes
-
-This illustrates the biological perception model:
-"I think this is a 3 — does it look like a 3?"
-
-Dashboard Menu: Not directly called by dashboard (standalone visualization utility)
+Why: sanity-check Stage 1 OOD gate by showing how recon errors differ across
+manifolds; ensures any AE change is inspected before trusting detection flows.
+Standalone utility (not dashboard-backed).
 """
 
 import torch

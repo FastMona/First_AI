@@ -1,5 +1,11 @@
 from __future__ import annotations
 
+"""Artifact helpers for saving/loading model payloads.
+
+Used by training scripts and detection utilities via Config.MODELS_DIR.
+Requires torch availability for serialization.
+"""
+
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Dict, Optional

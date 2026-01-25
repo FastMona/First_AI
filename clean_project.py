@@ -1,9 +1,8 @@
-"""Clean project - Remove generated files for a fresh start.
+"""Workspace cleaner.
 
-Removes .pth model files, .md reports, and cache folders while preserving
-MNIST training data in training_data/ folder.
-
-Dashboard Menu: Called by Option 8 - "Clean Project"
+Why: delete generated artifacts/checkpoints/reports while leaving source and
+downloaded MNIST data intact, so reruns start clean without re-downloading.
+Matches dashboard Option 8 behavior.
 """
 
 import logging

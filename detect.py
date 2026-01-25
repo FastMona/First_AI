@@ -1,9 +1,8 @@
-"""Single-image digit detection program for MNIST model.
+"""Single-image digit detection entrypoint.
 
-Provides interactive interface with detailed two-stage OOD detection output.
-Uses shared utilities from detection_utils.py for model loading and predictions.
-
-Dashboard Menu: Called by Option 5 - "Single Image Detection"
+Why: front-door wrapper that exercises the two-stage OOD gate (AE + Mahalanobis)
+so users see the exact runtime path detection_utils uses. Keeps dashboard Option 5
+on the same flow as batch/report/tests to avoid divergence.
 """
 
 import logging

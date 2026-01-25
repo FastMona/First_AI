@@ -1,8 +1,8 @@
-"""Camera-based image capture for MNIST model testing.
+"""Camera capture helper for MNIST tests.
 
-Captures images from webcam and saves them in the correct format for MNIST model testing.
-
-Dashboard Menu: Called by Option 7 - "Camera Capture"
+Why: enforce consistent preprocessing (28x28, white-on-black) for captured digits
+so downstream detection uses the same distribution as training; keeps dashboard
+Option 7 aligned with detection flow.
 """
 
 import cv2

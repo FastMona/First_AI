@@ -1,9 +1,8 @@
-"""Adaptive Resonance Theory (Fuzzy ART) model for MNIST digit classification.
+"""Fuzzy ART classifier for MNIST.
 
-Provides an alternative architecture to the CNN, using biologically-inspired
-template matching with vigilance-based resonance search.
-
-Dashboard Menu: Indirectly called via Options 3, 4, 5, 6 (through nn_train_art.py and detection utilities)
+Why: complements CNN/FFN with a template-based model that still exposes
+get_features for Mahalanobis OOD; changing vigilance or feature shape requires
+matching OOD params and artifact regeneration.
 """
 
 import torch

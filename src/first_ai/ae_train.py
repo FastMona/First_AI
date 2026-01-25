@@ -1,4 +1,8 @@
-"""Autoencoder training utilities for class-conditional reconstruction."""
+"""Autoencoder training utilities for class-conditional reconstruction.
+
+Used by nn_train_cnn/ffn/art and the first_ai CLI. Requires autoencoders
+to support reconstruction_error(pred_classes) for threshold calibration.
+"""
 
 import logging
 from typing import Dict, Any, Iterable, Tuple

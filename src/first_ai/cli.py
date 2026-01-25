@@ -1,7 +1,7 @@
 """Unified CLI (initial scaffold).
 
-Provides basic commands and sets up logging and seeds.
-Future work: Wire into training/data/ood modules and script wrappers.
+Sets up logging/seeds and dispatches to detection_utils, generate_report,
+and nn_train_* wrappers that rely on first_ai.* shared modules.
 """
 
 import argparse

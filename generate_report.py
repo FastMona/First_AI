@@ -1,9 +1,7 @@
-"""Generate markdown report with image thumbnails and results.
+"""Generate markdown report for detection runs.
 
-Creates a visual report of test accuracy with embedded image thumbnails,
-prediction results, and comprehensive accuracy metrics.
-
-Dashboard Menu: Not directly called by dashboard (standalone utility script)
+Why: produce a human-shareable snapshot of model/OOD performance using the same
+detection_utils path as tests, avoiding divergence from runtime behavior.
 """
 
 import logging

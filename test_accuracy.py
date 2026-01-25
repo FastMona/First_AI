@@ -1,9 +1,7 @@
-"""Automated accuracy test for MNIST digit detector.
+"""Automated accuracy/OOD smoke test.
 
-Tests against labeled images in test_images folder and compares all available
-models: CNN, ART, and FFN.
-
-Dashboard Menu: Called by Option 4 - "Test Accuracy"
+Why: exercises the same detection_utils path across CNN/ART/FFN to surface
+regressions early and mirror dashboard Option 4 without bespoke logic.
 """
 
 from pathlib import Path

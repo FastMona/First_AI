@@ -1,3 +1,9 @@
+"""Seed helpers for reproducibility across Python/NumPy/Torch.
+
+Imported by the first_ai CLI and training scripts to enforce deterministic
+runs where possible.
+"""
+
 import os
 import random
 from typing import Optional

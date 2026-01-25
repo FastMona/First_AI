@@ -1,4 +1,9 @@
-"""Training program for FFN classifier and class-conditional autoencoder."""
+"""Training program for FFN classifier and class-conditional autoencoder.
+
+Depends on first_ai.data/build_mnist_dataloaders, first_ai.train for early
+stopping, first_ai.ood for thresholds, and first_ai.ae_train for AE training.
+Artifacts paths come from config.Config.
+"""
 
 import logging
 from pathlib import Path
@@ -7,9 +12,7 @@ import sys
 import torch
 from torch import nn
 from torch.optim import Adam
-from torch.utils.data import DataLoader, random_split
-from torchvision import datasets
-from torchvision.transforms import ToTensor
+from torch.utils.data import DataLoader
 
 from autoencoder_model import MNISTAutoencoder
 from config import Config
@@ -31,6 +34,7 @@ from first_ai.ood import (  # type: ignore
     compute_mahalanobis_thresholds,
 )
 from first_ai.ae_train import train_autoencoder, calibrate_reconstruction_threshold  # type: ignore
+from first_ai.data import build_mnist_dataloaders  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -39,31 +43,6 @@ def resolve_device(device: str) -> str:
     if device == "auto":
         return "cuda" if torch.cuda.is_available() else "cpu"
     return device
-
-
-def build_dataloaders(batch_size: int, num_workers: int) -> tuple[DataLoader, DataLoader, DataLoader]:
-    full_train = datasets.MNIST(root="training_data", train=True, download=True, transform=ToTensor())
-    test = datasets.MNIST(root="training_data", train=False, download=True, transform=ToTensor())
-
-    train_size = int(0.8 * len(full_train))
-    val_size = len(full_train) - train_size
-    seed = getattr(Config, "RANDOM_SEED", 42)
-    train, validation = random_split(
-        full_train,
-        [train_size, val_size],
-        generator=torch.Generator().manual_seed(seed),
-    )
-
-    logger.info("Dataset split:")
-    logger.info(f"  Training: {len(train)} samples (for model training)")
-    logger.info(f"  Validation: {len(validation)} samples (for threshold calibration)")
-    logger.info(f"  Test: {len(test)} samples (for final evaluation)")
-
-    common_args = dict(num_workers=num_workers, pin_memory=True, persistent_workers=True)
-    train_loader = DataLoader(train, batch_size=batch_size, shuffle=True, **common_args)
-    val_loader = DataLoader(validation, batch_size=batch_size, shuffle=False, **common_args)
-    test_loader = DataLoader(test, batch_size=batch_size, shuffle=False, **common_args)
-    return train_loader, val_loader, test_loader
 
 
 def main(
@@ -81,7 +60,14 @@ def main(
     logger.info(f"  • Mixed precision: {use_amp}")
     logger.info("")
 
-    train_loader, val_loader, test_loader = build_dataloaders(batch_size, num_workers)
+    train_loader, val_loader, test_loader = build_mnist_dataloaders(
+        dataset_root=Path("training_data"),
+        train_batch_size=batch_size,
+        eval_batch_size=batch_size,
+        num_workers=num_workers,
+        train_ratio=getattr(Config, "TRAIN_RATIO", 0.8),
+        seed=getattr(Config, "RANDOM_SEED", 42),
+    )
 
     # Initialize classifier
     clf = FeedforwardClassifier(

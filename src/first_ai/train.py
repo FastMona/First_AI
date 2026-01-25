@@ -1,7 +1,8 @@
 """Generic training utilities for PyTorch models.
 
-Provides reusable training loops with early stopping, mixed precision,
-and comprehensive logging for classifier training.
+Shared by nn_train_cnn/ffn/art and the first_ai CLI. Expects models to
+implement a standard forward pass; saving/loading handled by callers via
+Config and artifacts helpers.
 """
 
 import logging

@@ -1,7 +1,9 @@
-# Class-conditional autoencoder for MNIST digit reconstruction
-# Stage 1 OOD detection gate: rejects non-digits via high reconstruction error
-#
-# Dashboard Menu: Indirectly called via Options 1, 2, 3, 4, 5, 6 (used by all training and detection modules)
+"""Class-conditional autoencoder used as Stage 1 OOD gate.
+
+Why: reconstruction error is the first filter for non-digit inputs before the
+Mahalanobis stage. Shared by all training and detection paths, so the interface
+(reconstruction_error, label-conditioned forward) must stay stable.
+"""
 
 import torch
 from torch import nn
