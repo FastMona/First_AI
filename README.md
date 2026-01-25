@@ -71,6 +71,27 @@ python dashboard.py
 
 The dashboard provides easy access to all project functionalities through an interactive menu.
 
+**Unified CLI:**
+
+```bash
+# Train (CNN shown; also supports art, ffn)
+python -m src.first_ai.cli train cnn --device auto --batch-size 256 --num-workers 4 --epochs 10
+
+# Detect single image
+python -m src.first_ai.cli detect path/to/image.png
+
+# Batch detect
+python -m src.first_ai.cli batch-detect test_images/
+
+# Generate report
+python -m src.first_ai.cli report
+```
+
+**Project Directories:**
+- `models/` — all model artifacts (`model_state.pth`, `model_state_ffn.pth`, `autoencoder.pth`, `ood_params.pth`)
+- `outputs/` — generated reports and visualizations
+- `captures/` — camera captures saved as `capture_XXXX.jpg`
+
 ## Author
 
 David Cronin

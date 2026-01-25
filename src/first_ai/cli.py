@@ -48,6 +48,10 @@ def main(argv=None) -> int:
     # Train a model
     train = sub.add_parser("train", help="Train a model (CNN, ART, or FFN)")
     train.add_argument("model_type", choices=["cnn", "art", "ffn"], help="Model type to train")
+    train.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
+    train.add_argument("--batch-size", type=int, default=256)
+    train.add_argument("--num-workers", type=int, default=4)
+    train.add_argument("--epochs", type=int, default=10)
 
     args = parser.parse_args(argv)
 
@@ -142,7 +146,12 @@ def main(argv=None) -> int:
             if args.model_type == "cnn":
                 import nn_train_cnn
                 if hasattr(nn_train_cnn, "main"):
-                    nn_train_cnn.main()
+                    nn_train_cnn.main(
+                        device=args.device,
+                        batch_size=args.batch_size,
+                        num_workers=args.num_workers,
+                        epochs=args.epochs,
+                    )
                 else:
                     logger.warning("nn_train_cnn has no main(); executing module")
             elif args.model_type == "art":

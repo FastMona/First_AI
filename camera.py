@@ -9,6 +9,9 @@ import cv2
 import numpy as np
 import os
 import logging
+from pathlib import Path
+
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +73,20 @@ def preprocess_for_mnist(frame, show_steps=False):
     return resized
 
 def main():
-    # Find the next available image number
-    img_counter = 1
-    while os.path.exists(f'img_{img_counter}.jpg'):
-        img_counter += 1
+    # Ensure captures directory exists
+    capture_dir = Config.CAPTURES_DIR
+    capture_dir.mkdir(parents=True, exist_ok=True)
+
+    # Find the next available image number in captures/
+    existing = sorted(capture_dir.glob("capture_*.jpg"))
+    if existing:
+        last = existing[-1].stem.split("_")[-1]
+        try:
+            img_counter = int(last) + 1
+        except ValueError:
+            img_counter = len(existing) + 1
+    else:
+        img_counter = 1
     
     # Open camera (0 is usually the default camera, try 1 or 2 if 0 doesn't work)
     cap = cv2.VideoCapture(0)
@@ -97,7 +110,7 @@ def main():
     logger.info("  2. Hold it up to the camera")
     logger.info("  3. Press SPACE to capture and save as img_X.jpg")
     logger.info("  4. Press 'Q' or 'ESC' to quit")
-    logger.info(f"\nNext image will be saved as: img_{img_counter}.jpg")
+    logger.info(f"\nNext image will be saved as: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
     logger.info("Preprocessing steps will be shown continuously.")
     logger.info("="*60 + "\n")
     
@@ -124,16 +137,16 @@ def main():
                 break
             elif key == ord(' '):
                 # Space bar: capture and save
-                logger.info(f"\nCapturing and saving img_{img_counter}.jpg...")
+                logger.info(f"\nCapturing and saving capture_{img_counter:04d}.jpg...")
                 
                 # Save the processed image
-                filename = f'img_{img_counter}.jpg'
-                cv2.imwrite(filename, processed)
+                filename = capture_dir / f"capture_{img_counter:04d}.jpg"
+                cv2.imwrite(str(filename), processed)
                 logger.info(f"Saved: {filename}")
                 
                 # Increment counter for next image
                 img_counter += 1
-                logger.info(f"Next image will be: img_{img_counter}.jpg")
+                logger.info(f"Next image will be: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
     
     except KeyboardInterrupt:
         logger.info("\n\nInterrupted by user (Ctrl+C)")
