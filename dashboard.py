@@ -16,7 +16,10 @@ Menu Structure:
 
 import sys
 import os
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
 
 # Log file for terminal output - session-specific with timestamp
 SESSION_TIMESTAMP = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -56,7 +59,7 @@ def setup_logging():
         
         return log_file
     except Exception as e:
-        print(f"Warning: Could not setup logging: {e}")
+        logger.warning(f"Warning: Could not setup logging: {e}")
         return None
 
 def close_logging(log_file):
@@ -74,7 +77,7 @@ def close_logging(log_file):
             
             log_file.close()
     except Exception as e:
-        print(f"Warning: Could not close logging: {e}")
+        logger.warning(f"Warning: Could not close logging: {e}")
 
 def check_environment():
     """Check if running in the correct PyTorch environment and return environment info"""

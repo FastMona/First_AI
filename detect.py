@@ -1,14 +1,17 @@
-"""Single-image digit detection program for MNIST model.
+"""Single-image digit detection entrypoint.
 
-Provides interactive interface with detailed two-stage OOD detection output.
-Uses shared utilities from detection_utils.py for model loading and predictions.
-
-Dashboard Menu: Called by Option 5 - "Single Image Detection"
+Why: front-door wrapper that exercises the two-stage OOD gate (AE + Mahalanobis)
+so users see the exact runtime path detection_utils uses. Keeps dashboard Option 5
+on the same flow as batch/report/tests to avoid divergence.
 """
 
+import logging
+import sys
 from detection_utils import (load_models, predict_image, format_detection_result, 
                             print_separator, print_header)
-import sys
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def main(image_path=None):
     """Detect digit in a single image
@@ -19,13 +22,13 @@ def main(image_path=None):
     print_header("MNIST Digit Detector with 2-Stage OOD Detection")
     
     # Load models
-    print("\nLoading models...")
+    logger.info("Loading models...")
     clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
     
     if clf is None:
         return
     
-    print(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
+    logger.info(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
     
     # Get image filename from user or parameter
     print_separator('-')
@@ -49,11 +52,11 @@ def main(image_path=None):
         
     except ValueError as e:
         # Feature dimension mismatch
-        print(f"\n❌ ERROR: {e}")
+        logger.error(f"ERROR: {e}")
     except FileNotFoundError:
-        print(f"\nError: Image file '{image_path}' not found!")
+        logger.error(f"Image file '{image_path}' not found!")
     except Exception as e:
-        print(f"\nError: {e}")
+        logger.error(f"Error: {e}")
 
 if __name__ == "__main__":
     main()
