@@ -71,7 +71,7 @@ def load_models(model_type=None):
         if model_type == 'cnn':
             clf = ImageClassifier().to(Config.DEVICE)
             with open(Config.MODEL_PATH, 'rb') as f:
-                clf.load_state_dict(load(f, weights_only=False))
+                clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         elif model_type == 'art':
             clf = FuzzyARTClassifier(
                 input_dim=Config.INPUT_SIZE * Config.INPUT_SIZE,
@@ -81,7 +81,7 @@ def load_models(model_type=None):
                 choice_alpha=Config.ART_CHOICE_ALPHA
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_ART, 'rb') as f:
-                clf.load_state_dict(load(f, weights_only=False))
+                clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         elif model_type == 'ffn':
             clf = FeedforwardClassifier(
                 input_size=Config.INPUT_SIZE * Config.INPUT_SIZE,
@@ -90,7 +90,7 @@ def load_models(model_type=None):
                 embedding_size=Config.FEATURE_DIM
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_FFN, 'rb') as f:
-                clf.load_state_dict(load(f, weights_only=False))
+                clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         
@@ -98,7 +98,7 @@ def load_models(model_type=None):
         
         # Load autoencoder
         with open(Config.AUTOENCODER_PATH, 'rb') as f:
-            ae_data = load(f, weights_only=False)
+            ae_data = load(f, map_location=Config.DEVICE, weights_only=False)
         autoencoder = MNISTAutoencoder(latent_dim=Config.LATENT_DIM).to(Config.DEVICE)
         autoencoder.load_state_dict(ae_data['model_state'])
         autoencoder.eval()
