@@ -105,8 +105,17 @@ def load_models(model_type=None):
         autoencoder.eval()
         ae_threshold = ae_data['threshold_95']
         
-        # Load OOD detector
-        ood_detector = MahalanobisOODDetector(Config.OOD_PARAMS_PATH)
+        # Load OOD detector - use model-specific OOD parameters
+        if model_type == 'cnn':
+            ood_path = Config.OOD_PARAMS_PATH_CNN if Config.OOD_PARAMS_PATH_CNN.exists() else Config.OOD_PARAMS_PATH
+        elif model_type == 'art':
+            ood_path = Config.OOD_PARAMS_PATH_ART
+        elif model_type == 'ffn':
+            ood_path = Config.OOD_PARAMS_PATH_FFN
+        else:
+            ood_path = Config.OOD_PARAMS_PATH
+        
+        ood_detector = MahalanobisOODDetector(ood_path)
         
         # Check model type compatibility
         if hasattr(ood_detector, 'model_type') and ood_detector.model_type != 'unknown':

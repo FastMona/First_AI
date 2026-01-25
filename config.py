@@ -70,7 +70,10 @@ class Config:
     MODEL_PATH_ART = MODELS_DIR / 'model_state_art.pth'  # ART model
     MODEL_PATH_FFN = MODELS_DIR / 'model_state_ffn.pth'  # FFN model
     AUTOENCODER_PATH = MODELS_DIR / 'autoencoder.pth'
-    OOD_PARAMS_PATH = MODELS_DIR / 'ood_params.pth'
+    OOD_PARAMS_PATH = MODELS_DIR / 'ood_params.pth'      # Legacy OOD path (CNN)
+    OOD_PARAMS_PATH_CNN = MODELS_DIR / 'ood_params_cnn.pth'  # CNN OOD params
+    OOD_PARAMS_PATH_ART = MODELS_DIR / 'ood_params_art.pth'  # ART OOD params
+    OOD_PARAMS_PATH_FFN = MODELS_DIR / 'ood_params_ffn.pth'  # FFN OOD params
     
     # Data paths
     DATA_DIR = 'training_data'

@@ -115,8 +115,8 @@ def main(
         "model_type": "cnn",
     })
 
-    torch.save(ood_params, Config.OOD_PARAMS_PATH)
-    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
+    torch.save(ood_params, Config.OOD_PARAMS_PATH_CNN)
+    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH_CNN}")
     logger.info("  - Class prototypes (means) for all 10 digits")
     logger.info("  - Precision matrix for Mahalanobis distance")
     logger.info("  - Class-conditional thresholds (90th/95th/99th percentiles per class)")

@@ -114,8 +114,8 @@ def main(
         "feature_dim": next(iter(class_means.values())).numel() if class_means else 0,
         "model_type": "ffn",
     })
-    torch.save(ood_params, Config.OOD_PARAMS_PATH)
-    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
+    torch.save(ood_params, Config.OOD_PARAMS_PATH_FFN)
+    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH_FFN}")
 
     # Autoencoder training and calibration
     logger.info("\n" + "=" * 60)

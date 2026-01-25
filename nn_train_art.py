@@ -236,8 +236,8 @@ def main(
         "feature_dim": art.coded_dim,
         "model_type": "art",
     })
-    torch.save(ood_params, Config.OOD_PARAMS_PATH)
-    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
+    torch.save(ood_params, Config.OOD_PARAMS_PATH_ART)
+    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH_ART}")
 
     # Autoencoder training and calibration
     logger.info("\n" + "=" * 60)
@@ -275,7 +275,7 @@ def main(
     logger.info("=" * 80)
     logger.info(f"  - {Config.MODEL_PATH_ART} (ART classifier)")
     logger.info(f"  - {Config.AUTOENCODER_PATH} (Autoencoder)")
-    logger.info(f"  - {Config.OOD_PARAMS_PATH} (OOD detection parameters)")
+    logger.info(f"  - {Config.OOD_PARAMS_PATH_ART} (OOD detection parameters)")
 
 
 if __name__ == "__main__":
