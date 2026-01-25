@@ -11,7 +11,8 @@ Menu Structure:
   5. Single Image Detection    → calls detect.py
   6. Batch Image Detection     → calls detect_batch.py
   7. Camera Capture            → calls camera.py
-  8. Clean Project             → calls clean_project.py
+  8. Generate Report           → calls generate_report.py
+  9. Clean Project             → calls clean_project.py
   0. Exit                      → exits dashboard"""
 
 import sys
@@ -198,8 +199,9 @@ def print_menu():
     print("│  7. Camera Capture            - Capture images from webcam                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
-    print("\n┌─ UTILITIES ────────────────────────────────────────────────────────────────┐")
-    print("│  8. Clean Project             - Clean up temporary files and cache         │")
+    print("\n┌─ REPORTING & UTILITIES ────────────────────────────────────────────────────┐")
+    print("│  8. Generate Report           - Create markdown reports for all models     │")
+    print("│  9. Clean Project             - Clean up temporary files and cache         │")
     print("│  0. Exit                      - Close dashboard                            │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
 
@@ -298,7 +300,7 @@ def main():
             print_header(env_info)
             print_menu()
             
-            choice = input("\n➤ Select option (0-8): ").strip()
+            choice = input("\n➤ Select option (0-9): ").strip()
             
             if choice == '1':
                 run_module("nn_train_ffn")
@@ -315,6 +317,8 @@ def main():
             elif choice == '7':
                 run_module("camera")
             elif choice == '8':
+                run_module("generate_report")
+            elif choice == '9':
                 log_file = run_clean_project(log_file)
             elif choice == '0':
                 close_logging(log_file)
@@ -324,7 +328,7 @@ def main():
                 print("="*80 + "\n")
                 sys.exit(0)
             else:
-                print("\n❌ Invalid option. Please select 0-8.")
+                print("\n❌ Invalid option. Please select 0-9.")
                 input("Press Enter to continue...")
     except KeyboardInterrupt:
         close_logging(log_file)

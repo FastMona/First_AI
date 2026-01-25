@@ -48,11 +48,15 @@ def clean_project(interactive=True, current_log_file=None):
     if Path('ood_params.pth').exists():
         model_files_found.append('ood_params.pth')
     
-    # Find .md files (reports)
+    # Find .md files (reports) - keep only README.md
     md_files = list(workspace.glob("*.md"))
-    # Keep README.md if it exists
+    # Keep README.md if it exists, remove test_results_*.md
     md_files = [f for f in md_files if f.name.lower() != "readme.md"]
     files_to_remove.extend(md_files)
+    
+    # Find test_results_*.md files (generated reports for each model)
+    test_result_files = list(workspace.glob("test_results_*.md"))
+    files_to_remove.extend(test_result_files)
     
     # Find session log files (dashboard_session_*.txt) - handled separately
     session_logs = list(workspace.glob("session_logs/dashboard_session_*.txt"))
