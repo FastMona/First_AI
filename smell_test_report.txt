@@ -1,0 +1,175 @@
+Smell Test & Refactor Recommendations
+Project: First_AI (pytorch_env)
+Date: 2026-01-24
+
+Overview
+This project implements MNIST digit detection with an optional class-conditional autoencoder and OOD rejection. It contains multiple training scripts (CNN, FFN, ART), detection utilities, visualization and test scripts, and model artifacts (.pth) at the repository root. The layout is primarily script-oriented without a clear package/module boundary.
+
+Key Strengths
+- Clear, readable scripts with informative console output.
+- Modular separation between model definitions (nn_model_*) and training scripts (nn_train_*).
+- Central configuration file (config.py) already present.
+- Helpful helper module for detection (detection_utils.py).
+
+Top Code Smells (Prioritized)
+1) Duplication of training and AE logic across nn_train_cnn.py, nn_train_ffn.py, nn_train_art.py
+   - Symptom: Largely identical sections for data loading, training loops, autoencoder training, OOD param computation, saving.
+   - Impact: Harder to maintain/extend; bug fixes need triple changes; increases drift.
+   - Refactor: Extract shared components into reusable modules:
+     • data: dataset/dataloader factory
+     • train loops: generic trainer with callbacks (classifier, metrics)
+     • autoencoder training: single function/module reused by all
+     • OOD params: single function to compute/serialize thresholds
+     • saving/loading: uniform artifact manager
+
+2) Heavy reliance on print-based logging across scripts
+   - Symptom: Hundreds of print() calls for status, warnings, summaries.
+   - Impact: No log levels, hard to filter/redirect; not machine-friendly.
+   - Refactor: Introduce Python logging with a shared logger:
+     • logging.basicConfig + structured format
+     • use levels (info/debug/warning/error)
+     • optional file handlers (e.g., logs/app.log) and rotating logs
+     • keep concise console output; gate verbose under --verbose
+
+3) Flat repository with scripts and artifacts in root
+   - Symptom: *.pth, visualization outputs, session logs mixed with source.
+   - Impact: Cluttered root, harder CI, accidental commits of large files.
+   - Refactor: Adopt standard layout:
+     • src/first_ai/... for Python packages (models, training, ood, utils)
+     • scripts/ for entry points (detect.py, detect_batch.py, dashboard.py, tests)
+     • models/ and artifacts/ (autoencoder.pth, model_state_*.pth, ood_params.pth)
+     • outputs/ (reports, images), logs/
+     • tests/ (pytest unit/integration)
+
+4) Hard-coded device and paths sprinkled in scripts
+   - Symptom: e.g., 'cuda' in visualize_conditional_ae.py; direct filenames like 'model_state.pth'.
+   - Impact: Breaks on CPU-only machines; non-portable paths; brittle.
+   - Refactor: Centralize in config.py + argparse:
+     • device detection: torch.cuda.is_available() → 'cuda'/'cpu'
+     • artifact base dir (models/); join paths via pathlib.Path
+     • CLI flags to override paths and device
+
+5) Mixed model artifact naming conventions
+   - Symptom: model_state.pth vs model_state_cnn.pth, model_state_art.pth, model_state_ffn.pth.
+   - Impact: Confusion; loader logic must handle variants.
+   - Refactor: Standardize naming/versioning:
+     • {model_type}-{timestamp}.pth under models/
+     • autoencoder-{timestamp}.pth with metadata (epoch, metrics)
+     • add model card/README in models/
+
+6) Run scripts act as tests; limited automated testing
+   - Symptom: test_accuracy.py, test_class_thresholds.py are demo scripts, not unit tests.
+   - Impact: Hard to regress reliably; CI limited.
+   - Refactor: Introduce pytest:
+     • unit tests for data, model forward, AE reconstruction_error, OOD thresholds
+     • integration tests: small synthetic batch through full pipeline
+     • keep demo scripts, but separate from tests
+
+7) Manual argument handling; little CLI ergonomics
+   - Symptom: Most scripts rely on in-code variables or flow; few argparse CLIs.
+   - Impact: Harder automation and reproducibility.
+   - Refactor: Add argparse to entry scripts:
+     • --model {cnn,ffn,art} --device {auto,cpu,cuda} --inputs path --outputs path
+     • --log-level, --seed, --num-workers, --batch-size
+
+8) Serialization via open(...) repeated; mixed torch.load/save styles
+   - Symptom: Explicit with open('*.pth','rb')/('wb') blocks everywhere.
+   - Impact: Verbose/redundant; harder to annotate metadata.
+   - Refactor: Provide artifact API:
+     • save_model(obj, name) / load_model(name)
+     • include metadata (commit hash, config, metrics) in a dict
+
+9) Determinism and seeds not consistently applied across scripts
+   - Symptom: Scattered or missing calls to set seeds; varying data splits.
+   - Impact: Hard to reproduce metrics; debugging noisy.
+   - Refactor: Single utility to set global seeds (Python, NumPy, Torch, cuDNN deterministic flags); call early in all entry points and trainers.
+
+10) IO placement and temporary assets in root
+   - Symptom: camera.py writes img_*.jpg in root; session logs in root.
+   - Impact: Clutter, accidental commit of binaries.
+   - Refactor: Configure outputs/ and captures/ directories; gitignore them; route all IO via config.
+
+11) Documentation and onboarding gaps
+   - Symptom: README likely present but scripts are self-explanatory via prints, not cohesive docs.
+   - Impact: Slower onboarding; hidden assumptions.
+   - Refactor: Update README with unified usage (train/detect/test/report), environment setup, data acquisition, artifact layout, and examples.
+
+12) Performance toggles embedded in training scripts
+   - Symptom: GPU optimization prints and settings inline.
+   - Impact: Hard to tune per run.
+   - Refactor: Expose via config/CLI with sensible defaults; hide verbose under --verbose.
+
+Targets for Extraction (Create shared modules under src/first_ai/)
+- data.py: dataset builders (MNIST), transforms, split helpers, DataLoader factory.
+- models/:
+  • cnn.py (ImageClassifier)
+  • ffn.py (FeedforwardClassifier)
+  • art.py (FuzzyARTClassifier)
+  • autoencoder.py (MNISTAutoencoder)
+- train.py: common training loop (fit_one_epoch, evaluate), early stopping, checkpointing.
+- ae_train.py: autoencoder training + reconstruction_error utilities.
+- ood.py: compute_class_prototypes, covariance, thresholds, serialize to ood_params.pth.
+- artifacts.py: save/load helpers, uniform paths, metadata handling.
+- cli.py: argparse subcommands (train, detect, batch-detect, test, report, clean).
+- logging_utils.py: configure_logger(level, file_path, verbose).
+- seeds.py: set_global_seed(seed, deterministic=True).
+
+File-Specific Notes
+- visualize_conditional_ae.py: Replace hard-coded device ('cuda'); load artifacts via artifact manager; move to scripts/visualize_conditional_ae.py.
+- test_accuracy.py, test_class_thresholds.py: Keep as demos in scripts/, add pytest equivalents in tests/.
+- detect.py, detect_batch.py: Share CLI parser; route through detection_utils + artifacts manager; allow --model choice and model discovery.
+- nn_train_*.py: Reduce to thin wrappers that call shared train/ae_train/ood modules.
+- detection_utils.py: Decompose into smaller pure functions; ensure no side effects; add docstrings/type hints.
+- camera.py: Write images to captures/ with timestamp subfolders; add --output-dir.
+- clean_project.py: Use logging; add dry-run flag; respect models/ and outputs/ subdirs.
+
+Refactor Roadmap (Phased, with effort)
+Phase 1: Foundation (1–2 days)
+- Create src/first_ai/ package with modules listed above.
+- Add pyproject.toml + ruff/black/isort + pytest; keep environment.yml.
+- Introduce logging config and seeds utility; wire into entry scripts.
+- Centralize artifacts to models/ and outputs/; update config.py to point there.
+
+Phase 2: De-dup training (2–3 days)
+- Implement generic trainer for classifiers.
+- Extract AE training to shared function; unify OOD computation.
+- Migrate nn_train_cnn/ffn/art scripts to thin wrappers.
+
+Phase 3: CLI + testing (1–2 days)
+- Add unified CLI (python -m first_ai.cli ...).
+- Write unit and small integration tests; basic CI workflow.
+
+Phase 4: Polishing (ongoing)
+- Standardize artifact names with metadata.
+- Improve docs and examples; add sample outputs.
+
+Quick Wins (Do first)
+- Swap print() for logging in critical scripts (detect*, test_*, clean_project.py).
+- Add --device auto to all entry scripts; default to available device.
+- Move artifacts (*.pth) to models/; update loaders accordingly.
+- Create outputs/ and logs/; keep repository root clean; update .gitignore.
+
+Suggested .gitignore Additions
+- models/
+- outputs/
+- logs/
+- captures/
+- __pycache__/
+- .ipynb_checkpoints/
+
+Optional Enhancements
+- Model cards for saved checkpoints (architecture, dataset version, metrics, training config).
+- DVC or simple data download script for MNIST; document data location.
+- Add ruff rules to enforce no prints in lib code.
+- Type hints across core modules; mypy check in CI.
+
+Risk & Impact
+- Low risk; primarily organizational and shared utilities extraction.
+- High maintainability gains; faster iteration and fewer bugs.
+- Easier reproducibility and deployment.
+
+Next Actions
+1) Approve creation of src/first_ai/ and moving shared logic.
+2) Decide on artifact directory names (models/ vs artifacts/).
+3) Let me scaffold pyproject + logging + seeds + artifacts manager.
+4) Then refactor nn_train_* scripts to use shared modules and add a unified CLI.
