@@ -18,12 +18,15 @@ Dashboard Menu: Not directly called by dashboard (standalone visualization utili
 
 import torch
 import matplotlib.pyplot as plt
+import logging
 from torchvision.datasets import MNIST
 from torchvision.transforms import ToTensor
 from autoencoder_model import MNISTAutoencoder
 from nn_model_cnn import ImageClassifier
 from config import Config
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 def visualize_conditional_reconstruction(autoencoder, classifier, test_dataset, num_samples=5):
     """
@@ -111,7 +114,7 @@ def visualize_conditional_reconstruction(autoencoder, classifier, test_dataset, 
     
     plt.tight_layout()
     plt.savefig('conditional_ae_visualization.png', dpi=150, bbox_inches='tight')
-    print("Saved visualization to conditional_ae_visualization.png")
+    logger.info("Saved visualization to conditional_ae_visualization.png")
     plt.show()
 
 
@@ -135,12 +138,12 @@ def analyze_manifold_separation(autoencoder, test_dataset, num_samples=1000):
         if all(len(samples) >= num_samples // 10 for samples in class_samples.values()):
             break
     
-    print("\nManifold Separation Analysis")
-    print("="*70)
-    print("For each true digit, comparing reconstruction error using:")
-    print("  - Correct manifold (same as true label)")
-    print("  - Wrong manifolds (all other labels)")
-    print("="*70)
+    logger.info("\nManifold Separation Analysis")
+    logger.info("="*70)
+    logger.info("For each true digit, comparing reconstruction error using:")
+    logger.info("  - Correct manifold (same as true label)")
+    logger.info("  - Wrong manifolds (all other labels)")
+    logger.info("="*70)
     
     results = []
     
@@ -175,21 +178,21 @@ def analyze_manifold_separation(autoencoder, test_dataset, num_samples=1000):
                 'ratio': ratio
             })
             
-            print(f"Digit {true_class}: Correct={correct_mean:.6f}, Wrong={wrong_mean:.6f}, "
+            logger.info(f"Digit {true_class}: Correct={correct_mean:.6f}, Wrong={wrong_mean:.6f}, "
                   f"Separation={separation:.6f}, Ratio={ratio:.2f}x")
     
-    print("="*70)
+    logger.info("="*70)
     avg_separation = np.mean([r['separation'] for r in results])
     avg_ratio = np.mean([r['ratio'] for r in results])
-    print(f"Average separation: {avg_separation:.6f}")
-    print(f"Average ratio (wrong/correct): {avg_ratio:.2f}x")
-    print("\nHigher values indicate better manifold separation!")
+    logger.info(f"Average separation: {avg_separation:.6f}")
+    logger.info(f"Average ratio (wrong/correct): {avg_ratio:.2f}x")
+    logger.info("\nHigher values indicate better manifold separation!")
 
 
 def main():
     """Main entry point for visualization"""
     # Load models
-    print("Loading models...")
+    logger.info("Loading models...")
     
     # Load classifier
     classifier = ImageClassifier().to('cuda')
@@ -204,21 +207,21 @@ def main():
     autoencoder.load_state_dict(ae_data['model_state'])
     autoencoder.eval()
     
-    print("Models loaded successfully!")
+    logger.info("Models loaded successfully!")
     
     # Load test dataset
     test_dataset = MNIST(root='./data', train=False, download=True, transform=ToTensor())
     
-    print("\n" + "="*70)
-    print("Class-Conditional Autoencoder Visualization")
-    print("="*70)
-    print("\nThis demonstrates biological perception:")
-    print('"I think this is a 3 — does it look like a 3?"')
-    print("\nGreen border = Predicted class manifold")
-    print("Blue border = True class manifold")
-    print("\nThe autoencoder should have LOW error for the correct class")
-    print("and HIGH error for incorrect classes.")
-    print("="*70)
+    logger.info("\n" + "="*70)
+    logger.info("Class-Conditional Autoencoder Visualization")
+    logger.info("="*70)
+    logger.info("\nThis demonstrates biological perception:")
+    logger.info('"I think this is a 3 — does it look like a 3?"')
+    logger.info("\nGreen border = Predicted class manifold")
+    logger.info("Blue border = True class manifold")
+    logger.info("\nThe autoencoder should have LOW error for the correct class")
+    logger.info("and HIGH error for incorrect classes.")
+    logger.info("="*70)
     
     # Visualize reconstructions
     visualize_conditional_reconstruction(autoencoder, classifier, test_dataset, num_samples=5)

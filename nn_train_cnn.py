@@ -8,6 +8,7 @@ Dashboard Menu: Called by Option 2 - "Train with CNN"
 
 import torch
 import numpy as np
+import logging
 from PIL import Image
 from torch import nn, save, load
 from torch.optim import Adam
@@ -17,6 +18,8 @@ from torchvision.transforms import ToTensor
 from nn_model_cnn import ImageClassifier
 from autoencoder_model import MNISTAutoencoder
 from config import Config
+
+logger = logging.getLogger(__name__)
 
 # Load MNIST dataset
 full_train = datasets.MNIST(root='training_data', train=True, download=True, transform=ToTensor())
@@ -30,10 +33,10 @@ val_size = len(full_train) - train_size  # 12,000 samples
 train, validation = random_split(full_train, [train_size, val_size], 
                                  generator=torch.Generator().manual_seed(42))
 
-print(f"Dataset split:")
-print(f"  Training: {len(train)} samples (for model training)")
-print(f"  Validation: {len(validation)} samples (for threshold calibration)")
-print(f"  Test: {len(test)} samples (for final evaluation)")
+logger.info("Dataset split:")
+logger.info(f"  Training: {len(train)} samples (for model training)")
+logger.info(f"  Validation: {len(validation)} samples (for threshold calibration)")
+logger.info(f"  Test: {len(test)} samples (for final evaluation)")
 
 # Create data loaders with optimized settings for GPU utilization
 # Larger batch size + multiple workers + pinned memory = better GPU saturation
@@ -54,12 +57,12 @@ loss_fn = nn.CrossEntropyLoss()
 
 # Mixed precision training for better GPU utilization and faster training
 scaler = torch.amp.GradScaler('cuda')
-print("\n🚀 GPU Optimization enabled:")
-print(f"  • Batch size: {BATCH_SIZE} (4x larger for better parallelization)")
-print(f"  • Data workers: {NUM_WORKERS} (parallel CPU data loading)")
-print(f"  • Pinned memory: True (faster CPU→GPU transfers)")
-print(f"  • Mixed precision: True (fp16 for 2-3x speedup)")
-print()
+logger.info("\n🚀 GPU Optimization enabled:")
+logger.info(f"  • Batch size: {BATCH_SIZE} (4x larger for better parallelization)")
+logger.info(f"  • Data workers: {NUM_WORKERS} (parallel CPU data loading)")
+logger.info(f"  • Pinned memory: True (faster CPU→GPU transfers)")
+logger.info(f"  • Mixed precision: True (fp16 for 2-3x speedup)")
+logger.info("")
 
 def main():
     """Main training function for CNN classifier and autoencoder"""
@@ -116,7 +119,7 @@ def main():
         test_loss /= len(test_loader)
         accuracy = 100 * correct / total
         
-        print(f"Epoch {epoch}: Train Loss = {train_loss:.6f}, Test Loss = {test_loss:.6f}, Test Accuracy = {accuracy:.2f}%")
+        logger.info(f"Epoch {epoch}: Train Loss = {train_loss:.6f}, Test Loss = {test_loss:.6f}, Test Accuracy = {accuracy:.2f}%")
 
         # Save model only if test loss improved
         if test_loss < best_test_loss:
@@ -124,29 +127,29 @@ def main():
             patience_counter = 0
             with open(Config.MODEL_PATH, 'wb') as f:
                 save(clf.state_dict(), f)
-            print(f"  ✓ New best model saved (test loss: {test_loss:.6f})")
+            logger.info(f"  ✓ New best model saved (test loss: {test_loss:.6f})")
         else:
             patience_counter += 1
-            print(f"  No improvement ({patience_counter}/{patience})")
+            logger.info(f"  No improvement ({patience_counter}/{patience})")
             
         # Early stopping
         if patience_counter >= patience:
-            print(f"\nEarly stopping at epoch {epoch}. Best test loss: {best_test_loss:.6f}")
+            logger.info(f"\nEarly stopping at epoch {epoch}. Best test loss: {best_test_loss:.6f}")
             break
     
     # Compute class prototypes and covariance for OOD detection
-    print("\n" + "="*60)
-    print("Computing Mahalanobis distance parameters for OOD detection")
-    print("="*60)
-    print("Using compact 128-d embedding layer for manifold representation")
-    print("Calibrating on VALIDATION set (held-out data, not training)")
+    logger.info("\n" + "="*60)
+    logger.info("Computing Mahalanobis distance parameters for OOD detection")
+    logger.info("="*60)
+    logger.info("Using compact 128-d embedding layer for manifold representation")
+    logger.info("Calibrating on VALIDATION set (held-out data, not training)")
     
     clf.eval()
     num_classes = 10
     feature_dim = 128  # Compact embedding dimension
     
     # Collect features for each class from TRAINING data (for class means/prototypes)
-    print("\nStep 1: Computing class prototypes from TRAINING data...")
+    logger.info("\nStep 1: Computing class prototypes from TRAINING data...")
     class_features_train = {i: [] for i in range(num_classes)}
     
     with torch.no_grad():
@@ -169,10 +172,10 @@ def main():
         if class_features_train[i]:
             all_features = torch.cat(class_features_train[i], dim=0)
             class_means[i] = all_features.mean(dim=0)
-            print(f"  Class {i}: {len(all_features)} training samples, mean computed")
+            logger.info(f"  Class {i}: {len(all_features)} training samples, mean computed")
     
     # Compute covariance from training data
-    print("\nStep 2: Computing covariance matrix from TRAINING data...")
+    logger.info("\nStep 2: Computing covariance matrix from TRAINING data...")
     all_features_centered = []
     for i in range(num_classes):
         if class_features_train[i]:
@@ -188,12 +191,12 @@ def main():
     variance += 1e-4  # Regularization to prevent division by zero
     precision_diag = 1.0 / variance
     
-    print(f"✓ Diagonal covariance computed: {variance.shape}")
-    print(f"  Mean variance: {variance.mean().item():.4f}")
+    logger.info(f"✓ Diagonal covariance computed: {variance.shape}")
+    logger.info(f"  Mean variance: {variance.mean().item():.4f}")
     
     # Calibrate thresholds on VALIDATION data (held-out, more realistic)
-    print("\nStep 3: Calibrating class-conditional thresholds on VALIDATION data...")
-    print("(This reflects generalization, not memorization)")
+    logger.info("\nStep 3: Calibrating class-conditional thresholds on VALIDATION data...")
+    logger.info("(This reflects generalization, not memorization)")
     
     class_distances = {i: [] for i in range(num_classes)}
     
@@ -217,7 +220,7 @@ def main():
                     distance = torch.sqrt(torch.sum(diff**2 * precision_diag)).item()
                     class_distances[label].append(distance)
     
-    print(f"✓ Computed distances on {sum(len(v) for v in class_distances.values())} validation samples")
+    logger.info(f"✓ Computed distances on {sum(len(v) for v in class_distances.values())} validation samples")
     
     # Compute per-class thresholds from VALIDATION distances
     # 90th percentile = stricter (reject more), better for OOD detection
@@ -228,7 +231,7 @@ def main():
     class_mean_distances = {}
     class_std_distances = {}
     
-    print(f"\nClass-conditional threshold statistics (from VALIDATION data):")
+    logger.info(f"\nClass-conditional threshold statistics (from VALIDATION data):")
     for i in range(num_classes):
         if class_distances[i]:
             distances = np.array(class_distances[i])
@@ -237,16 +240,16 @@ def main():
             class_thresholds_99[i] = np.percentile(distances, 99)
             class_mean_distances[i] = np.mean(distances)
             class_std_distances[i] = np.std(distances)
-            print(f"  Class {i}: n={len(distances)}, mean={class_mean_distances[i]:.2f} ± {class_std_distances[i]:.2f}, "
+            logger.info(f"  Class {i}: n={len(distances)}, mean={class_mean_distances[i]:.2f} ± {class_std_distances[i]:.2f}, "
                   f"90th={class_thresholds_90[i]:.2f}, 95th={class_thresholds_95[i]:.2f}, 99th={class_thresholds_99[i]:.2f}")
     
     # Also compute global statistics for reference
     all_distances = [d for distances in class_distances.values() for d in distances]
     global_threshold_95 = np.percentile(all_distances, 95)
     global_mean = np.mean(all_distances)
-    print(f"\nGlobal statistics (for reference):")
-    print(f"  Mean: {global_mean:.2f}")
-    print(f"  95th percentile: {global_threshold_95:.2f}")
+    logger.info(f"\nGlobal statistics (for reference):")
+    logger.info(f"  Mean: {global_mean:.2f}")
+    logger.info(f"  95th percentile: {global_threshold_95:.2f}")
     
     # Save OOD detection parameters
     ood_params = {
@@ -266,26 +269,26 @@ def main():
     
     with open(Config.OOD_PARAMS_PATH, 'wb') as f:
         save(ood_params, f)
-    print(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
-    print("  - Class prototypes (means) for all 10 digits")
-    print("  - Precision matrix for Mahalanobis distance")
-    print(f"  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
-    print(f"  - Default: 90th percentile (stricter for better OOD detection)")
-    print("="*60)
+    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH}")
+    logger.info("  - Class prototypes (means) for all 10 digits")
+    logger.info("  - Precision matrix for Mahalanobis distance")
+    logger.info(f"  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
+    logger.info(f"  - Default: 90th percentile (stricter for better OOD detection)")
+    logger.info("="*60)
     
     # Train autoencoder for reconstruction-based OOD detection
-    print("\n" + "="*60)
-    print("Training Class-Conditional Autoencoder")
-    print("="*60)
-    print("Learning 10 separate digit manifolds (one per class)")
-    print("Biological perception: 'I think this is a 3 — does it look like a 3?'")
+    logger.info("\n" + "="*60)
+    logger.info("Training Class-Conditional Autoencoder")
+    logger.info("="*60)
+    logger.info("Learning 10 separate digit manifolds (one per class)")
+    logger.info("Biological perception: 'I think this is a 3 — does it look like a 3?'")
     
     autoencoder = MNISTAutoencoder(latent_dim=64).to('cuda')
     ae_opt = Adam(autoencoder.parameters(), lr=1e-3)
     ae_loss_fn = nn.MSELoss()
     ae_scaler = torch.cuda.amp.GradScaler()  # Separate scaler for autoencoder
     
-    print("\nTraining autoencoder for 5 epochs...")
+    logger.info("\nTraining autoencoder for 5 epochs...")
     for epoch in range(5):
         autoencoder.train()
         train_recon_loss = 0.0
@@ -327,12 +330,12 @@ def main():
         
         test_recon_loss /= len(test_loader)
         
-        print(f"Epoch {epoch}: Train Recon Loss = {train_recon_loss:.6f}, Test Recon Loss = {test_recon_loss:.6f}")
+        logger.info(f"Epoch {epoch}: Train Recon Loss = {train_recon_loss:.6f}, Test Recon Loss = {test_recon_loss:.6f}")
     
     # Calibrate reconstruction error threshold on VALIDATION data
-    print("\nCalibrating reconstruction error threshold on VALIDATION data...")
-    print("Using classifier predictions to determine which manifold to use...")
-    print("(Validation reflects generalization, not training memorization)")
+    logger.info("\nCalibrating reconstruction error threshold on VALIDATION data...")
+    logger.info("Using classifier predictions to determine which manifold to use...")
+    logger.info("(Validation reflects generalization, not training memorization)")
     autoencoder.eval()
     clf.eval()
     recon_errors = []
@@ -360,13 +363,13 @@ def main():
     recon_mean = np.mean(recon_errors)
     recon_std = np.std(recon_errors)
     
-    print(f"\nReconstruction error statistics on VALIDATION data:")
-    print(f"  Samples: {len(recon_errors)}")
-    print(f"  Mean: {recon_mean:.6f}")
-    print(f"  Std: {recon_std:.6f}")
-    print(f"  95th percentile: {recon_threshold_95:.6f}")
-    print(f"  99th percentile: {recon_threshold_99:.6f}")
-    print(f"\nRecommended threshold: {recon_threshold_95:.6f}")
+    logger.info(f"\nReconstruction error statistics on VALIDATION data:")
+    logger.info(f"  Samples: {len(recon_errors)}")
+    logger.info(f"  Mean: {recon_mean:.6f}")
+    logger.info(f"  Std: {recon_std:.6f}")
+    logger.info(f"  95th percentile: {recon_threshold_95:.6f}")
+    logger.info(f"  99th percentile: {recon_threshold_99:.6f}")
+    logger.info(f"\nRecommended threshold: {recon_threshold_95:.6f}")
     
     # Save autoencoder and threshold
     with open(Config.AUTOENCODER_PATH, 'wb') as f:
@@ -378,10 +381,10 @@ def main():
             'std_error': recon_std
         }, f)
     
-    print(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
-    print(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
-    print("  - Use as first gate before digit classifier")
-    print("="*60)
+    logger.info(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
+    logger.info(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
+    logger.info("  - Use as first gate before digit classifier")
+    logger.info("="*60)
 
 if __name__ == "__main__":
     main()

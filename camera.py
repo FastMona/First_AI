@@ -8,6 +8,9 @@ Dashboard Menu: Called by Option 7 - "Camera Capture"
 import cv2
 import numpy as np
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 def preprocess_for_mnist(frame, show_steps=False):
     """
@@ -76,34 +79,34 @@ def main():
     cap = cv2.VideoCapture(0)
     
     if not cap.isOpened():
-        print("Error: Could not open camera")
-        print("Trying camera index 1...")
+        logger.error("Error: Could not open camera")
+        logger.info("Trying camera index 1...")
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
-            print("Error: No camera found")
+            logger.error("Error: No camera found")
             return
     
     # Set camera properties for better responsiveness
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     
-    print("\n" + "="*60)
-    print("MNIST Image Capture Tool")
-    print("="*60)
-    print("Instructions:")
-    print("  1. Write a digit (0-9) on WHITE PAPER with a DARK pen")
-    print("  2. Hold it up to the camera")
-    print("  3. Press SPACE to capture and save as img_X.jpg")
-    print("  4. Press 'Q' or 'ESC' to quit")
-    print(f"\nNext image will be saved as: img_{img_counter}.jpg")
-    print("Preprocessing steps will be shown continuously.")
-    print("="*60 + "\n")
+    logger.info("\n" + "="*60)
+    logger.info("MNIST Image Capture Tool")
+    logger.info("="*60)
+    logger.info("Instructions:")
+    logger.info("  1. Write a digit (0-9) on WHITE PAPER with a DARK pen")
+    logger.info("  2. Hold it up to the camera")
+    logger.info("  3. Press SPACE to capture and save as img_X.jpg")
+    logger.info("  4. Press 'Q' or 'ESC' to quit")
+    logger.info(f"\nNext image will be saved as: img_{img_counter}.jpg")
+    logger.info("Preprocessing steps will be shown continuously.")
+    logger.info("="*60 + "\n")
     
     try:
         while True:
             # Capture frame
             ret, frame = cap.read()
             if not ret:
-                print("Error: Failed to capture frame")
+                logger.error("Error: Failed to capture frame")
                 break
             
             # Display the camera feed
@@ -117,33 +120,33 @@ def main():
             
             if key == ord('q') or key == ord('Q') or key == 27:  # 27 is ESC key
                 # Quit
-                print("\nQuitting...")
+                logger.info("\nQuitting...")
                 break
             elif key == ord(' '):
                 # Space bar: capture and save
-                print(f"\nCapturing and saving img_{img_counter}.jpg...")
+                logger.info(f"\nCapturing and saving img_{img_counter}.jpg...")
                 
                 # Save the processed image
                 filename = f'img_{img_counter}.jpg'
                 cv2.imwrite(filename, processed)
-                print(f"Saved: {filename}")
+                logger.info(f"Saved: {filename}")
                 
                 # Increment counter for next image
                 img_counter += 1
-                print(f"Next image will be: img_{img_counter}.jpg")
+                logger.info(f"Next image will be: img_{img_counter}.jpg")
     
     except KeyboardInterrupt:
-        print("\n\nInterrupted by user (Ctrl+C)")
+        logger.info("\n\nInterrupted by user (Ctrl+C)")
     except Exception as e:
-        print(f"\n\nError occurred: {e}")
+        logger.error(f"\n\nError occurred: {e}")
     finally:
         # Cleanup - ensure this always runs
-        print("\nCleaning up...")
+        logger.info("\nCleaning up...")
         cap.release()
         cv2.destroyAllWindows()
         # Force window destruction with a small delay
         cv2.waitKey(1)
-        print("Camera closed. Goodbye!")
+        logger.info("Camera closed. Goodbye!")
 
 if __name__ == "__main__":
     main()
