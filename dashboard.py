@@ -93,8 +93,16 @@ def check_environment():
         cuda_available = torch.cuda.is_available()
         cuda_version = torch.version.cuda if cuda_available else None
         
-        # Check conda environment name
-        conda_env = os.environ.get('CONDA_DEFAULT_ENV', 'Unknown')
+        # Check environment - support both conda and venv
+        conda_env = os.environ.get('CONDA_DEFAULT_ENV', None)
+        venv_env = os.environ.get('VIRTUAL_ENV', None)
+        
+        if venv_env:
+            env_name = f"venv ({os.path.basename(venv_env)})"
+        elif conda_env:
+            env_name = conda_env
+        else:
+            env_name = "base"
         
         # Get CPU information - try multiple methods for Windows
         cpu_name = None
@@ -121,25 +129,11 @@ def check_environment():
         if not cpu_name or cpu_name == '':
             cpu_name = f"Unknown CPU ({platform.machine()})"
         
-        # Verify we're in pytorch environment
-        if conda_env != 'pytorch':
-            print("\n" + "="*80)
-            print("  ⚠️  WARNING: NOT IN PYTORCH ENVIRONMENT".center(80))
-            print("="*80)
-            print(f"\nCurrent environment: {conda_env}")
-            print("Expected environment: pytorch")
-            print("\nPlease activate the PyTorch environment:")
-            print("  conda activate pytorch")
-            print("\nThen run the dashboard again:")
-            print("  python dashboard.py")
-            print("="*80 + "\n")
-            sys.exit(1)
-        
         # Return environment info to be displayed in header
         gpu_name = torch.cuda.get_device_name(0) if cuda_available else None
         
         return {
-            'conda_env': conda_env,
+            'env_name': env_name,
             'python_version': python_version,
             'pytorch_version': torch.__version__,
             'cuda_version': cuda_version,
@@ -170,7 +164,7 @@ def print_header(env_info):
     print("="*80)
     
     # Display environment info
-    print(f"\n  Environment: {env_info['conda_env']}")
+    print(f"\n  Environment: {env_info['env_name']}")
     print(f"  Python: {env_info['python_version']} | PyTorch: {env_info['pytorch_version']}", end="")
     if env_info['cuda_version']:
         print(f" | CUDA: {env_info['cuda_version']}")
