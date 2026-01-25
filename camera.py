@@ -92,34 +92,42 @@ def main():
     cap = cv2.VideoCapture(0)
     
     if not cap.isOpened():
-        logger.error("Error: Could not open camera")
-        logger.info("Trying camera index 1...")
+        print("Error: Could not open camera")
+        print("Trying camera index 1...")
         cap = cv2.VideoCapture(1)
         if not cap.isOpened():
-            logger.error("Error: No camera found")
+            print("Error: No camera found")
             return
     
     # Set camera properties for better responsiveness
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     
-    logger.info("\n" + "="*60)
-    logger.info("MNIST Image Capture Tool")
-    logger.info("="*60)
-    logger.info("Instructions:")
-    logger.info("  1. Write a digit (0-9) on WHITE PAPER with a DARK pen")
-    logger.info("  2. Hold it up to the camera")
-    logger.info("  3. Press SPACE to capture and save as img_X.jpg")
-    logger.info("  4. Press 'Q' or 'ESC' to quit")
-    logger.info(f"\nNext image will be saved as: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
-    logger.info("Preprocessing steps will be shown continuously.")
-    logger.info("="*60 + "\n")
+    print("\n" + "="*60)
+    print("MNIST Image Capture Tool")
+    print("="*60)
+    print("Instructions:")
+    print("  1. Write a digit (0-9) on WHITE PAPER with a DARK pen")
+    print("  2. Hold it up to the camera")
+    print("  3. Press SPACE to capture and save as img_X.jpg")
+    print("  4. Press 'Q' or 'ESC' to quit")
+    print(f"\nNext image will be saved as: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
+    print("Preprocessing steps will be shown continuously.")
+    print("="*60 + "\n")
+    print("IMPORTANT: Click on one of the OpenCV windows to give it focus!")
+    print("If keyboard input doesn't work, try clicking the window again.\n")
+    
+    # Create all windows upfront
+    cv2.namedWindow('Camera Feed - Press SPACE to capture', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('1. Grayscale', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('2. Thresholded', cv2.WINDOW_NORMAL)
+    cv2.namedWindow('3. Final 28x28', cv2.WINDOW_NORMAL)
     
     try:
         while True:
             # Capture frame
             ret, frame = cap.read()
             if not ret:
-                logger.error("Error: Failed to capture frame")
+                print("Error: Failed to capture frame")
                 break
             
             # Display the camera feed
@@ -128,38 +136,43 @@ def main():
             # Always show preprocessing in real-time
             processed = preprocess_for_mnist(frame, show_steps=True)
             
-            # Wait for key press (increase to 30ms for better responsiveness)
-            key = cv2.waitKey(30) & 0xFF
+            # Wait for key press with longer delay and force window update
+            # Use 100ms for better keyboard responsiveness on Windows
+            key = cv2.waitKey(100) & 0xFF
+            
+            # Skip if no key was pressed
+            if key == 255:
+                continue
             
             if key == ord('q') or key == ord('Q') or key == 27:  # 27 is ESC key
                 # Quit
-                logger.info("\nQuitting...")
+                print("\nQuitting...")
                 break
             elif key == ord(' '):
                 # Space bar: capture and save
-                logger.info(f"\nCapturing and saving capture_{img_counter:04d}.jpg...")
+                print(f"\nCapturing and saving capture_{img_counter:04d}.jpg...")
                 
                 # Save the processed image
                 filename = capture_dir / f"capture_{img_counter:04d}.jpg"
                 cv2.imwrite(str(filename), processed)
-                logger.info(f"Saved: {filename}")
+                print(f"Saved: {filename}")
                 
                 # Increment counter for next image
                 img_counter += 1
-                logger.info(f"Next image will be: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
+                print(f"Next image will be: {capture_dir / f'capture_{img_counter:04d}.jpg'}")
     
     except KeyboardInterrupt:
-        logger.info("\n\nInterrupted by user (Ctrl+C)")
+        print("\n\nInterrupted by user (Ctrl+C)")
     except Exception as e:
-        logger.error(f"\n\nError occurred: {e}")
+        print(f"\n\nError occurred: {e}")
     finally:
         # Cleanup - ensure this always runs
-        logger.info("\nCleaning up...")
+        print("\nCleaning up...")
         cap.release()
         cv2.destroyAllWindows()
         # Force window destruction with a small delay
         cv2.waitKey(1)
-        logger.info("Camera closed. Goodbye!")
+        print("Camera closed. Goodbye!")
 
 if __name__ == "__main__":
     main()
