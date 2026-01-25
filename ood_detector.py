@@ -1,9 +1,8 @@
-"""Out-of-Distribution detector using Mahalanobis distance.
+"""Mahalanobis OOD detector.
 
-Provides 'belongs / doesn't belong' signal for MNIST digit classification
-using class-conditional Mahalanobis distance to feature prototypes.
-
-Dashboard Menu: Indirectly called via Options 1, 2, 3, 4, 5, 6 (used by all training and detection modules)
+Why: central gate that must stay in lockstep with feature dimensions emitted by
+CNN/FFN/ART. If feature shapes or params change, this must be regenerated to
+avoid runtime mismatches across all entrypoints.
 """
 
 import torch

@@ -1,9 +1,8 @@
-"""CNN model architecture for MNIST digit classification.
+"""CNN architecture for MNIST classification.
 
-Defines the convolutional neural network architecture shared between training
-(nn_train_cnn.py) and inference (detect.py, detect_batch.py, etc.).
-
-Dashboard Menu: Indirectly called via Options 2, 4, 5, 6 (through nn_train_cnn.py and detection utilities)
+Why: provides the 128-d embedding consumed by OOD detectors and shared across
+all training/detection paths, so changing layers here requires regenerating
+artifacts and OOD params.
 """
 
 from torch import nn

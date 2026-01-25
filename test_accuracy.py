@@ -1,14 +1,13 @@
-"""Automated accuracy test for MNIST digit detector.
+"""Automated accuracy/OOD smoke test.
 
-Tests against labeled images in test_images folder and compares all available
-models: CNN, ART, and FFN.
-
-Dashboard Menu: Called by Option 4 - "Test Accuracy"
+Why: exercises the same detection_utils path across CNN/ART/FFN to surface
+regressions early and mirror dashboard Option 4 without bespoke logic.
 """
 
 from pathlib import Path
 import os
 from detection_utils import load_models, predict_image, parse_filename
+from config import Config
 
 def test_single_model(model_name, model_type_override=None):
     """Test a single model and return results"""
@@ -212,9 +211,9 @@ def main():
     print("="*80)
     
     # Check which models are available
-    cnn_available = os.path.exists('model_state.pth')
-    art_available = os.path.exists('model_state_art.pth')
-    ffn_available = os.path.exists('model_state_ffn.pth')
+    cnn_available = os.path.exists(Config.MODEL_PATH)
+    art_available = os.path.exists(Config.MODEL_PATH_ART)
+    ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
     
     if not cnn_available and not art_available and not ffn_available:
         print("\n⚠️  No trained models found!")
