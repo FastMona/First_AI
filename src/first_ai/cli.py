@@ -10,6 +10,16 @@ from pathlib import Path
 from .logging_utils import configure_logger
 from .seeds import set_global_seed
 
+# Import existing project utilities
+try:
+    import detection_utils
+except Exception:
+    detection_utils = None  # type: ignore
+try:
+    import generate_report as gen_report
+except Exception:
+    gen_report = None  # type: ignore
+
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(prog="first_ai", description="Unified CLI for First_AI")
@@ -23,6 +33,17 @@ def main(argv=None) -> int:
     sub.add_parser("version", help="Show CLI version")
     clean = sub.add_parser("clean", help="Run project cleaner")
     clean.add_argument("--yes", action="store_true", help="Skip prompts and proceed")
+
+    # Detect a single image
+    detect = sub.add_parser("detect", help="Detect a single image")
+    detect.add_argument("image", type=Path, help="Path to image file")
+
+    # Batch detect images in a folder
+    batch = sub.add_parser("batch-detect", help="Detect all images in a folder")
+    batch.add_argument("folder", type=Path, help="Folder containing images")
+
+    # Generate markdown report from test_images
+    sub.add_parser("report", help="Generate markdown report from test_images")
 
     args = parser.parse_args(argv)
 
@@ -48,6 +69,67 @@ def main(argv=None) -> int:
                 return 0
         except Exception as e:
             logger.error(f"Cleaner execution failed: {e}")
+            return 1
+
+    if args.command == "detect":
+        if detection_utils is None:
+            logger.error("detection_utils module not available")
+            return 1
+        logger.info(f"Loading models for detection")
+        clf, autoencoder, ood_detector, ae_threshold, model_type = detection_utils.load_models()
+        if clf is None:
+            return 1
+        logger.info(f"Models loaded: {model_type}")
+        try:
+            pred, conf, belongs, recon, dist, stage = detection_utils.predict_image(
+                args.image, clf, autoencoder, ood_detector, ae_threshold
+            )
+            msg = detection_utils.format_detection_result(
+                pred, conf, belongs, recon, dist, stage, ood_detector, ae_threshold, verbose=True
+            )
+            print(msg)
+            return 0
+        except Exception as e:
+            logger.error(f"Detection failed: {e}")
+            return 1
+
+    if args.command == "batch-detect":
+        if detection_utils is None:
+            logger.error("detection_utils module not available")
+            return 1
+        logger.info(f"Loading models for batch detection")
+        clf, autoencoder, ood_detector, ae_threshold, model_type = detection_utils.load_models()
+        if clf is None:
+            return 1
+        logger.info(f"Models loaded: {model_type}")
+        # Gather images
+        exts = [".jpg", ".jpeg", ".png", ".bmp", ".gif"]
+        files = [p for p in args.folder.iterdir() if p.suffix.lower() in exts]
+        if not files:
+            logger.warning(f"No images found in {args.folder}")
+            return 0
+        for p in sorted(files):
+            try:
+                pred, conf, belongs, recon, dist, stage = detection_utils.predict_image(
+                    p, clf, autoencoder, ood_detector, ae_threshold
+                )
+                compact = detection_utils.format_detection_result(
+                    pred, conf, belongs, recon, dist, stage, ood_detector, ae_threshold, verbose=False
+                )
+                print(f"{p.name}: {compact}")
+            except Exception as e:
+                logger.error(f"Error processing {p.name}: {e}")
+        return 0
+
+    if args.command == "report":
+        if gen_report is None:
+            logger.error("generate_report module not available")
+            return 1
+        try:
+            gen_report.main()
+            return 0
+        except Exception as e:
+            logger.error(f"Report generation failed: {e}")
             return 1
 
     return 0
