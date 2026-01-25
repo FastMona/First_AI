@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 
 # Log file for terminal output - session-specific with timestamp
 SESSION_TIMESTAMP = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-LOG_FILE = f"dashboard_session_{SESSION_TIMESTAMP}.txt"
+LOG_DIR = "session_logs"
+os.makedirs(LOG_DIR, exist_ok=True)
+LOG_FILE = os.path.join(LOG_DIR, f"dashboard_session_{SESSION_TIMESTAMP}.txt")
 
 class TeeOutput:
     """Class to write to both file and terminal"""
