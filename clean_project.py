@@ -55,7 +55,7 @@ def clean_project(interactive=True, current_log_file=None):
     files_to_remove.extend(md_files)
     
     # Find session log files (dashboard_session_*.txt) - handled separately
-    session_logs = list(workspace.glob("dashboard_session_*.txt"))
+    session_logs = list(workspace.glob("session_logs/dashboard_session_*.txt"))
     
     # Add current log file if provided (in case it's not found by glob because it's open)
     if current_log_file:
