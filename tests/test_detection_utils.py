@@ -1,6 +1,10 @@
 """Unit tests for detection_utils module."""
 
 import pytest
+
+# Skip entire module if torch not available
+pytest.importorskip("torch")
+
 from detection_utils import parse_filename
 
 
