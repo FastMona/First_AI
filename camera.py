@@ -88,16 +88,26 @@ def main():
     else:
         img_counter = 1
     
-    # Open camera (0 is usually the default camera, try 1 or 2 if 0 doesn't work)
-    cap = cv2.VideoCapture(0)
+    # Try to find an available camera (try indices 0, 1, 2)
+    cap = None
+    for camera_index in range(3):
+        print(f"Trying camera index {camera_index}...")
+        test_cap = cv2.VideoCapture(camera_index)
+        if test_cap.isOpened():
+            # Test if we can actually read a frame
+            ret, _ = test_cap.read()
+            if ret:
+                cap = test_cap
+                print(f"✓ Successfully opened camera {camera_index}")
+                break
+            else:
+                test_cap.release()
+        else:
+            test_cap.release()
     
-    if not cap.isOpened():
-        print("Error: Could not open camera")
-        print("Trying camera index 1...")
-        cap = cv2.VideoCapture(1)
-        if not cap.isOpened():
-            print("Error: No camera found")
-            return
+    if cap is None or not cap.isOpened():
+        print("Error: No working camera found (tried indices 0, 1, 2)")
+        return
     
     # Set camera properties for better responsiveness
     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
