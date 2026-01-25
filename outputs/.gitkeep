@@ -1,0 +1,11 @@
+# Outputs Directory
+
+Generated reports, visualizations, and analysis outputs.
+
+## Contents
+- Markdown reports (e.g., test_results_report.md)
+- PNG visualizations (e.g., conditional_ae_visualization.png)
+- Session logs (dashboard_session_*.txt)
+- Smell test reports
+
+Files here are excluded from git.

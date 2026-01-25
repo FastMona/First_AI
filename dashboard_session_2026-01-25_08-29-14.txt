@@ -1,0 +1,161 @@
+
+================================================================================
+Dashboard Session Started: 2026-01-25 08:29:14
+================================================================================
+
+
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 
+────────────────────────────────────────────────────────────────────────────────
+
+🚀 GPU Optimization enabled:
+  • Batch size: 256
+  • Data workers: 4
+  • Mixed precision: True
+
+Dataset split:
+  Training: 48000 samples (for model training)
+  Validation: 12000 samples (for threshold calibration)
+  Test: 10000 samples (for final evaluation)
+Epoch 0: Train Loss = 0.259953, Test Loss = 0.064644, Test Accuracy = 98.15%
+  ✓ New best model saved (test loss: 0.064644)
+Epoch 1: Train Loss = 0.054929, Test Loss = 0.044132, Test Accuracy = 98.44%
+  ✓ New best model saved (test loss: 0.044132)
+Epoch 2: Train Loss = 0.031945, Test Loss = 0.044233, Test Accuracy = 98.66%
+  No improvement (1/3)
+Epoch 3: Train Loss = 0.022837, Test Loss = 0.054165, Test Accuracy = 98.25%
+  No improvement (2/3)
+Epoch 4: Train Loss = 0.016973, Test Loss = 0.041353, Test Accuracy = 98.76%
+  ✓ New best model saved (test loss: 0.041353)
+Epoch 5: Train Loss = 0.011581, Test Loss = 0.041272, Test Accuracy = 98.79%
+  ✓ New best model saved (test loss: 0.041272)
+Epoch 6: Train Loss = 0.009360, Test Loss = 0.050176, Test Accuracy = 98.86%
+  No improvement (1/3)
+Epoch 7: Train Loss = 0.010663, Test Loss = 0.042921, Test Accuracy = 98.78%
+  No improvement (2/3)
+Epoch 8: Train Loss = 0.005998, Test Loss = 0.043729, Test Accuracy = 98.85%
+  No improvement (3/3)
+
+Early stopping at epoch 8. Best test loss: 0.041272
+
+============================================================
+Computing Mahalanobis distance parameters for OOD detection
+============================================================
+  Class 0: 4735 samples, prototype computed
+  Class 1: 5383 samples, prototype computed
+  Class 2: 4762 samples, prototype computed
+  Class 3: 4886 samples, prototype computed
+  Class 4: 4681 samples, prototype computed
+  Class 5: 4368 samples, prototype computed
+  Class 6: 4752 samples, prototype computed
+  Class 7: 4983 samples, prototype computed
+  Class 8: 4674 samples, prototype computed
+  Class 9: 4776 samples, prototype computed
+✓ Diagonal covariance computed (dim=128)
+  Class 0: n=1188, mean=10.16 ± 2.09, 90th=12.88, 95th=13.47, 99th=14.70
+  Class 1: n=1359, mean=8.48 ± 2.06, 90th=11.20, 95th=12.02, 99th=14.34
+  Class 2: n=1196, mean=10.66 ± 2.19, 90th=13.50, 95th=14.69, 99th=17.25
+  Class 3: n=1245, mean=8.31 ± 1.76, 90th=10.63, 95th=11.51, 99th=13.38
+  Class 4: n=1161, mean=8.88 ± 1.77, 90th=11.08, 95th=11.97, 99th=13.90
+  Class 5: n=1053, mean=9.59 ± 1.85, 90th=12.07, 95th=12.75, 99th=13.78
+  Class 6: n=1166, mean=8.82 ± 2.50, 90th=11.68, 95th=12.68, 99th=14.55
+  Class 7: n=1282, mean=8.35 ± 2.95, 90th=11.05, 95th=11.94, 99th=14.06
+  Class 8: n=1177, mean=8.87 ± 1.88, 90th=11.35, 95th=12.30, 99th=13.93
+  Class 9: n=1173, mean=7.92 ± 1.90, 90th=10.52, 95th=11.64, 99th=13.40
+Global mean distance: 8.99
+Global 95th percentile: 12.77
+
+✓ OOD detection parameters saved to models\ood_params_cnn.pth
+  - Class prototypes (means) for all 10 digits
+  - Precision matrix for Mahalanobis distance
+  - Class-conditional thresholds (90th/95th/99th percentiles per class)
+============================================================
+
+============================================================
+Training Class-Conditional Autoencoder
+============================================================
+AE Epoch 0: Train Recon Loss = 0.063164, Val Recon Loss = 0.036704
+AE Epoch 1: Train Recon Loss = 0.031685, Val Recon Loss = 0.026818
+AE Epoch 2: Train Recon Loss = 0.024948, Val Recon Loss = 0.022730
+AE Epoch 3: Train Recon Loss = 0.021684, Val Recon Loss = 0.019734
+AE Epoch 4: Train Recon Loss = 0.019091, Val Recon Loss = 0.017755
+
+Reconstruction error statistics (validation):
+  Samples: 12000
+  Mean: 0.018357
+  Std: 0.009679
+  95th percentile: 0.036306
+  99th percentile: 0.046137
+
+✓ Autoencoder saved to models\autoencoder.pth
+  - Reconstruction threshold (95%): 0.036306
+  - Use as first gate before digit classifier
+============================================================
+
+────────────────────────────────────────────────────────────────────────────────
+
+Press Enter to return to dashboard...
+================================================================================
+                    MNIST DIGIT RECOGNITION SYSTEM - DASHBOARD                  
+================================================================================
+
+  Environment: pytorch
+  Python: 3.11.14 | PyTorch: 2.5.1 | CUDA: 12.4
+  CPU: AMD64 Family 25 Model 24 Stepping 1, AuthenticAMD
+  GPU: NVIDIA GeForce RTX 4070 SUPER
+  ⚡ Compute Device: GPU - NVIDIA GeForce RTX 4070 SUPER
+================================================================================
+
+┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐
+│  1. Train with FFN            - Train simple feedforward network (baseline)│
+│  2. Train with CNN            - Train CNN classifier and autoencoder       │
+│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │
+│  4. Test Accuracy             - Compare all trained models                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐
+│  5. Single Image Detection    - Detect digit in one image (detailed)       │
+│  6. Batch Image Detection     - Process all images in a folder             │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐
+│  7. Camera Capture            - Capture images from webcam                 │
+└────────────────────────────────────────────────────────────────────────────┘
+
+┌─ UTILITIES ────────────────────────────────────────────────────────────────┐
+│  8. Clean Project             - Clean up temporary files and cache         │
+│  0. Exit                      - Close dashboard                            │
+└────────────────────────────────────────────────────────────────────────────┘
+
+➤ Select option (0-8): 

@@ -1,0 +1,14 @@
+# Models Directory
+
+This directory contains trained model artifacts (.pth files).
+
+## Model Types
+- `model_state.pth` or `cnn-*.pth`: CNN classifier
+- `model_state_art.pth` or `art-*.pth`: Fuzzy ART classifier  
+- `model_state_ffn.pth` or `ffn-*.pth`: Feedforward classifier
+- `autoencoder.pth`: Class-conditional autoencoder
+- `ood_params.pth`: OOD detection parameters (Mahalanobis)
+
+## Note
+These files are typically large (>1MB) and are excluded from git via .gitignore.
+Train models using `python -m src.first_ai.cli train {cnn|art|ffn}`.
