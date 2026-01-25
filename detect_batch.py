@@ -6,10 +6,14 @@ accuracy metrics and OOD rejection statistics.
 Dashboard Menu: Called by Option 6 - "Batch Image Detection"
 """
 
+import logging
 import os
 from pathlib import Path
 from detection_utils import load_models, predict_image
 from config import Config
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def main(folder_path=None):
     """Process all images in a folder for digit detection
@@ -32,11 +36,11 @@ def main(folder_path=None):
     print(f"  3. FFN  {'✓ Trained' if ffn_available else '✗ Not trained'}")
     
     if not (cnn_available or art_available or ffn_available):
-        print("\n❌ ERROR: No trained models found!")
-        print("Please train at least one model first:")
-        print("  - For CNN: Run 'python nn_train_cnn.py'")
-        print("  - For ART: Run 'python nn_train_art.py'")
-        print("  - For FFN: Run 'python nn_train_ffn.py'")
+        logger.error("No trained models found!")
+        logger.info("Please train at least one model first:")
+        logger.info("  - For CNN: Run 'python nn_train_cnn.py'")
+        logger.info("  - For ART: Run 'python nn_train_art.py'")
+        logger.info("  - For FFN: Run 'python nn_train_ffn.py'")
         return
     
     # Ask user to select model
@@ -65,13 +69,13 @@ def main(folder_path=None):
             print("❌ Invalid choice. Please enter 1, 2, or 3.")
     
     # Load models
-    print(f"\nLoading {model_type.upper()} model...")
+    logger.info(f"Loading {model_type.upper()} model...")
     clf, autoencoder, ood_detector, ae_threshold, model_type = load_models(model_type)
     
     if clf is None:
         return
     
-    print(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
+    logger.info(f"✓ All models loaded successfully! (Using {model_type.upper()} classifier)")
     
     # Get folder path
     if folder_path is None:

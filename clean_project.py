@@ -6,9 +6,13 @@ MNIST training data in training_data/ folder.
 Dashboard Menu: Called by Option 8 - "Clean Project"
 """
 
+import logging
 import os
 import shutil
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def clean_project(interactive=True, current_log_file=None):
     """Remove generated files and folders

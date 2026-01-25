@@ -45,6 +45,10 @@ def main(argv=None) -> int:
     # Generate markdown report from test_images
     sub.add_parser("report", help="Generate markdown report from test_images")
 
+    # Train a model
+    train = sub.add_parser("train", help="Train a model (CNN, ART, or FFN)")
+    train.add_argument("model_type", choices=["cnn", "art", "ffn"], help="Model type to train")
+
     args = parser.parse_args(argv)
 
     level_map = {"debug": 10, "info": 20, "warning": 30, "error": 40}
@@ -130,6 +134,35 @@ def main(argv=None) -> int:
             return 0
         except Exception as e:
             logger.error(f"Report generation failed: {e}")
+            return 1
+
+    if args.command == "train":
+        logger.info(f"Training {args.model_type.upper()} model")
+        try:
+            if args.model_type == "cnn":
+                import nn_train_cnn
+                if hasattr(nn_train_cnn, "main"):
+                    nn_train_cnn.main()
+                else:
+                    logger.warning("nn_train_cnn has no main(); executing module")
+            elif args.model_type == "art":
+                import nn_train_art
+                if hasattr(nn_train_art, "main"):
+                    nn_train_art.main()
+                else:
+                    logger.warning("nn_train_art has no main(); executing module")
+            elif args.model_type == "ffn":
+                import nn_train_ffn
+                if hasattr(nn_train_ffn, "main"):
+                    nn_train_ffn.main()
+                else:
+                    logger.warning("nn_train_ffn has no main(); executing module")
+            return 0
+        except ModuleNotFoundError as e:
+            logger.error(f"Training module not found: {e}")
+            return 1
+        except Exception as e:
+            logger.error(f"Training failed: {e}")
             return 1
 
     return 0

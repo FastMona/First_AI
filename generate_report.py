@@ -6,8 +6,12 @@ prediction results, and comprehensive accuracy metrics.
 Dashboard Menu: Not directly called by dashboard (standalone utility script)
 """
 
+import logging
 from pathlib import Path
 from detection_utils import load_models, predict_image, parse_filename
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def main():
     print("="*80)
@@ -15,13 +19,13 @@ def main():
     print("="*80)
     
     # Load models
-    print("\nLoading models...")
+    logger.info("Loading models...")
     clf, autoencoder, ood_detector, ae_threshold, model_type = load_models()
     
     if clf is None:
         return
     
-    print(f"✓ All models loaded (Using {model_type.upper()} classifier)\n")
+    logger.info(f"✓ All models loaded (Using {model_type.upper()} classifier)")
     
     # Get test images
     folder_path = Path("test_images")
