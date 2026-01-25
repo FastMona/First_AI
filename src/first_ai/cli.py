@@ -13,11 +13,11 @@ from .seeds import set_global_seed
 # Import existing project utilities
 try:
     import detection_utils
-except Exception:
+except ModuleNotFoundError:
     detection_utils = None  # type: ignore
 try:
     import generate_report as gen_report
-except Exception:
+except ModuleNotFoundError:
     gen_report = None  # type: ignore
 
 
