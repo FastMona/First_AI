@@ -11,7 +11,7 @@ from pathlib import Path
 from detection_utils import load_models, predict_image, parse_filename
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def main():
     print("="*80)

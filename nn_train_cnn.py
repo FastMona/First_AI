@@ -15,6 +15,9 @@ from autoencoder_model import MNISTAutoencoder
 from config import Config
 from nn_model_cnn import ImageClassifier
 
+# Configure logging to display output
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+
 # Ensure src/ is importable when running as a script
 ROOT = Path(__file__).resolve().parent
 SRC_DIR = ROOT / "src"

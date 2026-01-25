@@ -16,6 +16,9 @@ from autoencoder_model import MNISTAutoencoder
 from config import Config
 from nn_model_art import FuzzyARTClassifier
 
+# Configure logging to display output
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+
 ROOT = Path(__file__).resolve().parent
 SRC_DIR = ROOT / "src"
 if SRC_DIR.exists():

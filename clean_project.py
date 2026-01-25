@@ -12,7 +12,7 @@ import shutil
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def clean_project(interactive=True, current_log_file=None):
     """Remove generated files and folders

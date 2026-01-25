@@ -22,7 +22,7 @@ def train_autoencoder(
     """Train class-conditional autoencoder and return loss history."""
     optimizer = torch.optim.Adam(autoencoder.parameters(), lr=lr)
     loss_fn = nn.MSELoss()
-    scaler = torch.cuda.amp.GradScaler() if device.startswith("cuda") else None
+    scaler = torch.amp.GradScaler(device) if device.startswith("cuda") else None
 
     history = {"train_loss": [], "val_loss": []}
     autoencoder.to(device)

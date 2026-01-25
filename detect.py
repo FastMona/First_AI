@@ -12,7 +12,7 @@ from detection_utils import (load_models, predict_image, format_detection_result
                             print_separator, print_header)
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(message)s')
 
 def main(image_path=None):
     """Detect digit in a single image
