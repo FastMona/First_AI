@@ -1,1 +1,23 @@
 dashboard_log.txt
+
+# Byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Models and artifacts
+models/
+artifacts/
+*.pth
+
+# Outputs and logs
+outputs/
+logs/
+dashboard_session_*.txt
+
+# Captured media
+captures/
+img_*.jpg
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
