@@ -1,9 +1,12 @@
 name: pytorch
 channels:
+  - pytorch
   - defaults
 dependencies:
   - python=3.11
-  - pytorch=2.5.1
+  - pytorch
   - torchvision
   - torchaudio
-prefix: C:\Users\David\Miniconda3\envs\pytorch
+  - pip
+  - pip:
+    - -e .
