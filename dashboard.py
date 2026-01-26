@@ -19,14 +19,16 @@ import sys
 import os
 import logging
 from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
 # Log file for terminal output - session-specific with timestamp
+BASE_DIR = Path(__file__).resolve().parent
 SESSION_TIMESTAMP = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-LOG_DIR = "session_logs"
-os.makedirs(LOG_DIR, exist_ok=True)
-LOG_FILE = os.path.join(LOG_DIR, f"dashboard_session_{SESSION_TIMESTAMP}.txt")
+LOG_DIR = BASE_DIR / "session_logs"
+LOG_DIR.mkdir(exist_ok=True)
+LOG_FILE = LOG_DIR / f"dashboard_session_{SESSION_TIMESTAMP}.txt"
 
 class TeeOutput:
     """Class to write to both file and terminal"""

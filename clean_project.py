@@ -11,7 +11,7 @@ import shutil
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+# Avoid configuring global logging here; dashboard/CLI will handle formatting/levels.
 
 def clean_project(interactive=True, current_log_file=None):
     """Remove generated files and folders
@@ -25,7 +25,8 @@ def clean_project(interactive=True, current_log_file=None):
     print("CLEAN PROJECT - Remove Generated Files")
     print("="*80)
     
-    workspace = Path(".")
+    workspace = Path(__file__).resolve().parent
+    models_dir = workspace / "models"
     
     # Define what to clean
     files_to_remove = []
@@ -33,20 +34,22 @@ def clean_project(interactive=True, current_log_file=None):
     
     # Find .pth files (model checkpoints - includes both CNN and ART models)
     pth_files = list(workspace.glob("*.pth"))
+    if models_dir.exists():
+        pth_files.extend(models_dir.glob("*.pth"))
     files_to_remove.extend(pth_files)
     
     # Explicitly check for all model files
     model_files_found = []
-    if Path('model_state.pth').exists():
-        model_files_found.append('model_state.pth (CNN)')
-    if Path('model_state_art.pth').exists():
-        model_files_found.append('model_state_art.pth (ART)')
-    if Path('model_state_ffn.pth').exists():
-        model_files_found.append('model_state_ffn.pth (FFN)')
-    if Path('autoencoder.pth').exists():
-        model_files_found.append('autoencoder.pth')
-    if Path('ood_params.pth').exists():
-        model_files_found.append('ood_params.pth')
+    model_paths = {
+        'model_state.pth (CNN)': models_dir / 'model_state.pth',
+        'model_state_art.pth (ART)': models_dir / 'model_state_art.pth',
+        'model_state_ffn.pth (FFN)': models_dir / 'model_state_ffn.pth',
+        'autoencoder.pth': models_dir / 'autoencoder.pth',
+        'ood_params.pth': models_dir / 'ood_params.pth',
+    }
+    for label, path in model_paths.items():
+        if path.exists():
+            model_files_found.append((label, path))
     
     # Find .md files (reports) - keep only README.md
     md_files = list(workspace.glob("*.md"))
@@ -81,18 +84,19 @@ def clean_project(interactive=True, current_log_file=None):
     
     if files_to_remove:
         print("\n📄 Files:")
+        model_file_names = {p.name for _, p in model_files_found}
         if model_files_found:
             print("  Model files:")
-            for model_name in model_files_found:
-                filename = model_name.split(' (')[0]
-                if Path(filename).exists():
-                    size = Path(filename).stat().st_size / 1024
-                    print(f"    - {model_name} ({size:.1f} KB)")
+            for model_name, model_path in model_files_found:
+                size = model_path.stat().st_size / 1024
+                rel_path = model_path.relative_to(workspace)
+                print(f"    - {model_name} [{rel_path}] ({size:.1f} KB)")
         print("  Other files:")
         for f in sorted(files_to_remove):
-            if f.name not in ['model_state.pth', 'model_state_art.pth', 'model_state_ffn.pth', 'autoencoder.pth', 'ood_params.pth']:
+            if f.name not in model_file_names:
                 size = f.stat().st_size / 1024  # KB
-                print(f"    - {f.name} ({size:.1f} KB)")
+                rel_path = f.relative_to(workspace)
+                print(f"    - {rel_path} ({size:.1f} KB)")
     else:
         print("  No files to remove")
     
