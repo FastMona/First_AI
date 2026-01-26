@@ -207,10 +207,13 @@ def print_menu():
     print("│  0. Exit                      - Close dashboard                            │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
 
-def run_module(module_name, function_name="main"):
+def run_module(module_name, function_name="main", option_title=None):
     """Import and run a module's main function"""
     try:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
+        if option_title:
+            print(option_title.center(80))
+        print("="*80)
         module = __import__(module_name)
         if hasattr(module, function_name):
             getattr(module, function_name)()
@@ -221,13 +224,15 @@ def run_module(module_name, function_name="main"):
     except Exception as e:
         print(f"Error running {module_name}: {e}")
     finally:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
         input("\nPress Enter to return to dashboard...")
 
 def run_clean_project(log_file=None):
     """Special handler for clean_project with confirmation"""
     try:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
+        print("OPTION 9 - CLEAN PROJECT".center(80))
+        print("="*80)
         import clean_project
         
         # Close the current log file so it can be deleted
@@ -245,7 +250,7 @@ def run_clean_project(log_file=None):
     except Exception as e:
         print(f"Error running clean_project: {e}")
     finally:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
         input("\nPress Enter to return to dashboard...")
     
     return None  # Return None since log file is closed
@@ -253,7 +258,9 @@ def run_clean_project(log_file=None):
 def run_detect():
     """Special handler for single image detection"""
     try:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
+        print("OPTION 5 - SINGLE IMAGE DETECTION".center(80))
+        print("="*80)
         import detect
         
         # Prompt for image path
@@ -268,13 +275,15 @@ def run_detect():
     except Exception as e:
         print(f"Error running detect: {e}")
     finally:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
         input("\nPress Enter to return to dashboard...")
 
 def run_detect_batch():
     """Special handler for batch image detection"""
     try:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
+        print("OPTION 6 - BATCH IMAGE DETECTION".center(80))
+        print("="*80)
         import detect_batch
         
         # detect_batch.main() will handle model selection internally
@@ -285,7 +294,7 @@ def run_detect_batch():
     except Exception as e:
         print(f"Error running detect_batch: {e}")
     finally:
-        print("\n" + "─"*80)
+        print("\n" + "="*80)
         input("\nPress Enter to return to dashboard...")
 
 def main():
@@ -305,21 +314,21 @@ def main():
             choice = input("\n➤ Select option (0-9): ").strip()
             
             if choice == '1':
-                run_module("nn_train_ffn")
+                run_module("nn_train_ffn", option_title="OPTION 1 - TRAIN WITH FFN")
             elif choice == '2':
-                run_module("nn_train_cnn")
+                run_module("nn_train_cnn", option_title="OPTION 2 - TRAIN WITH CNN")
             elif choice == '3':
-                run_module("nn_train_art")
+                run_module("nn_train_art", option_title="OPTION 3 - TRAIN WITH ART")
             elif choice == '4':
-                run_module("test_accuracy")
+                run_module("test_accuracy", option_title="OPTION 4 - TEST ACCURACY")
             elif choice == '5':
                 run_detect()
             elif choice == '6':
                 run_detect_batch()
             elif choice == '7':
-                run_module("camera")
+                run_module("camera", option_title="OPTION 7 - CAMERA CAPTURE")
             elif choice == '8':
-                run_module("generate_report")
+                run_module("generate_report", option_title="OPTION 8 - GENERATE REPORT")
             elif choice == '9':
                 log_file = run_clean_project(log_file)
             elif choice == '0':

@@ -35,6 +35,7 @@ from first_ai.ood import (  # type: ignore
 )
 from first_ai.ae_train import train_autoencoder, calibrate_reconstruction_threshold  # type: ignore
 from first_ai.data import build_mnist_dataloaders  # type: ignore
+from first_ai.logging_utils import get_environment_info, log_environment_block  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -54,11 +55,14 @@ def main(
     device = resolve_device(device)
     use_amp = device.startswith("cuda")
 
-    logger.info("\n🚀 GPU Optimization enabled:")
+    env_info = get_environment_info()
+    log_environment_block(logger, env_info)
+
+    logger.info("\n🚀 Training setup:")
+    logger.info(f"  • Training device: {device.upper()}")
     logger.info(f"  • Batch size: {batch_size}")
     logger.info(f"  • Data workers: {num_workers}")
     logger.info(f"  • Mixed precision: {use_amp}")
-    logger.info("")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),

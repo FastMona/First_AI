@@ -6,6 +6,7 @@ hyperparameters.
 """
 
 import logging
+import os
 import time
 from pathlib import Path
 import sys
@@ -30,14 +31,49 @@ if SRC_DIR.exists():
 from first_ai.ood import compute_class_prototypes, compute_covariance_matrix, compute_mahalanobis_thresholds  # type: ignore
 from first_ai.ae_train import train_autoencoder  # type: ignore
 from first_ai.data import build_mnist_dataloaders  # type: ignore
+from first_ai.logging_utils import get_environment_info, log_environment_block  # type: ignore
 
 logger = logging.getLogger(__name__)
 
 
-def resolve_device(device: str) -> str:
-    if device == "auto":
-        return "cuda" if torch.cuda.is_available() else "cpu"
-    return device
+def get_optimal_num_workers(requested_workers: int = None) -> int:
+    """
+    Determine optimal num_workers based on available CPU cores.
+    
+    Rule of thumb for PyTorch DataLoader:
+    - num_workers should be <= cpu_count (avoid context switching overhead)
+    - More workers = better prefetching and data loading parallelism
+    - Typical range: 4-16 depending on system size
+    - Sweet spot: ~cpu_count // 4 to cpu_count // 2
+    - Cap at 12 for practical diminishing returns
+    
+    Args:
+        requested_workers: User-requested num_workers (None = auto-detect)
+    
+    Returns:
+        Optimal num_workers for this hardware
+    """
+    cpu_count = os.cpu_count() or 1
+    
+    if requested_workers is not None:
+        # If user explicitly requests workers, cap it at CPU count
+        optimal = min(requested_workers, cpu_count)
+    else:
+        # Auto-detect: use aggressive prefetching
+        # Formula: cpu_count // 3, capped at 12 for practical reasons
+        # Results: 4-core→1, 8-core→2, 12-core→4, 24-core→8, 48-core→12
+        optimal = max(2, min(12, cpu_count // 3))
+    
+    return optimal
+
+
+def get_cpu_info() -> dict:
+    """Get CPU information for logging."""
+    cpu_count = os.cpu_count() or 1
+    return {
+        'total_cores': cpu_count,
+        'logical_processors': cpu_count,  # Same on most systems
+    }
 
 
 def train_art(
@@ -61,7 +97,9 @@ def train_art(
 
         for batch_idx, (X, y) in enumerate(train_loader):
             batch_start = time.time()
-            X, y = X.to(device, non_blocking=True), y.to(device, non_blocking=True)
+            # Keep data on CPU for ART - GPU transfers are more expensive than CPU processing
+            # ART is inherently sequential with limited parallelization opportunities
+            X, y = X.to('cpu'), y.to('cpu')
 
             for i in range(X.size(0)):
                 art.train_pattern(X[i].view(-1), y[i])
@@ -102,11 +140,11 @@ def train_art(
 
         with torch.no_grad():
             for X, y in test_loader:
-                X, y = X.to(device, non_blocking=True), y.to(device, non_blocking=True)
+                # Evaluate on CPU where ART runs
+                X, y = X.to('cpu'), y.to('cpu')
                 X_flat = X.view(X.size(0), -1)
-                with torch.amp.autocast(device):
-                    logits = art.predict(X_flat)
-                    _, predicted = torch.max(logits, 1)
+                logits = art.predict(X_flat)
+                _, predicted = torch.max(logits, 1)
                 total += y.size(0)
                 correct += (predicted == y).sum().item()
 
@@ -115,18 +153,18 @@ def train_art(
         art.train()
 
 
-def calibrate_reconstruction_threshold_art(autoencoder, art, val_loader, device: str = "cuda"):
+def calibrate_reconstruction_threshold_art(autoencoder, art, val_loader, device: str = "cpu"):
     autoencoder.eval()
     art.eval()
     recon_errors = []
 
     with torch.no_grad():
         for X, _ in val_loader:
-            X = X.to(device, non_blocking=True)
-            with torch.amp.autocast(device):
-                X_flat = X.view(X.size(0), -1)
-                preds = torch.argmax(art.predict(X_flat), dim=1)
-                errors = autoencoder.reconstruction_error(X, preds)
+            # Move to CPU for processing with ART model
+            X = X.to('cpu')
+            X_flat = X.view(X.size(0), -1)
+            preds = torch.argmax(art.predict(X_flat), dim=1)
+            errors = autoencoder.reconstruction_error(X, preds)
             recon_errors.extend(errors.cpu().tolist())
 
     recon_errors = np.array(recon_errors)
@@ -149,18 +187,34 @@ def main(
     device: str = "auto",
     train_batch_size: int = 64,
     eval_batch_size: int = 256,
-    num_workers: int = 4,
+    num_workers: int = None,
     passes: int = 3,
 ):
-    device = resolve_device(device)
+    # ART uses CPU for training (GPU transfers are expensive for sequential processing)
+    # Set device to CPU since GPU doesn't improve ART performance
+    device = 'cpu'
+    
+    # Auto-detect optimal num_workers based on CPU count
+    if num_workers is None:
+        num_workers = get_optimal_num_workers()
+    else:
+        num_workers = get_optimal_num_workers(num_workers)
+    
+    cpu_info = get_cpu_info()
+
+    env_info = get_environment_info()
+    log_environment_block(logger, env_info)
 
     logger.info("\n" + "=" * 80)
     logger.info("  Training Fuzzy Adaptive Resonance Theory (ART) Network".center(80))
     logger.info("=" * 80)
-    logger.info(f"  Device: {device}")
-    logger.info(f"  Train batch size: {train_batch_size}")
-    logger.info(f"  Eval batch size: {eval_batch_size}")
-    logger.info(f"  Passes: {passes}")
+    logger.info("\n🚀 Training setup:")
+    logger.info(f"  • Training device: {device.upper()} (ART uses CPU for sequential updates)")
+    logger.info(f"  • Train batch size: {train_batch_size}")
+    logger.info(f"  • Eval batch size: {eval_batch_size}")
+    logger.info(f"  • Data workers: {num_workers}")
+    logger.info(f"  • Passes: {passes}")
+    logger.info(f"  • CPU cores available: {cpu_info['total_cores']}")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),
@@ -177,7 +231,7 @@ def main(
         vigilance=Config.ART_VIGILANCE,
         learning_rate=Config.ART_LEARNING_RATE,
         choice_alpha=Config.ART_CHOICE_ALPHA,
-    ).to(device)
+    ).to('cpu')  # Keep ART on CPU - GPU transfers are slower than CPU sequential processing
 
     # ART training
     train_art(art, train_loader, test_loader, device=device, num_passes=passes)
@@ -216,9 +270,9 @@ def main(
     autoencoder = MNISTAutoencoder(
         latent_dim=Config.LATENT_DIM,
         embedding_dim=Config.EMBEDDING_DIM,
-    ).to(device)
+    ).to('cpu')  # CPU for consistency with ART processing
 
-    train_autoencoder(autoencoder, train_loader, test_loader, device=device, epochs=Config.AE_EPOCHS)
+    train_autoencoder(autoencoder, train_loader, test_loader, device='cpu', epochs=Config.AE_EPOCHS)
 
     recon_threshold_95, recon_threshold_99, recon_mean, recon_std = calibrate_reconstruction_threshold_art(
         autoencoder, art, val_loader, device=device
