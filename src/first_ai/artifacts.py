@@ -33,7 +33,7 @@ def resolve_artifact_path(name: str, base_dir: Path = DEFAULT_MODELS_DIR) -> Pat
     return base_dir / name
 
 
-def save_artifact(payload: Dict[str, Any], name: str, meta: Optional[ArtifactMeta] = None) -> Path:
+def save_artifact(payload: Dict[str, Any], name: str, meta: Optional[ArtifactMeta] = None, base_dir: Path = DEFAULT_MODELS_DIR) -> Path:
     """
     Save a dict payload (e.g., model_state + metadata) to models directory.
 
@@ -41,11 +41,12 @@ def save_artifact(payload: Dict[str, Any], name: str, meta: Optional[ArtifactMet
         payload: Arbitrary dict to serialize via torch.save.
         name: Base filename (without extension or with .pth).
         meta: Optional metadata to include.
+        base_dir: Base directory for artifacts (defaults to DEFAULT_MODELS_DIR).
 
     Returns:
         Path to the saved artifact.
     """
-    path = resolve_artifact_path(name)
+    path = resolve_artifact_path(name, base_dir)
     envelope = {"payload": payload}
     if meta is not None:
         envelope["meta"] = asdict(meta)

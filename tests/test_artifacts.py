@@ -37,25 +37,19 @@ def test_save_and_load_artifact():
     pytest.importorskip("torch")
     
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Override default dir for test
-        from src.first_ai import artifacts
-        orig_dir = artifacts.DEFAULT_MODELS_DIR
-        artifacts.DEFAULT_MODELS_DIR = Path(tmpdir) / "models"
+        base_dir = Path(tmpdir) / "models"
         
-        try:
-            payload = {"model_state": {"weight": [1, 2, 3]}, "epoch": 10}
-            meta = ArtifactMeta(name="test_model", version="v1.0", notes="test")
-            
-            path = save_artifact(payload, "test_model", meta=meta)
-            assert path.exists()
-            
-            loaded = load_artifact("test_model", base_dir=Path(tmpdir) / "models")
-            assert "payload" in loaded
-            assert loaded["payload"]["epoch"] == 10
-            assert "meta" in loaded
-            assert loaded["meta"]["version"] == "v1.0"
-        finally:
-            artifacts.DEFAULT_MODELS_DIR = orig_dir
+        payload = {"model_state": {"weight": [1, 2, 3]}, "epoch": 10}
+        meta = ArtifactMeta(name="test_model", version="v1.0", notes="test")
+        
+        path = save_artifact(payload, "test_model", meta=meta, base_dir=base_dir)
+        assert path.exists()
+        
+        loaded = load_artifact("test_model", base_dir=base_dir)
+        assert "payload" in loaded
+        assert loaded["payload"]["epoch"] == 10
+        assert "meta" in loaded
+        assert loaded["meta"]["version"] == "v1.0"
 
 
 def test_save_artifact_without_meta():
@@ -63,16 +57,11 @@ def test_save_artifact_without_meta():
     pytest.importorskip("torch")
     
     with tempfile.TemporaryDirectory() as tmpdir:
-        from src.first_ai import artifacts
-        orig_dir = artifacts.DEFAULT_MODELS_DIR
-        artifacts.DEFAULT_MODELS_DIR = Path(tmpdir) / "models"
+        base_dir = Path(tmpdir) / "models"
         
-        try:
-            payload = {"data": "test"}
-            path = save_artifact(payload, "simple", meta=None)
-            
-            loaded = load_artifact("simple", base_dir=Path(tmpdir) / "models")
-            assert loaded["payload"]["data"] == "test"
-            assert "meta" not in loaded
-        finally:
-            artifacts.DEFAULT_MODELS_DIR = orig_dir
+        payload = {"data": "test"}
+        path = save_artifact(payload, "simple", meta=None, base_dir=base_dir)
+        
+        loaded = load_artifact("simple", base_dir=base_dir)
+        assert loaded["payload"]["data"] == "test"
+        assert "meta" not in loaded

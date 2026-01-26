@@ -27,6 +27,11 @@ def test_configure_logger_with_file():
         
         content = log_file.read_text()
         assert "Test message" in content
+        
+        # Close handlers to release file lock on Windows
+        for handler in logger.handlers[:]:
+            handler.close()
+            logger.removeHandler(handler)
 
 
 def test_configure_logger_no_duplicate_handlers():
