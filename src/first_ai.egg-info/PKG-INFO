@@ -1,0 +1,80 @@
+Metadata-Version: 2.4
+Name: first-ai
+Version: 0.1.0
+Summary: MNIST digit detection with OOD rejection using class-conditional autoencoders
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: torch>=1.9.0
+Requires-Dist: torchvision>=0.10.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pillow>=8.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.0.0; extra == "dev"
+Requires-Dist: pytest-cov>=3.0.0; extra == "dev"
+Requires-Dist: ruff>=0.1.0; extra == "dev"
+Requires-Dist: black>=22.0.0; extra == "dev"
+
+# MNIST Digit Detection with Two-Stage OOD
+
+This project trains MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditional autoencoder, then runs detection through a two-stage OOD gate: 1) reconstruction error and 2) Mahalanobis distance to class prototypes. Shared logic now lives in src/first_ai/ to keep training and detection flows consistent.
+
+## Quick Start
+- Dashboard (interactive): python dashboard.py
+- Unified CLI (shared modules):
+  - Train: python -m src.first_ai.cli train cnn --device auto --batch-size 256 --epochs 10
+  - Detect single image: python -m src.first_ai.cli detect test_images/img_3.jpg
+  - Batch detect: python -m src.first_ai.cli batch-detect test_images/
+  - Report: python -m src.first_ai.cli report
+- Legacy scripts remain runnable (e.g., python nn_train_cnn.py); they now call shared helpers.
+
+## Layout (key paths)
+- src/first_ai/ — shared package
+  - data.py (MNIST loaders), train.py (early stopping trainer), ae_train.py, ood.py,
+    artifacts.py, logging_utils.py, seeds.py, cli.py
+- models/ — artifacts (classifiers, autoencoder, OOD params)
+- outputs/ — reports/plots; captures/ — webcam saves; logs/ — log files
+- Scripts: detect.py, detect_batch.py, generate_report.py, test_accuracy.py,
+  test_class_thresholds.py, visualize_conditional_ae.py, camera.py, clean_project.py
+- Training wrappers: nn_train_cnn.py, nn_train_ffn.py, nn_train_art.py
+- Models: nn_model_cnn.py, nn_model_ffn.py, nn_model_art.py, autoencoder_model.py
+- Config: config.py (devices, paths, hyperparameters)
+
+## How detection works
+- Stage 1: class-conditional autoencoder reconstruction error (reject obvious non-digits).
+- Stage 2: Mahalanobis distance to class prototypes (per-class thresholds when available).
+- Both stages share code in detection_utils.py; CLI and scripts call the same path to avoid drift.
+
+## Train
+- With CLI (preferred): see Quick Start.
+- With wrappers: python nn_train_cnn.py (or nn_train_ffn.py, nn_train_art.py).
+- Artifacts land in models/ (classifier, autoencoder, OOD params). Changing model embeddings
+  requires regenerating OOD params.
+
+## Detect & Report
+- Single image: python -m src.first_ai.cli detect <image> or python detect.py.
+- Batch: python -m src.first_ai.cli batch-detect <folder> or python detect_batch.py.
+- Report: python -m src.first_ai.cli report or python generate_report.py.
+
+## Utilities
+- camera.py — capture and preprocess to MNIST format.
+- visualize_conditional_ae.py — sanity-check AE manifolds vs classes.
+- test_class_thresholds.py — inspect Mahalanobis thresholds and OOD behavior under noise.
+- clean_project.py — remove generated artifacts while keeping data.
+
+## Notes on artifacts & consistency
+- OOD detector (ood_detector.py) must match feature dims emitted by the classifier
+  (CNN/FFN: 128-d, ART: complement-coded size). After changing architectures or training
+  data, regenerate OOD params.
+- Config paths point to models/; keep loaders/savers aligned with config.py and
+  src/first_ai/artifacts.py to avoid stray files in the repo root.
+
+## Environment
+- Python >= 3.8, PyTorch/torchvision per pyproject.toml or environment.yml.
+- Set device via CLI --device auto|cpu|cuda; falls back to CPU when CUDA unavailable.
+
+## Testing
+- python test_accuracy.py exercises the same detection path for a quick smoke test.
+- Additional pytest scaffolding is planned under tests/ (see pyproject config).
+
+## Author
+David Cronin — January 2026
