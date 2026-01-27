@@ -11,9 +11,9 @@ __pycache__/
 *$py.class
 
 # Models and artifacts
-models/
 artifacts/
-*.pth
+# Track model artifacts via Git LFS
+# (models/*.pth files are tracked; see .gitattributes)
 
 # Outputs and logs
 outputs/
