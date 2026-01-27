@@ -56,6 +56,24 @@ This project trains MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditio
 - Python >= 3.8, PyTorch/torchvision per pyproject.toml or environment.yml.
 - Set device via CLI --device auto|cpu|cuda; falls back to CPU when CUDA unavailable.
 
+## Run on a Laptop (CPU) with Pre‑Trained Models
+- Create env:
+  - Conda: `conda env create -f environment.yml && conda activate pytorch`
+  - Or pip: `pip install -e .` (reads pyproject.toml)
+- Get trained artifacts onto the laptop:
+  - Recommended: Git LFS (already configured). On the training machine:
+    - `git lfs install`
+    - `git add models/*.pth && git commit -m "Add trained model artifacts" && git push`
+  - Then on the laptop: `git lfs install && git pull` (or fresh `git clone`).
+  - Alternative: copy the `models/` folder manually once.
+- Run detection:
+  - Single image: `python detect.py test_images/img_3.jpg`
+  - Dashboard: `python dashboard.py`
+  - CLI: `python -m src.first_ai.cli detect test_images/img_3.jpg`
+- Notes:
+  - Inference uses `Config.DEVICE` and will run on CPU automatically if CUDA is unavailable.
+  - Expected artifacts under `models/`: `model_state*.pth`, `autoencoder.pth`, `ood_params*.pth`.
+
 ## Testing
 - python test_accuracy.py exercises the same detection path for a quick smoke test.
 - Additional pytest scaffolding is planned under tests/ (see pyproject config).
