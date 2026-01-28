@@ -1,17 +1,17 @@
 # MNIST Digit Detection Test Results (CNN)
 
 **Model Type**: CNN
-**Date**: 2026-01-26 20:25:52
+**Date**: 2026-01-28 08:50:17
 
 ## Summary
 
 - **Total Images**: 15
 - **Digit Samples**: 7
 - **OOD Samples**: 8
-- **Overall Accuracy**: 46.7%
+- **Overall Accuracy**: 60.0%
 
 - **Digit Classification Accuracy**: 42.9% (3/7)
-- **OOD Detection Accuracy**: 50.0% (4/8)
+- **OOD Detection Accuracy**: 75.0% (6/8)
 
 ---
 
@@ -23,11 +23,11 @@ These images contain actual digits and should be classified correctly.
 |-------|----------|------------|------------|------------|--------|
 | ![img_0.jpg](test_images\img_0.jpg) | `img_0.jpg` | **0** | 0 | 100.0% | ✅ CORRECT |
 | ![img_2.jpg](test_images\img_2.jpg) | `img_2.jpg` | **2** | 2 | 100.0% | ✅ CORRECT |
-| ![img_3.jpg](test_images\img_3.jpg) | `img_3.jpg` | **3** | ~~3~~ | 37.4% | ❌ REJECTED (mahalanobis) |
-| ![img_4.jpg](test_images\img_4.jpg) | `img_4.jpg` | **4** | 2 | 49.3% | ❌ WRONG |
-| ![img_5.jpg](test_images\img_5.jpg) | `img_5.jpg` | **5** | ~~5~~ | 99.6% | ❌ REJECTED (reconstruction) |
-| ![img_7.jpg](test_images\img_7.jpg) | `img_7.jpg` | **7** | ~~3~~ | 92.0% | ❌ REJECTED (reconstruction) |
-| ![img_9.jpg](test_images\img_9.jpg) | `img_9.jpg` | **9** | 9 | 99.7% | ✅ CORRECT |
+| ![img_3.jpg](test_images\img_3.jpg) | `img_3.jpg` | **3** | ~~3~~ | 60.9% | ❌ REJECTED (mahalanobis) |
+| ![img_4.jpg](test_images\img_4.jpg) | `img_4.jpg` | **4** | 2 | 50.2% | ❌ WRONG |
+| ![img_5.jpg](test_images\img_5.jpg) | `img_5.jpg` | **5** | ~~5~~ | 99.5% | ❌ REJECTED (reconstruction) |
+| ![img_7.jpg](test_images\img_7.jpg) | `img_7.jpg` | **7** | ~~3~~ | 90.9% | ❌ REJECTED (reconstruction) |
+| ![img_9.jpg](test_images\img_9.jpg) | `img_9.jpg` | **9** | 9 | 100.0% | ✅ CORRECT |
 
 ---
 
@@ -37,22 +37,22 @@ These images do NOT contain digits and should be rejected by the OOD detector.
 
 | Image | Filename | Expected | Detection Result | Stage | Classifier Guess |
 |-------|----------|----------|------------------|-------|------------------|
-| ![img_+.jpg](test_images\img_+.jpg) | `img_+.jpg` | OOD | ❌ ACCEPTED | passed | 4 (99.4%) |
-| ![img_A.jpg](test_images\img_A.jpg) | `img_A.jpg` | OOD | ✅ REJECTED | reconstruction | 8 (42.4%) |
-| ![img_AA.jpg](test_images\img_AA.jpg) | `img_AA.jpg` | OOD | ❌ ACCEPTED | passed | 4 (56.5%) |
-| ![img_C.jpg](test_images\img_C.jpg) | `img_C.jpg` | OOD | ✅ REJECTED | mahalanobis | 6 (56.6%) |
-| ![img_Eps.jpg](test_images\img_Eps.jpg) | `img_Eps.jpg` | OOD | ✅ REJECTED | reconstruction | 3 (61.4%) |
-| ![img_M.jpg](test_images\img_M.jpg) | `img_M.jpg` | OOD | ❌ ACCEPTED | passed | 5 (51.8%) |
-| ![img_Str.jpg](test_images\img_Str.jpg) | `img_Str.jpg` | OOD | ✅ REJECTED | reconstruction | 8 (99.7%) |
-| ![img_T.jpg](test_images\img_T.jpg) | `img_T.jpg` | OOD | ❌ ACCEPTED | passed | 5 (58.3%) |
+| ![img_+.jpg](test_images\img_+.jpg) | `img_+.jpg` | OOD | ✅ REJECTED | mahalanobis | 4 (68.0%) |
+| ![img_A.jpg](test_images\img_A.jpg) | `img_A.jpg` | OOD | ✅ REJECTED | reconstruction | 4 (73.0%) |
+| ![img_AA.jpg](test_images\img_AA.jpg) | `img_AA.jpg` | OOD | ✅ REJECTED | mahalanobis | 4 (83.8%) |
+| ![img_C.jpg](test_images\img_C.jpg) | `img_C.jpg` | OOD | ✅ REJECTED | mahalanobis | 0 (36.4%) |
+| ![img_Eps.jpg](test_images\img_Eps.jpg) | `img_Eps.jpg` | OOD | ✅ REJECTED | reconstruction | 5 (41.0%) |
+| ![img_M.jpg](test_images\img_M.jpg) | `img_M.jpg` | OOD | ❌ ACCEPTED | passed | 5 (57.9%) |
+| ![img_Str.jpg](test_images\img_Str.jpg) | `img_Str.jpg` | OOD | ✅ REJECTED | reconstruction | 8 (99.3%) |
+| ![img_T.jpg](test_images\img_T.jpg) | `img_T.jpg` | OOD | ❌ ACCEPTED | passed | 3 (96.8%) |
 
 ---
 
 ## Detection Stages Breakdown
 
 - **Stage 1 (Autoencoder) Rejections**: 5
-- **Stage 2 (Mahalanobis) Rejections**: 2
-- **Passed Both Stages**: 8
+- **Stage 2 (Mahalanobis) Rejections**: 4
+- **Passed Both Stages**: 6
 
 ---
 
