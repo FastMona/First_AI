@@ -4,16 +4,15 @@ Central console for accessing all project functionalities
 Dashboard Menu: This IS the main dashboard - entry point for all options
 
 Menu Structure:
-  1. Train with FFN            → calls nn_train_ffn.py
-  2. Train with CNN            → calls nn_train_cnn.py
-  3. Train with ART            → calls nn_train_art.py
-  4. Test Accuracy             → calls test_accuracy.py
-  5. Single Image Detection    → calls detect.py
-  6. Batch Image Detection     → calls detect_batch.py
-  7. Simple NN Detection       → calls detect_simple.py (NN only, no OOD)
-  8. Camera Capture            → calls camera.py
-  9. Generate Report           → calls generate_report.py
- 10. Clean Project             → calls clean_project.py
+  1. Train a NN Module         → sub-menu to select FFN/CNN/ART for training
+  2. Test Accuracy             → calls test_accuracy.py
+  3. Single Image Detection    → calls detect.py
+  4. Batch Image Detection     → calls detect_batch.py
+  5. Simple NN Detection       → calls detect_simple.py (NN only, no OOD)
+  6. Camera Capture            → calls camera.py
+  7. Generate Report           → calls generate_report.py
+  8. Clean Project             → calls clean_project.py
+  9. ART Digit Distribution    → calls analyze_art_digit_distribution.py
   0. Exit                      → exits dashboard"""
 
 import sys
@@ -21,6 +20,7 @@ import os
 import logging
 from datetime import datetime
 from pathlib import Path
+from config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -184,28 +184,72 @@ def print_header(env_info):
         print(f"  💻 Compute Device: CPU")
     print("="*80)
 
+def get_trained_models_status():
+    """Check which models have been trained."""
+    return {
+        'ffn': os.path.exists(Config.MODEL_PATH_FFN),
+        'cnn': os.path.exists(Config.MODEL_PATH),
+        'art': os.path.exists(Config.MODEL_PATH_ART)
+    }
+
+def select_training_model():
+    """Display sub-menu for selecting which NN model to train."""
+    print("\n" + "─"*80)
+    print("SELECT NEURAL NETWORK MODEL TO TRAIN")
+    print("─"*80)
+    
+    trained = get_trained_models_status()
+    model_names = {
+        'ffn': 'FFN (Feedforward Neural Network)',
+        'cnn': 'CNN (Convolutional Neural Network)',
+        'art': 'ART (Fuzzy Adaptive Resonance Theory)'
+    }
+    
+    models = ['ffn', 'cnn', 'art']
+    
+    for i, model in enumerate(models, 1):
+        status = "✓ Trained" if trained[model] else "○ Not trained"
+        print(f"  {i}. {model.upper():3} - {model_names[model]:<45} [{status}]")
+    
+    print("  0. Cancel - Return to main menu")
+    print("─"*80)
+    
+    while True:
+        try:
+            choice = input("\n➤ Select model to train (0-3): ").strip()
+            if choice == '0':
+                return None
+            choice_idx = int(choice) - 1
+            if 0 <= choice_idx < 3:
+                return models[choice_idx]
+            else:
+                print("❌ Please enter a number between 0 and 3")
+        except ValueError:
+            print("❌ Please enter a valid number")
+        except KeyboardInterrupt:
+            return None
+
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train with FFN            - Train simple FFN and autoencoder           │")
-    print("│  2. Train with CNN            - Train CNN classifier and autoencoder       │")
-    print("│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
-    print("│  4. Test Accuracy             - Compare all trained models                 │")
+    print("│  1. Train a NN Module         - Train FFN/CNN/ART and autoencoder          │")
+    print("│  2. Test Accuracy             - Compare all trained models                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐")
-    print("│  5. Single Image Detection    - Detect digit in one image (detailed)       │")
-    print("│  6. Batch Image Detection     - Process all images in a folder             │")
-    print("│  7. Simple NN Detection       - NN only, no OOD detection (baseline)       │")
+    print("│  3. Single Image Detection    - Detect digit in one image (detailed)       │")
+    print("│  4. Batch Image Detection     - Process all images in a folder             │")
+    print("│  5. Simple NN Detection       - NN only, no OOD detection (baseline)       │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐")
-    print("│  8. Camera Capture            - Capture images from webcam                 │")
+    print("│  6. Camera Capture            - Capture images from webcam                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ REPORTING & UTILITIES ────────────────────────────────────────────────────┐")
-    print("│  9. Generate Report           - Create markdown reports for all models     │")
-    print("│ 10. Clean Project             - Clean up temporary files and cache         │")
+    print("│  7. Generate Report           - Create markdown reports for all models     │")
+    print("│  8. Clean Project             - Clean up temporary files and cache         │")
+    print("│  9. ART Digit Distribution    - Analyze ART category-digit histograms      │")
     print("│  0. Exit                      - Close dashboard                            │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
 
@@ -261,7 +305,7 @@ def run_detect():
     """Special handler for single image detection"""
     try:
         print("\n" + "="*80)
-        print("OPTION 5 - SINGLE IMAGE DETECTION".center(80))
+        print("OPTION 3 - SINGLE IMAGE DETECTION".center(80))
         print("="*80)
         import detect
         
@@ -284,7 +328,7 @@ def run_detect_batch():
     """Special handler for batch image detection"""
     try:
         print("\n" + "="*80)
-        print("OPTION 6 - BATCH IMAGE DETECTION".center(80))
+        print("OPTION 4 - BATCH IMAGE DETECTION".center(80))
         print("="*80)
         import detect_batch
         
@@ -303,7 +347,7 @@ def run_detect_simple():
     """Special handler for simple NN-only detection"""
     try:
         print("\n" + "="*80)
-        print("OPTION 7 - SIMPLE NN DETECTION (NO OOD)".center(80))
+        print("OPTION 5 - SIMPLE NN DETECTION (NO OOD)".center(80))
         print("="*80)
         import detect_simple
         
@@ -333,28 +377,36 @@ def main():
             print_header(env_info)
             print_menu()
             
-            choice = input("\n➤ Select option (0-10): ").strip()
+            choice = input("\n➤ Select option (0-9): ").strip()
             
             if choice == '1':
-                run_module("nn_train_ffn", option_title="OPTION 1 - TRAIN WITH FFN")
+                # Train a NN Module - show sub-menu
+                selected_model = select_training_model()
+                if selected_model == 'ffn':
+                    run_module("nn_train_ffn", option_title="OPTION 1 - TRAIN WITH FFN")
+                elif selected_model == 'cnn':
+                    run_module("nn_train_cnn", option_title="OPTION 1 - TRAIN WITH CNN")
+                elif selected_model == 'art':
+                    run_module("nn_train_art", option_title="OPTION 1 - TRAIN WITH ART")
+                # If None, user cancelled, just continue
             elif choice == '2':
-                run_module("nn_train_cnn", option_title="OPTION 2 - TRAIN WITH CNN")
+                run_module("test_accuracy", option_title="OPTION 2 - TEST ACCURACY")
             elif choice == '3':
-                run_module("nn_train_art", option_title="OPTION 3 - TRAIN WITH ART")
-            elif choice == '4':
-                run_module("test_accuracy", option_title="OPTION 4 - TEST ACCURACY")
-            elif choice == '5':
                 run_detect()
-            elif choice == '6':
+            elif choice == '4':
                 run_detect_batch()
-            elif choice == '7':
+            elif choice == '5':
                 run_detect_simple()
+            elif choice == '6':
+                run_module("camera", option_title="OPTION 6 - CAMERA CAPTURE")
+            elif choice == '7':
+                run_module("generate_report", option_title="OPTION 7 - GENERATE REPORT")
             elif choice == '8':
-                run_module("camera", option_title="OPTION 8 - CAMERA CAPTURE")
-            elif choice == '9':
-                run_module("generate_report", option_title="OPTION 9 - GENERATE REPORT")
-            elif choice == '10':
                 log_file = run_clean_project(log_file)
+            elif choice == '9':
+                run_module("analyze_art_digit_distribution", 
+                          function_name="analyze_art_digit_distribution",
+                          option_title="OPTION 9 - ART DIGIT DISTRIBUTION ANALYSIS")
             elif choice == '0':
                 close_logging(log_file)
                 clear_screen()
@@ -363,7 +415,7 @@ def main():
                 print("="*80 + "\n")
                 sys.exit(0)
             else:
-                print("\n❌ Invalid option. Please select 0-10.")
+                print("\n❌ Invalid option. Please select 0-9.")
                 input("Press Enter to continue...")
     except KeyboardInterrupt:
         close_logging(log_file)

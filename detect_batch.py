@@ -30,9 +30,9 @@ def main(folder_path=None):
     ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
     
     print("\nAvailable trained models:")
-    print(f"  1. CNN  {'✓ Trained' if cnn_available else '✗ Not trained'}")
-    print(f"  2. ART  {'✓ Trained' if art_available else '✗ Not trained'}")
-    print(f"  3. FFN  {'✓ Trained' if ffn_available else '✗ Not trained'}")
+    print(f"  1. FFN  {'✓ Trained' if ffn_available else '✗ Not trained'}")
+    print(f"  2. CNN  {'✓ Trained' if cnn_available else '✗ Not trained'}")
+    print(f"  3. ART  {'✓ Trained' if art_available else '✗ Not trained'}")
     
     if not (cnn_available or art_available or ffn_available):
         logger.error("No trained models found!")
@@ -44,31 +44,30 @@ def main(folder_path=None):
     
     # Ask user to select model
     while True:
-        choice = input("\nSelect model to test (1=CNN, 2=ART, 3=FFN): ").strip()
+        choice = input("\nSelect model to test (1=FFN, 2=CNN, 3=ART): ").strip()
         
         if choice == '1':
-            if not cnn_available:
-                print("❌ CNN model not trained. Please run 'python nn_train_cnn.py' first.")
-                continue
-            model_type = 'cnn'
-            break
-        elif choice == '2':
-            if not art_available:
-                print("❌ ART model not trained. Please run 'python nn_train_art.py' first.")
-                continue
-            model_type = 'art'
-            break
-        elif choice == '3':
             if not ffn_available:
                 print("❌ FFN model not trained. Please run 'python nn_train_ffn.py' first.")
                 continue
             model_type = 'ffn'
             break
+        elif choice == '2':
+            if not cnn_available:
+                print("❌ CNN model not trained. Please run 'python nn_train_cnn.py' first.")
+                continue
+            model_type = 'cnn'
+            break
+        elif choice == '3':
+            if not art_available:
+                print("❌ ART model not trained. Please run 'python nn_train_art.py' first.")
+                continue
+            model_type = 'art'
+            break
         else:
             print("❌ Invalid choice. Please enter 1, 2, or 3.")
     
-    # Load models
-    logger.info(f"Loading {model_type.upper()} model...")
+    # Load models (no need to print "Loading..." here, load_models() will do it)
     clf, autoencoder, ood_detector, ae_threshold, model_type = load_models(model_type)
     
     if clf is None:
