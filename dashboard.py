@@ -247,7 +247,7 @@ def print_menu():
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ REPORTING & UTILITIES ────────────────────────────────────────────────────┐")
-    print("│  7. Generate Report           - Create markdown reports for all models     │")
+    print("│  7. Generate Reports           - Create markdown reports for all models    │")
     print("│  8. Clean Project             - Clean up temporary files and cache         │")
     print("│  9. ART Digit Distribution    - Analyze ART category-digit histograms      │")
     print("│  0. Exit                      - Close dashboard                            │")
