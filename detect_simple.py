@@ -45,7 +45,8 @@ def select_model_type():
         str: Selected model type ('cnn', 'art', or 'ffn'), or None if no models available
     """
     available = get_available_models()
-    available_list = [model for model, exists in available.items() if exists]
+    selection_order = ['ffn', 'cnn', 'art']
+    available_list = [model for model in selection_order if available.get(model)]
     
     # No models available
     if not available_list:
@@ -323,23 +324,23 @@ def test_on_dataset(model, model_type):
     # Calculate metrics
     total_samples = len(digit_samples) + len(ood_samples)
     
-    # For confusion matrix in digit vs non-digit context:
-    # TP = digits predicted as any digit (correct or wrong class)
+    # For confusion matrix in correct-digit vs not-correct context:
+    # TP = digits correctly classified
     # FP = non-digits predicted as any digit (all of them, since no OOD rejection)
-    # FN = 0 (no digits rejected, since no OOD detection)
+    # FN = digits misclassified as the wrong digit
     # TN = 0 (no non-digits rejected, since no OOD detection)
     
-    tp = len(digit_samples)  # All digits accepted (no rejection mechanism)
-    fp = len(ood_samples)     # All non-digits accepted as digits
-    fn = 0                     # No false negatives (no rejection)
+    tp = correct_class         # Digits correctly classified
+    fp = len(ood_samples)      # All non-digits accepted as digits
+    fn = wrong_class           # Digits misclassified
     tn = 0                     # No true negatives (no rejection)
     
     # Display confusion matrix
     print("\n" + "="*80)
-    print("  CONFUSION MATRIX (Binary: Digit vs Non-Digit)".center(80))
+    print("  CONFUSION MATRIX (Binary: Correct Digit vs Not Correct)".center(80))
     print("="*80)
     print("┌─────────────────────────────┬──────────────────┬──────────────────┐")
-    print("│                             │  Predicted: DIGIT│ Predicted: OOD   │")
+    print("│                             │  Predicted: CORR │ Predicted: WRONG │")
     print("├─────────────────────────────┼──────────────────┼──────────────────┤")
     print(f"│ Actually: DIGIT             │  {tp:3d} (TP)       │  {fn:3d} (FN)       │")
     print(f"│ Actually: OOD (non-digit)   │  {fp:3d} (FP)       │  {tn:3d} (TN)       │")

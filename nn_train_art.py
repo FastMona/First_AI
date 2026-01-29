@@ -36,6 +36,110 @@ from first_ai.logging_utils import get_environment_info, log_environment_block  
 logger = logging.getLogger(__name__)
 
 
+def display_art_category_distribution(art):
+    """Display Fuzzy ART category distribution across digits."""
+    
+    logger.info("\n" + "=" * 80)
+    logger.info("Fuzzy ART Category Distribution Analysis")
+    logger.info("=" * 80)
+
+    # Get category labels and counts
+    category_labels = art.category_labels.cpu()
+    category_counts = art.category_counts.cpu()
+    committed = art.committed.cpu()
+
+    # Count categories per digit
+    digit_categories = {i: [] for i in range(10)}
+
+    for cat_idx in range(art.max_categories):
+        if committed[cat_idx]:
+            label = category_labels[cat_idx].item()
+            if 0 <= label < 10:
+                count = category_counts[cat_idx].item()
+                digit_categories[label].append({
+                    'category_id': cat_idx,
+                    'pattern_count': count
+                })
+
+    total_categories = sum(1 for c in committed if c.item())
+    logger.info(
+        f"Yes, the {art.max_categories} categories are mapped to the 10 digits (0-9). Here's the breakdown:\n"
+    )
+
+    logger.info(f"{'Digit':<6}{'# Categories':<14}{'Total Patterns':<16}Notable Patterns")
+    logger.info("-" * 80)
+
+    per_digit_stats = []
+    for digit in range(10):
+        cats = digit_categories[digit]
+        num_cats = len(cats)
+        counts = [c['pattern_count'] for c in cats]
+        total_patterns = sum(counts)
+
+        if counts:
+            max_count = max(counts)
+            min_count = min(counts)
+            max_cat = cats[counts.index(max_count)]['category_id']
+            sorted_counts = sorted(counts, reverse=True)
+            second_max = sorted_counts[1] if len(sorted_counts) > 1 else 0
+            balance_ratio = (max_count / max(min_count, 1)) if min_count > 0 else float('inf')
+
+            if max_count >= 0.8 * total_patterns and num_cats > 1:
+                notable = f"1 mega-category (C{max_cat}: {max_count:,}) + {num_cats - 1} smaller ones"
+            elif max_count >= 3 * max(second_max, 1):
+                notable = f"1 dominant category (C{max_cat}: {max_count:,}) + others"
+            elif num_cats <= 6 and balance_ratio <= 1.5:
+                notable = "Smallest overall, most uniform distribution"
+            elif balance_ratio <= 1.7:
+                notable = f"Well-balanced categories (~{min_count:,}-{max_count:,} patterns each)"
+            else:
+                notable = "Moderate distribution"
+        else:
+            notable = "No committed categories"
+
+        logger.info(f"{digit:<6}{num_cats:<14}{total_patterns:<16}{notable}")
+        per_digit_stats.append({
+            'digit': digit,
+            'num_cats': num_cats,
+            'total_patterns': total_patterns,
+            'counts': counts,
+        })
+
+    logger.info("\nKey Findings:")
+    all_committed = " (all committed)" if total_categories == art.max_categories else ""
+    avg_categories = sum(d['num_cats'] for d in per_digit_stats) / 10
+    min_categories = min(d['num_cats'] for d in per_digit_stats)
+    max_categories = max(d['num_cats'] for d in per_digit_stats)
+    total_patterns_all = sum(d['total_patterns'] for d in per_digit_stats)
+
+    most_simple = min(per_digit_stats, key=lambda d: d['num_cats'])['digit']
+    most_complex = max(per_digit_stats, key=lambda d: d['num_cats'])['digit']
+
+    dominant_digits = []
+    for d in per_digit_stats:
+        if d['counts']:
+            top = max(d['counts'])
+            if top >= 0.8 * d['total_patterns'] and d['num_cats'] > 1:
+                dominant_digits.append(d['digit'])
+
+    logger.info(f"Total categories used: {total_categories}/{art.max_categories}{all_committed}")
+    logger.info(f"Average: {avg_categories:.1f} categories per digit")
+    if dominant_digits:
+        digits_list = ", ".join(str(d) for d in dominant_digits)
+        logger.info(
+            "Imbalance: digits with a dominant category detected: "
+            f"{digits_list}"
+        )
+    else:
+        logger.info("Imbalance: no dominant categories detected")
+    logger.info(f"Most balanced: digits with {min_categories}-{max_categories} categories")
+    logger.info(
+        f"Digit {most_simple} is the simplest ({min_categories} categories) while "
+        f"Digit {most_complex} is most complex ({max_categories} categories)"
+    )
+    logger.info(f"Total patterns learned: {total_patterns_all:,}")
+
+    logger.info("=" * 80 + "\n")
 def get_optimal_num_workers(requested_workers: int = None) -> int:
     """
     Determine optimal num_workers based on available CPU cores.
@@ -292,6 +396,9 @@ def main(
     logger.info(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
     logger.info(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
     logger.info("=" * 60)
+
+    # Display category distribution analysis
+    display_art_category_distribution(art)
 
     logger.info("\n" + "=" * 80)
     logger.info("  ART Training Complete!".center(80))

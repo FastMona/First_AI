@@ -187,7 +187,7 @@ def print_header(env_info):
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train with FFN            - Train simple feedforward network           │")
+    print("│  1. Train with FFN            - Train simple FFN and autoencoder           │")
     print("│  2. Train with CNN            - Train CNN classifier and autoencoder       │")
     print("│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
     print("│  4. Test Accuracy             - Compare all trained models                 │")

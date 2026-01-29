@@ -225,6 +225,14 @@ def main():
     
     results = []
     
+    # Test FFN if available
+    if ffn_available:
+        result = test_single_model("FFN", model_type_override='ffn')
+        if result:
+            results.append(result)
+    else:
+        print("\n⚠️  FFN model (model_state_ffn.pth) not found. Skipping FFN test.")
+    
     # Test CNN if available
     if cnn_available:
         result = test_single_model("CNN", model_type_override='cnn')
@@ -241,14 +249,6 @@ def main():
     else:
         print("\n⚠️  ART model (model_state_art.pth) not found. Skipping ART test.")
     
-    # Test FFN if available
-    if ffn_available:
-        result = test_single_model("FFN", model_type_override='ffn')
-        if result:
-            results.append(result)
-    else:
-        print("\n⚠️  FFN model (model_state_ffn.pth) not found. Skipping FFN test.")
-    
     # Comparison summary if multiple models were tested
     if len(results) >= 2:
         print("\n" + "="*80)
@@ -260,28 +260,28 @@ def main():
         for r in results:
             header_parts.append(r['model_name'])
         
-        print(f"\n{header_parts[0]:<30}", end='')
+        print(f"\n{header_parts[0]:<22}", end='')
         for i in range(1, len(header_parts)):
-            print(f"{header_parts[i]:<20}", end='')
+            print(f"{header_parts[i]:>19}", end='')
         print()
         print("-"*80)
         
         # Overall accuracy
-        print(f"{'Overall Accuracy:':<30}", end='')
+        print(f"{'Overall Accuracy:':<22}", end='')
         for r in results:
-            print(f"{r['overall_accuracy']:<19.1f}%", end='')
+            print(f"{r['overall_accuracy']:>18.1f}%", end='')
         print()
         
         # Digit classification
-        print(f"{'Digit Classification:':<30}", end='')
+        print(f"{'Digit Classification:':<22}", end='')
         for r in results:
-            print(f"{r['digit_accuracy']:<19.1f}%", end='')
+            print(f"{r['digit_accuracy']:>18.1f}%", end='')
         print()
         
         # OOD detection
-        print(f"{'OOD Detection:':<30}", end='')
+        print(f"{'OOD Detection:':<22}", end='')
         for r in results:
-            print(f"{r['ood_accuracy']:<19.1f}%", end='')
+            print(f"{r['ood_accuracy']:>18.1f}%", end='')
         print()
         
         print("\n" + "-"*80)
