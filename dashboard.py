@@ -10,10 +10,10 @@ Menu Structure:
   4. Test Accuracy             → calls test_accuracy.py
   5. Single Image Detection    → calls detect.py
   6. Batch Image Detection     → calls detect_batch.py
-  7. Camera Capture            → calls camera.py
-  8. Generate Report           → calls generate_report.py
-  9. Clean Project             → calls clean_project.py
- 10. Simple NN Detection       → calls detect_simple.py (NN only, no OOD)
+  7. Simple NN Detection       → calls detect_simple.py (NN only, no OOD)
+  8. Camera Capture            → calls camera.py
+  9. Generate Report           → calls generate_report.py
+ 10. Clean Project             → calls clean_project.py
   0. Exit                      → exits dashboard"""
 
 import sys
@@ -187,7 +187,7 @@ def print_header(env_info):
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train with FFN            - Train simple feedforward network (baseline)│")
+    print("│  1. Train with FFN            - Train simple feedforward network           │")
     print("│  2. Train with CNN            - Train CNN classifier and autoencoder       │")
     print("│  3. Train with ART            - Train Fuzzy ART classifier and autoencoder │")
     print("│  4. Test Accuracy             - Compare all trained models                 │")
