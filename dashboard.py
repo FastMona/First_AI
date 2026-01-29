@@ -196,16 +196,16 @@ def print_menu():
     print("\n┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐")
     print("│  5. Single Image Detection    - Detect digit in one image (detailed)       │")
     print("│  6. Batch Image Detection     - Process all images in a folder             │")
-    print("│ 10. Simple NN Detection       - NN only, no OOD detection (baseline)       │")
+    print("│  7. Simple NN Detection       - NN only, no OOD detection (baseline)       │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐")
-    print("│  7. Camera Capture            - Capture images from webcam                 │")
+    print("│  8. Camera Capture            - Capture images from webcam                 │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ REPORTING & UTILITIES ────────────────────────────────────────────────────┐")
-    print("│  8. Generate Report           - Create markdown reports for all models     │")
-    print("│  9. Clean Project             - Clean up temporary files and cache         │")
+    print("│  9. Generate Report           - Create markdown reports for all models     │")
+    print("│ 10. Clean Project             - Clean up temporary files and cache         │")
     print("│  0. Exit                      - Close dashboard                            │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
 
@@ -233,7 +233,7 @@ def run_clean_project(log_file=None):
     """Special handler for clean_project with confirmation"""
     try:
         print("\n" + "="*80)
-        print("OPTION 9 - CLEAN PROJECT".center(80))
+        print("OPTION 10 - CLEAN PROJECT".center(80))
         print("="*80)
         import clean_project
         
@@ -303,7 +303,7 @@ def run_detect_simple():
     """Special handler for simple NN-only detection"""
     try:
         print("\n" + "="*80)
-        print("OPTION 10 - SIMPLE NN DETECTION (NO OOD)".center(80))
+        print("OPTION 7 - SIMPLE NN DETECTION (NO OOD)".center(80))
         print("="*80)
         import detect_simple
         
@@ -348,13 +348,13 @@ def main():
             elif choice == '6':
                 run_detect_batch()
             elif choice == '7':
-                run_module("camera", option_title="OPTION 7 - CAMERA CAPTURE")
-            elif choice == '8':
-                run_module("generate_report", option_title="OPTION 8 - GENERATE REPORT")
-            elif choice == '9':
-                log_file = run_clean_project(log_file)
-            elif choice == '10':
                 run_detect_simple()
+            elif choice == '8':
+                run_module("camera", option_title="OPTION 8 - CAMERA CAPTURE")
+            elif choice == '9':
+                run_module("generate_report", option_title="OPTION 9 - GENERATE REPORT")
+            elif choice == '10':
+                log_file = run_clean_project(log_file)
             elif choice == '0':
                 close_logging(log_file)
                 clear_screen()

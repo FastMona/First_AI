@@ -1,5 +1,7 @@
 """Simple digit detection without OOD detection.
 
+Dashboard Menu: Option 7 - Simple NN Detection
+
 Why: Provides baseline NN-only predictions without the autoencoder or Mahalanobis
 distance checks. Useful for comparing raw NN performance vs OOD-gated predictions.
 """
