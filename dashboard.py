@@ -13,6 +13,7 @@ Menu Structure:
   7. Camera Capture            → calls camera.py
   8. Generate Report           → calls generate_report.py
   9. Clean Project             → calls clean_project.py
+ 10. Simple NN Detection       → calls detect_simple.py (NN only, no OOD)
   0. Exit                      → exits dashboard"""
 
 import sys
@@ -195,6 +196,7 @@ def print_menu():
     print("\n┌─ IMAGE DETECTION ──────────────────────────────────────────────────────────┐")
     print("│  5. Single Image Detection    - Detect digit in one image (detailed)       │")
     print("│  6. Batch Image Detection     - Process all images in a folder             │")
+    print("│ 10. Simple NN Detection       - NN only, no OOD detection (baseline)       │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
     
     print("\n┌─ IMAGE CAPTURE & GENERATION ───────────────────────────────────────────────┐")
@@ -297,6 +299,26 @@ def run_detect_batch():
         print("\n" + "="*80)
         input("\nPress Enter to return to dashboard...")
 
+def run_detect_simple():
+    """Special handler for simple NN-only detection"""
+    try:
+        print("\n" + "="*80)
+        print("OPTION 10 - SIMPLE NN DETECTION (NO OOD)".center(80))
+        print("="*80)
+        import detect_simple
+        
+        # Call detect_simple which will prompt for folder
+        detect_simple.main()
+            
+    except ImportError as e:
+        print(f"Error importing detect_simple: {e}")
+    except Exception as e:
+        print(f"Error running detect_simple: {e}")
+    finally:
+        print("\n" + "="*80)
+        input("\nPress Enter to return to dashboard...")
+
+
 def main():
     """Main dashboard loop"""
     # Setup logging
@@ -311,7 +333,7 @@ def main():
             print_header(env_info)
             print_menu()
             
-            choice = input("\n➤ Select option (0-9): ").strip()
+            choice = input("\n➤ Select option (0-10): ").strip()
             
             if choice == '1':
                 run_module("nn_train_ffn", option_title="OPTION 1 - TRAIN WITH FFN")
@@ -331,6 +353,8 @@ def main():
                 run_module("generate_report", option_title="OPTION 8 - GENERATE REPORT")
             elif choice == '9':
                 log_file = run_clean_project(log_file)
+            elif choice == '10':
+                run_detect_simple()
             elif choice == '0':
                 close_logging(log_file)
                 clear_screen()
@@ -339,7 +363,7 @@ def main():
                 print("="*80 + "\n")
                 sys.exit(0)
             else:
-                print("\n❌ Invalid option. Please select 0-9.")
+                print("\n❌ Invalid option. Please select 0-10.")
                 input("Press Enter to continue...")
     except KeyboardInterrupt:
         close_logging(log_file)
