@@ -289,14 +289,17 @@ class FuzzyARTClassifier(nn.Module):
         for i in range(batch_size):
             cat_idx = best_categories[i].item()
             
+            # Use the choice value (match score) as confidence
+            choice_score = choice_values[i, cat_idx].item()
+            
             # Get all categories with same label (voting)
             pred_label = self.category_labels[cat_idx].item()
             
             if pred_label >= 0:  # Valid label
-                # Simple voting: weight by category confidence
+                # Voting: accumulate choice scores from all categories with same label
                 for j in range(self.num_committed):
                     if self.category_labels[j] == pred_label:
-                        logits[i, pred_label] += self.category_counts[j].float()
+                        logits[i, pred_label] += choice_values[i, j]
             
         return logits
     

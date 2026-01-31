@@ -1,3 +1,4 @@
+
 """Analyze Fuzzy ART category distribution across digits."""
 
 import torch
