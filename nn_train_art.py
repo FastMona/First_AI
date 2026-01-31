@@ -1,8 +1,7 @@
-"""Training program for Fuzzy ART and class-conditional autoencoder.
+"""Training program for Fuzzy ART classifier only.
 
-Depends on first_ai.data/build_mnist_dataloaders, first_ai.ood for thresholds,
-and first_ai.ae_train for AE training. Uses config.Config for paths and
-hyperparameters.
+Depends on first_ai.data/build_mnist_dataloaders. Autoencoder training and
+OOD parameter computation are handled separately.
 """
 
 import logging
@@ -16,7 +15,6 @@ import torch
 from torch import nn, save
 from torch.utils.data import DataLoader
 
-from autoencoder_model import MNISTAutoencoder
 from config import Config
 from nn_model_art import FuzzyARTClassifier
 
@@ -28,8 +26,6 @@ SRC_DIR = ROOT / "src"
 if SRC_DIR.exists():
     sys.path.append(str(SRC_DIR))
 
-from first_ai.ood import compute_class_prototypes, compute_covariance_matrix, compute_mahalanobis_thresholds  # type: ignore
-from first_ai.ae_train import train_autoencoder  # type: ignore
 from first_ai.data import build_mnist_dataloaders  # type: ignore
 from first_ai.logging_utils import get_environment_info, log_environment_block  # type: ignore
 
@@ -344,59 +340,6 @@ def main(
     with open(Config.MODEL_PATH_ART, "wb") as f:
         save(art.state_dict(), f)
 
-    # OOD parameters
-    logger.info("\n" + "=" * 60)
-    logger.info("Computing OOD Detection Parameters for ART Model")
-    logger.info("=" * 60)
-
-    class_means = compute_class_prototypes(art, train_loader, num_classes=Config.NUM_CLASSES, device=device)
-    precision_diag = compute_covariance_matrix(art, train_loader, class_means, device=device)
-    ood_params = compute_mahalanobis_thresholds(
-        art,
-        val_loader,
-        class_means,
-        precision_diag,
-        num_classes=Config.NUM_CLASSES,
-        device=device,
-    )
-    ood_params.update({
-        "feature_dim": art.coded_dim,
-        "model_type": "art",
-    })
-    torch.save(ood_params, Config.OOD_PARAMS_PATH_ART)
-    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH_ART}")
-
-    # Autoencoder training and calibration
-    logger.info("\n" + "=" * 60)
-    logger.info("Training Class-Conditional Autoencoder")
-    logger.info("=" * 60)
-
-    autoencoder = MNISTAutoencoder(
-        latent_dim=Config.LATENT_DIM,
-        embedding_dim=Config.EMBEDDING_DIM,
-    ).to('cpu')  # CPU for consistency with ART processing
-
-    train_autoencoder(autoencoder, train_loader, test_loader, device='cpu', epochs=Config.AE_EPOCHS)
-
-    recon_threshold_95, recon_threshold_99, recon_mean, recon_std = calibrate_reconstruction_threshold_art(
-        autoencoder, art, val_loader, device=device
-    )
-
-    torch.save(
-        {
-            "model_state": autoencoder.state_dict(),
-            "threshold_95": recon_threshold_95,
-            "threshold_99": recon_threshold_99,
-            "mean_error": recon_mean,
-            "std_error": recon_std,
-        },
-        Config.AUTOENCODER_PATH,
-    )
-
-    logger.info(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
-    logger.info(f"  - Reconstruction threshold (95%): {recon_threshold_95:.6f}")
-    logger.info("=" * 60)
-
     # Display category distribution analysis
     display_art_category_distribution(art)
 
@@ -404,8 +347,7 @@ def main(
     logger.info("  ART Training Complete!".center(80))
     logger.info("=" * 80)
     logger.info(f"  - {Config.MODEL_PATH_ART} (ART classifier)")
-    logger.info(f"  - {Config.AUTOENCODER_PATH} (Autoencoder)")
-    logger.info(f"  - {Config.OOD_PARAMS_PATH_ART} (OOD detection parameters)")
+    logger.info("  - Next: Train CCA and compute OOD params (separate options)")
 
 
 if __name__ == "__main__":

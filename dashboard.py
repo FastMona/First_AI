@@ -38,14 +38,33 @@ class TeeOutput:
         self.original_stream = original_stream
     
     def write(self, text):
-        self.file_obj.write(text)
-        self.file_obj.flush()
-        self.original_stream.write(text)
-        self.original_stream.flush()
+        # Always try to write to console first (most important)
+        try:
+            self.original_stream.write(text)
+            self.original_stream.flush()
+        except Exception as e:
+            pass  # Silent fail for console write
+        
+        # Try to write to file, but don't let it break console output
+        try:
+            if self.file_obj and not self.file_obj.closed:
+                self.file_obj.write(text)
+                self.file_obj.flush()
+        except Exception as e:
+            # File write failed - this is not critical
+            pass
     
     def flush(self):
-        self.file_obj.flush()
-        self.original_stream.flush()
+        try:
+            self.original_stream.flush()
+        except Exception:
+            pass
+        
+        try:
+            if self.file_obj and not self.file_obj.closed:
+                self.file_obj.flush()
+        except Exception:
+            pass
 
 def setup_logging():
     """Setup terminal output logging to file"""

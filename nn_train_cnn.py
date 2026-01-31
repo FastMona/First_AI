@@ -1,8 +1,8 @@
-"""Training program for CNN classifier and class-conditional autoencoder.
+"""Training program for CNN classifier only.
 
-Depends on first_ai.data/build_mnist_dataloaders, first_ai.train for early
-stopping, first_ai.ood for thresholds, and first_ai.ae_train for AE training.
-Artifacts paths come from config.Config.
+Depends on first_ai.data/build_mnist_dataloaders and first_ai.train for early
+stopping. Autoencoder training and OOD parameter computation are handled
+separately.
 """
 
 import logging
@@ -14,7 +14,6 @@ from torch import nn
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
-from autoencoder_model import MNISTAutoencoder
 from config import Config
 from nn_model_cnn import ImageClassifier
 
@@ -28,12 +27,6 @@ if SRC_DIR.exists():
     sys.path.append(str(SRC_DIR))
 
 from first_ai.train import train_with_early_stopping  # type: ignore
-from first_ai.ood import (  # type: ignore
-    compute_class_prototypes,
-    compute_covariance_matrix,
-    compute_mahalanobis_thresholds,
-)
-from first_ai.ae_train import train_autoencoder, calibrate_reconstruction_threshold  # type: ignore
 from first_ai.data import build_mnist_dataloaders  # type: ignore
 from first_ai.logging_utils import get_environment_info, log_environment_block  # type: ignore
 
@@ -92,62 +85,11 @@ def main(
         use_amp=use_amp,
     )
 
-    # Compute OOD parameters
     logger.info("\n" + "=" * 60)
-    logger.info("Computing Mahalanobis distance parameters for OOD detection")
+    logger.info("CNN Training Complete")
     logger.info("=" * 60)
-
-    class_means = compute_class_prototypes(clf, train_loader, num_classes=10, device=device)
-    precision_diag = compute_covariance_matrix(clf, train_loader, class_means, device=device)
-    ood_params = compute_mahalanobis_thresholds(
-        clf, val_loader, class_means, precision_diag, num_classes=10, device=device
-    )
-
-    ood_params.update({
-        "feature_dim": next(iter(class_means.values())).numel() if class_means else 0,
-        "model_type": "cnn",
-    })
-
-    torch.save(ood_params, Config.OOD_PARAMS_PATH_CNN)
-    logger.info(f"\n✓ OOD detection parameters saved to {Config.OOD_PARAMS_PATH_CNN}")
-    logger.info("  - Class prototypes (means) for all 10 digits")
-    logger.info("  - Precision matrix for Mahalanobis distance")
-    logger.info("  - Class-conditional thresholds (90th/95th/99th percentiles per class)")
-    logger.info("=" * 60)
-
-    # Train class-conditional autoencoder
-    logger.info("\n" + "=" * 60)
-    logger.info("Training Class-Conditional Autoencoder")
-    logger.info("=" * 60)
-
-    autoencoder = MNISTAutoencoder(latent_dim=64).to(device)
-    train_autoencoder(autoencoder, train_loader, test_loader, device=device, epochs=5)
-
-    recon_stats = calibrate_reconstruction_threshold(
-        autoencoder,
-        clf,
-        val_loader,
-        device=device,
-        percentiles=(95, 99),
-    )
-
-    torch.save(
-        {
-            "model_state": autoencoder.state_dict(),
-            "threshold_95": recon_stats["threshold_low"],
-            "threshold_99": recon_stats["threshold_high"],
-            "mean_error": recon_stats["mean_error"],
-            "std_error": recon_stats["std_error"],
-        },
-        Config.AUTOENCODER_PATH,
-    )
-
-    logger.info(f"\n✓ Autoencoder saved to {Config.AUTOENCODER_PATH}")
-    logger.info(
-        f"  - Reconstruction threshold (95%): {recon_stats['threshold_low']:.6f}"
-    )
-    logger.info("  - Use as first gate before digit classifier")
-    logger.info("=" * 60)
+    logger.info(f"  - {Config.MODEL_PATH} (CNN classifier)")
+    logger.info("  - Next: Train CCA and compute OOD params (separate options)")
 
 
 if __name__ == "__main__":
