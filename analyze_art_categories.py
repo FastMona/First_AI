@@ -3,7 +3,7 @@
 
 import torch
 from pathlib import Path
-from nn_model_art import FuzzyARTClassifier
+from nn_model_art import FuzzyARTMAPClassifier
 from config import Config
 
 def analyze_art_categories():
@@ -16,10 +16,15 @@ def analyze_art_categories():
         return
     
     # Load model
-    model = FuzzyARTClassifier(
+    model = FuzzyARTMAPClassifier(
         input_dim=784,
         max_categories=Config.ART_MAX_CATEGORIES,
-        vigilance=Config.ART_VIGILANCE
+        vigilance=Config.ART_VIGILANCE,
+        learning_rate=Config.ART_LEARNING_RATE,
+        choice_alpha=Config.ART_CHOICE_ALPHA,
+        count_penalty_gamma=Config.ART_COUNT_PENALTY_GAMMA,
+        max_category_count=Config.ART_MAX_CATEGORY_COUNT,
+        match_tracking_epsilon=Config.ART_MATCH_TRACKING_EPS,
     )
     
     checkpoint = torch.load(model_path, map_location='cpu', weights_only=False)

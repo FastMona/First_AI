@@ -372,3 +372,193 @@ class FuzzyARTClassifier(nn.Module):
         
         # Return matched template as features
         return self.templates[best_categories]
+
+
+class FuzzyARTMAPClassifier(nn.Module):
+    """
+    Fuzzy ARTMAP classifier for supervised learning.
+
+    Adds match tracking to enforce label-consistent category selection.
+    """
+
+    def __init__(
+        self,
+        input_dim=784,
+        max_categories=100,
+        vigilance=0.75,
+        learning_rate=0.5,
+        choice_alpha=0.001,
+        count_penalty_gamma=0.01,
+        max_category_count=6000,
+        match_tracking_epsilon=1e-3,
+    ):
+        super().__init__()
+
+        self.input_dim = input_dim
+        self.max_categories = max_categories
+        self.vigilance = vigilance
+        self.learning_rate = learning_rate
+        self.choice_alpha = choice_alpha
+        self.count_penalty_gamma = count_penalty_gamma
+        self.max_category_count = max_category_count
+        self.match_tracking_epsilon = match_tracking_epsilon
+
+        self.coded_dim = input_dim * 2
+
+        self.register_buffer('templates', torch.ones(max_categories, self.coded_dim))
+        self.register_buffer('committed', torch.zeros(max_categories, dtype=torch.bool))
+        self.register_buffer('category_labels', torch.full((max_categories,), -1, dtype=torch.long))
+        self.register_buffer('category_counts', torch.zeros(max_categories, dtype=torch.long))
+
+        self.num_committed = 0
+
+    def complement_code(self, x):
+        return torch.cat([x, 1 - x], dim=-1)
+
+    def category_choice(self, coded_input, committed_mask):
+        fuzzy_and = torch.minimum(
+            coded_input.unsqueeze(1),
+            self.templates.unsqueeze(0),
+        )
+
+        numerator = fuzzy_and.sum(dim=-1)
+        count_penalty = self.count_penalty_gamma * self.category_counts.float()
+        denominator = self.choice_alpha + self.templates.sum(dim=-1) + count_penalty
+        choice_values = numerator / denominator.unsqueeze(0)
+        choice_values = choice_values.masked_fill(~committed_mask.unsqueeze(0), float('-inf'))
+        return choice_values
+
+    def match_function(self, coded_input, category_idx):
+        selected_templates = self.templates[category_idx]
+        fuzzy_and = torch.minimum(coded_input, selected_templates)
+        numerator = fuzzy_and.sum(dim=-1)
+        denominator = coded_input.sum(dim=-1)
+        return numerator / (denominator + 1e-10)
+
+    def update_template(self, coded_input, category_idx):
+        old_template = self.templates[category_idx]
+        fuzzy_and = torch.minimum(coded_input, old_template)
+        new_template = self.learning_rate * fuzzy_and + (1 - self.learning_rate) * old_template
+        self.templates[category_idx] = new_template
+
+    def train_pattern(self, x, label):
+        label_int = int(label.item()) if torch.is_tensor(label) else int(label)
+        coded_input = self.complement_code(x.unsqueeze(0)).squeeze(0)
+
+        reset_categories = torch.zeros(self.max_categories, dtype=torch.bool, device=x.device)
+        local_vigilance = self.vigilance
+        max_resets = min(self.num_committed, self.max_categories // 2)
+
+        while True:
+            available_mask = self.committed & ~reset_categories
+
+            if not available_mask.any():
+                if self.num_committed < self.max_categories:
+                    category_idx = self.num_committed
+                    self.committed[category_idx] = True
+                    self.templates[category_idx] = coded_input
+                    self.category_labels[category_idx] = label_int
+                    self.category_counts[category_idx] = 1
+                    self.num_committed += 1
+                    return category_idx
+                category_idx = torch.argmax(
+                    self.category_choice(coded_input.unsqueeze(0), self.committed).squeeze(0)
+                ).item()
+                self.update_template(coded_input, category_idx)
+                self.category_counts[category_idx] += 1
+                return category_idx
+
+            choice_values = self.category_choice(coded_input.unsqueeze(0), available_mask).squeeze(0)
+            category_idx = torch.argmax(choice_values).item()
+
+            match_value = self.match_function(
+                coded_input.unsqueeze(0),
+                torch.tensor([category_idx], device=x.device),
+            ).item()
+
+            category_label = self.category_labels[category_idx].item()
+            label_match = (category_label == -1) or (category_label == label_int)
+
+            maxed_out = False
+            if self.max_category_count is not None:
+                maxed_out = self.category_counts[category_idx].item() >= self.max_category_count
+
+            if match_value >= local_vigilance and label_match and not maxed_out:
+                self.update_template(coded_input, category_idx)
+                if self.category_labels[category_idx] == -1:
+                    self.category_labels[category_idx] = label_int
+                self.category_counts[category_idx] += 1
+                return category_idx
+
+            reset_categories[category_idx] = True
+
+            if not label_match:
+                local_vigilance = min(1.0, match_value + self.match_tracking_epsilon)
+
+            if not (self.committed & ~reset_categories).any() and self.num_committed < self.max_categories:
+                category_idx = self.num_committed
+                self.committed[category_idx] = True
+                self.templates[category_idx] = coded_input
+                self.category_labels[category_idx] = label_int
+                self.category_counts[category_idx] = 1
+                self.num_committed += 1
+                return category_idx
+
+            if reset_categories.sum().item() > max_resets:
+                category_idx = torch.argmax(
+                    self.category_choice(coded_input.unsqueeze(0), self.committed).squeeze(0)
+                ).item()
+                self.update_template(coded_input, category_idx)
+                self.category_counts[category_idx] += 1
+                return category_idx
+
+    def forward(self, x, training=False, labels=None):
+        if x.dim() == 4:
+            x = x.view(x.size(0), -1)
+
+        x = (x - x.min()) / (x.max() - x.min() + 1e-10)
+
+        if training:
+            if labels is None:
+                raise ValueError("Labels required for training mode")
+            selected_categories = []
+            for i in range(x.size(0)):
+                cat_idx = self.train_pattern(x[i], labels[i])
+                selected_categories.append(cat_idx)
+            return torch.tensor(selected_categories, device=x.device)
+
+        return self.predict(x)
+
+    def predict(self, x):
+        batch_size = x.size(0)
+        coded_input = self.complement_code(x)
+
+        if self.num_committed == 0:
+            return torch.zeros(batch_size, 10, device=x.device)
+
+        choice_values = self.category_choice(coded_input, self.committed)
+        best_categories = torch.argmax(choice_values, dim=1)
+
+        logits = torch.zeros(batch_size, 10, device=x.device)
+        for i in range(batch_size):
+            cat_idx = best_categories[i].item()
+            pred_label = self.category_labels[cat_idx].item()
+            if pred_label >= 0:
+                for j in range(self.num_committed):
+                    if self.category_labels[j] == pred_label:
+                        logits[i, pred_label] += choice_values[i, j]
+        return logits
+
+    def get_features(self, x):
+        if x.dim() == 4:
+            x = x.view(x.size(0), -1)
+
+        x = (x - x.min()) / (x.max() - x.min() + 1e-10)
+        coded_input = self.complement_code(x)
+
+        if self.num_committed == 0:
+            return coded_input
+
+        choice_values = self.category_choice(coded_input, self.committed)
+        best_categories = torch.argmax(choice_values, dim=1)
+        return self.templates[best_categories]

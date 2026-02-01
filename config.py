@@ -52,6 +52,7 @@ class Config:
     ART_CHOICE_ALPHA = 0.001  # Choice parameter (base alpha, count penalty handles mega-category prevention)
     ART_COUNT_PENALTY_GAMMA = 0.05  # Penalty strength for overused categories (5x stronger to actively discourage mega-cats)
     ART_MAX_CATEGORY_COUNT = 2000   # Hard cap per category (more aggressive: ~100 per digit cap)
+    ART_MATCH_TRACKING_EPS = 1e-3   # Fuzzy ARTMAP match-tracking epsilon
     
     # Sorted data tuning (when sort_by_label=True, use these instead)
     ART_VIGILANCE_SORTED = 0.85      # Higher vigilance: digit-0 templates stay tight, won't match digit-1

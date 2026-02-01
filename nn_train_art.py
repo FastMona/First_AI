@@ -1,4 +1,4 @@
-"""Training program for Fuzzy ART classifier only.
+"""Training program for Fuzzy ARTMAP classifier.
 
 Depends on first_ai.data/build_mnist_dataloaders. Autoencoder training and
 OOD parameter computation are handled separately.
@@ -17,7 +17,7 @@ from torch import nn, save
 from torch.utils.data import DataLoader
 
 from config import Config
-from nn_model_art import FuzzyARTClassifier
+from nn_model_art import FuzzyARTMAPClassifier
 
 # Configure logging to display output
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -310,7 +310,7 @@ def main(
     log_environment_block(logger, env_info)
 
     logger.info("\n" + "=" * 80)
-    logger.info("  Training Fuzzy Adaptive Resonance Theory (ART) Network".center(80))
+    logger.info("  Training Fuzzy ARTMAP Network".center(80))
     logger.info("=" * 80)
     logger.info("\n🚀 Training setup:")
     logger.info(f"  • Training device: {device.upper()} (ART uses CPU for sequential updates)")
@@ -320,13 +320,14 @@ def main(
     logger.info(f"  • Passes: {passes}")
     logger.info(f"  • Data order: {'sorted by digit' if sort_data else 'random'}")
     logger.info(f"  • CPU cores available: {cpu_info['total_cores']}")
-    logger.info(f"\n🔧 ART Architecture:")
+    logger.info(f"\n🔧 ARTMAP Architecture:")
     logger.info(f"  • Max categories: {Config.ART_MAX_CATEGORIES}")
     logger.info(f"  • Vigilance (ρ): {Config.ART_VIGILANCE}")
     logger.info(f"  • Learning rate (β): {Config.ART_LEARNING_RATE}")
     logger.info(f"  • Choice parameter (α): {Config.ART_CHOICE_ALPHA}")
     logger.info(f"  • Count penalty (γ): {Config.ART_COUNT_PENALTY_GAMMA}")
     logger.info(f"  • Max per category: {Config.ART_MAX_CATEGORY_COUNT}")
+    logger.info(f"  • Match tracking ε: {Config.ART_MATCH_TRACKING_EPS}")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),
@@ -338,7 +339,7 @@ def main(
         sort_by_label=sort_data,
     )
 
-    art = FuzzyARTClassifier(
+    art = FuzzyARTMAPClassifier(
         input_dim=Config.INPUT_SIZE * Config.INPUT_SIZE,
         max_categories=Config.ART_MAX_CATEGORIES,
         vigilance=Config.ART_VIGILANCE_SORTED if sort_data else Config.ART_VIGILANCE,
@@ -346,6 +347,7 @@ def main(
         choice_alpha=Config.ART_CHOICE_ALPHA,
         count_penalty_gamma=Config.ART_COUNT_PENALTY_GAMMA,
         max_category_count=Config.ART_MAX_CATEGORY_COUNT,
+        match_tracking_epsilon=Config.ART_MATCH_TRACKING_EPS,
     ).to('cpu')  # Keep ART on CPU - GPU transfers are slower than CPU sequential processing
 
     # ART training
