@@ -46,10 +46,16 @@ class Config:
     AE_HIDDEN_LAYERS = [256, 128]  # Encoder/decoder hidden layers
     
     # Fuzzy ART parameters
-    ART_MAX_CATEGORIES = 100  # Maximum number of category nodes
-    ART_VIGILANCE = 0.90      # Vigilance parameter (0-1, higher = more specific; raised to 0.90 for tighter template matching)
-    ART_LEARNING_RATE = 0.1   # Template update rate (lowered from 0.5 to prevent template drift over multiple passes)
-    ART_CHOICE_ALPHA = 0.001  # Choice parameter for category selection
+    ART_MAX_CATEGORIES = 200  # Maximum number of category nodes (increased to avoid category exhaustion)
+    ART_VIGILANCE = 0.75      # Vigilance parameter (0-1, balanced for specificity without over-proliferation)
+    ART_LEARNING_RATE = 0.5   # Template update rate (standard learning for stable convergence)
+    ART_CHOICE_ALPHA = 0.001  # Choice parameter (base alpha, count penalty handles mega-category prevention)
+    ART_COUNT_PENALTY_GAMMA = 0.05  # Penalty strength for overused categories (5x stronger to actively discourage mega-cats)
+    ART_MAX_CATEGORY_COUNT = 2000   # Hard cap per category (more aggressive: ~100 per digit cap)
+    
+    # Sorted data tuning (when sort_by_label=True, use these instead)
+    ART_VIGILANCE_SORTED = 0.85      # Higher vigilance: digit-0 templates stay tight, won't match digit-1
+    ART_LEARNING_RATE_SORTED = 0.5   # Lower learning rate: templates change slowly within each digit
     
     # FFN (Feedforward Network) parameters
     FFN_HIDDEN_SIZES = [512, 256]  # Hidden layer sizes for simple MLP

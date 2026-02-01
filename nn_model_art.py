@@ -31,7 +31,8 @@ class FuzzyARTClassifier(nn.Module):
     """
     
     def __init__(self, input_dim=784, max_categories=100, vigilance=0.75, 
-                 learning_rate=0.5, choice_alpha=0.001):
+                 learning_rate=0.5, choice_alpha=0.001,
+                 count_penalty_gamma=0.01, max_category_count=None):
         """
         Initialize Fuzzy ART network.
         
@@ -41,6 +42,8 @@ class FuzzyARTClassifier(nn.Module):
             vigilance: Vigilance parameter (0-1). Higher = more specific categories
             learning_rate: Learning rate for template updates (0-1)
             choice_alpha: Choice parameter for category selection (small positive)
+            count_penalty_gamma: Penalty strength for overused categories
+            max_category_count: Hard cap on patterns per category (None disables)
         """
         super().__init__()
         
@@ -49,6 +52,8 @@ class FuzzyARTClassifier(nn.Module):
         self.vigilance = vigilance
         self.learning_rate = learning_rate
         self.choice_alpha = choice_alpha
+        self.count_penalty_gamma = count_penalty_gamma
+        self.max_category_count = max_category_count
         
         # Complement coded input dimension (doubles input size)
         # Complement coding appends (1-x) to input x, creating [x, 1-x]
@@ -90,9 +95,10 @@ class FuzzyARTClassifier(nn.Module):
         """
         Compute category choice function T_j for all categories.
         
-        T_j = |x ∧ w_j| / (α + |w_j|)
+        T_j = |x ∧ w_j| / (α + |w_j| + γ * count_j)
         
-        where ∧ is fuzzy AND (element-wise minimum), |·| is L1 norm.
+        where ∧ is fuzzy AND (element-wise minimum), |·| is L1 norm,
+        and γ * count_j penalizes mega-categories to prevent black holes.
         Higher values indicate better match.
         
         Args:
@@ -111,8 +117,10 @@ class FuzzyARTClassifier(nn.Module):
         # Numerator: |x ∧ w_j|
         numerator = fuzzy_and.sum(dim=-1)  # [batch, max_categories]
         
-        # Denominator: α + |w_j|
-        denominator = self.choice_alpha + self.templates.sum(dim=-1)  # [max_categories]
+        # Denominator: α + |w_j| + γ * count_j
+        # The count penalty discourages selecting overused categories (prevents black holes)
+        count_penalty = self.count_penalty_gamma * self.category_counts.float()
+        denominator = self.choice_alpha + self.templates.sum(dim=-1) + count_penalty  # [max_categories]
         
         # Choice function
         choice_values = numerator / denominator.unsqueeze(0)
@@ -176,6 +184,9 @@ class FuzzyARTClassifier(nn.Module):
         Returns:
             Selected category index
         """
+        # Ensure label is a plain int (avoid tensor truthiness issues)
+        label_int = int(label.item()) if torch.is_tensor(label) else int(label)
+
         # Complement code the input
         coded_input = self.complement_code(x.unsqueeze(0)).squeeze(0)
         
@@ -194,7 +205,7 @@ class FuzzyARTClassifier(nn.Module):
                     category_idx = self.num_committed
                     self.committed[category_idx] = True
                     self.templates[category_idx] = coded_input
-                    self.category_labels[category_idx] = label
+                    self.category_labels[category_idx] = label_int
                     self.category_counts[category_idx] = 1
                     self.num_committed += 1
                     return category_idx
@@ -218,15 +229,19 @@ class FuzzyARTClassifier(nn.Module):
             # CRITICAL: Supervised vigilance - reject if labels don't match
             # This prevents cross-class template contamination and mega-category collapse
             category_label = self.category_labels[category_idx].item()
-            label_match = (category_label == -1) or (category_label == label)
+            label_match = (category_label == -1) or (category_label == label_int)
             
-            if match_value >= self.vigilance and label_match:
+            maxed_out = False
+            if self.max_category_count is not None:
+                maxed_out = self.category_counts[category_idx].item() >= self.max_category_count
+
+            if match_value >= self.vigilance and label_match and not maxed_out:
                 # Resonance achieved! Update template
                 self.update_template(coded_input, category_idx)
                 # IMPORTANT: Only update label on first assignment (initial commit)
                 # Don't overwrite the label for subsequent pattern matches
                 if self.category_labels[category_idx] == -1:
-                    self.category_labels[category_idx] = label
+                    self.category_labels[category_idx] = label_int
                 self.category_counts[category_idx] += 1
                 return category_idx
             else:
@@ -238,7 +253,7 @@ class FuzzyARTClassifier(nn.Module):
                     category_idx = self.num_committed
                     self.committed[category_idx] = True
                     self.templates[category_idx] = coded_input
-                    self.category_labels[category_idx] = label
+                    self.category_labels[category_idx] = label_int
                     self.category_counts[category_idx] = 1
                     self.num_committed += 1
                     return category_idx

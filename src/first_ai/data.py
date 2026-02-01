@@ -33,8 +33,14 @@ def build_mnist_dataloaders(
     num_workers: int = 4,
     train_ratio: float = 0.8,
     seed: int = 42,
+    sort_by_label: bool = False,
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
-    """Return train/val/test loaders for MNIST with a configurable split."""
+    """Return train/val/test loaders for MNIST with a configurable split.
+    
+    Args:
+        sort_by_label: If True, sort training data by digit (0-9). Useful for testing
+                      how category accumulation behaves with grouped digits vs random order.
+    """
     if torch is None or datasets is None or ToTensor is None or random_split is None:
         raise RuntimeError("torch/torchvision not available")
 
@@ -51,6 +57,13 @@ def build_mnist_dataloaders(
         generator=torch.Generator().manual_seed(seed),
     )
 
+    if sort_by_label:
+        # Sort training set by label for grouped digit learning
+        indices_sorted = sorted(range(len(train_set)), key=lambda i: train_set[i][1])
+        from torch.utils.data import Subset
+        train_set = Subset(train_set, indices_sorted)
+        logger.info("  Training data sorted by label (grouped by digit)")
+
     logger.info("Dataset split:")
     logger.info(f"  Training: {len(train_set)} samples (for model training)")
     logger.info(f"  Validation: {len(val_set)} samples (for threshold calibration)")
@@ -60,7 +73,7 @@ def build_mnist_dataloaders(
     train_loader = DataLoader(
         train_set,
         batch_size=train_batch_size,
-        shuffle=True,
+        shuffle=False if sort_by_label else True,
         num_workers=num_workers,
         pin_memory=True,
         persistent_workers=True,
