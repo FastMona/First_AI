@@ -288,7 +288,7 @@ def main(
     train_batch_size: int = 64,
     eval_batch_size: int = 256,
     num_workers: int = None,
-    passes: int = 3,
+    passes: int = 1,  # CRITICAL: Single-pass only! Multi-pass causes template collapse to universal attractors
 ):
     # ART uses CPU for training (GPU transfers are expensive for sequential processing)
     # Set device to CPU since GPU doesn't improve ART performance

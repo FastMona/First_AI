@@ -47,8 +47,8 @@ class Config:
     
     # Fuzzy ART parameters
     ART_MAX_CATEGORIES = 100  # Maximum number of category nodes
-    ART_VIGILANCE = 0.75      # Vigilance parameter (0-1, higher = more specific)
-    ART_LEARNING_RATE = 0.5   # Template update rate
+    ART_VIGILANCE = 0.90      # Vigilance parameter (0-1, higher = more specific; raised to 0.90 for tighter template matching)
+    ART_LEARNING_RATE = 0.1   # Template update rate (lowered from 0.5 to prevent template drift over multiple passes)
     ART_CHOICE_ALPHA = 0.001  # Choice parameter for category selection
     
     # FFN (Feedforward Network) parameters
@@ -63,12 +63,10 @@ class Config:
     CAPTURES_DIR = Path('captures')
     
     # Model file paths (under models/ directory)
-    MODEL_PATH = MODELS_DIR / 'model_state.pth'          # Legacy CNN path
     MODEL_PATH_CNN = MODELS_DIR / 'model_state_cnn.pth'  # CNN model
     MODEL_PATH_ART = MODELS_DIR / 'model_state_art.pth'  # ART model
     MODEL_PATH_FFN = MODELS_DIR / 'model_state_ffn.pth'  # FFN model
     AUTOENCODER_PATH = MODELS_DIR / 'autoencoder.pth'
-    OOD_PARAMS_PATH = MODELS_DIR / 'ood_params.pth'      # Legacy OOD path (CNN)
     OOD_PARAMS_PATH_CNN = MODELS_DIR / 'ood_params_cnn.pth'  # CNN OOD params
     OOD_PARAMS_PATH_ART = MODELS_DIR / 'ood_params_art.pth'  # ART OOD params
     OOD_PARAMS_PATH_FFN = MODELS_DIR / 'ood_params_ffn.pth'  # FFN OOD params

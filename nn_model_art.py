@@ -181,6 +181,7 @@ class FuzzyARTClassifier(nn.Module):
         
         # Resonance search loop
         reset_categories = torch.zeros(self.max_categories, dtype=torch.bool, device=x.device)
+        max_resets = min(self.num_committed, self.max_categories // 2)  # Prevent infinite loops
         
         while True:
             # Create committed mask excluding reset categories
@@ -198,12 +199,11 @@ class FuzzyARTClassifier(nn.Module):
                     self.num_committed += 1
                     return category_idx
                 else:
-                    # No space for new category, use best match anyway
+                    # All categories exhausted - fall back to unsupervised best match (avoid infinite loop)
                     category_idx = torch.argmax(
                         self.category_choice(coded_input.unsqueeze(0), self.committed).squeeze(0)
                     ).item()
                     self.update_template(coded_input, category_idx)
-                    self.category_labels[category_idx] = label
                     self.category_counts[category_idx] += 1
                     return category_idx
             
@@ -211,19 +211,46 @@ class FuzzyARTClassifier(nn.Module):
             choice_values = self.category_choice(coded_input.unsqueeze(0), available_mask).squeeze(0)
             category_idx = torch.argmax(choice_values).item()
             
-            # Vigilance test
+            # Vigilance test (similarity-based)
             match_value = self.match_function(coded_input.unsqueeze(0), 
                                              torch.tensor([category_idx], device=x.device)).item()
             
-            if match_value >= self.vigilance:
+            # CRITICAL: Supervised vigilance - reject if labels don't match
+            # This prevents cross-class template contamination and mega-category collapse
+            category_label = self.category_labels[category_idx].item()
+            label_match = (category_label == -1) or (category_label == label)
+            
+            if match_value >= self.vigilance and label_match:
                 # Resonance achieved! Update template
                 self.update_template(coded_input, category_idx)
-                self.category_labels[category_idx] = label
+                # IMPORTANT: Only update label on first assignment (initial commit)
+                # Don't overwrite the label for subsequent pattern matches
+                if self.category_labels[category_idx] == -1:
+                    self.category_labels[category_idx] = label
                 self.category_counts[category_idx] += 1
                 return category_idx
             else:
                 # Mismatch - reset this category and try again
                 reset_categories[category_idx] = True
+                
+                # If we've rejected all committed categories, create a new one (supervised ART)
+                if not (self.committed & ~reset_categories).any() and self.num_committed < self.max_categories:
+                    category_idx = self.num_committed
+                    self.committed[category_idx] = True
+                    self.templates[category_idx] = coded_input
+                    self.category_labels[category_idx] = label
+                    self.category_counts[category_idx] = 1
+                    self.num_committed += 1
+                    return category_idx
+                
+                # Safety valve: if too many resets, fall back to unsupervised matching
+                if reset_categories.sum().item() > max_resets:
+                    category_idx = torch.argmax(
+                        self.category_choice(coded_input.unsqueeze(0), self.committed).squeeze(0)
+                    ).item()
+                    self.update_template(coded_input, category_idx)
+                    self.category_counts[category_idx] += 1
+                    return category_idx
     
     def forward(self, x, training=False, labels=None):
         """

@@ -185,7 +185,7 @@ def main():
     
     # Load classifier
     classifier = ImageClassifier().to('cuda')
-    with open(Config.MODEL_PATH, 'rb') as f:
+    with open(Config.MODEL_PATH_CNN, 'rb') as f:
         classifier.load_state_dict(torch.load(f))
     classifier.eval()
     

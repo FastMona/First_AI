@@ -127,12 +127,12 @@ def test_single_model(model_name, model_type_override=None):
     # Row 1: Actually Digit
     tp = correct_digits + incorrect_digits  # All digits accepted (whether correct class or not)
     fn = rejected_digits  # Digits rejected
-    print(f"│ Actually: DIGIT             │  {tp:3d} (TP+FP)    │  {fn:3d} (FN)       │")
+    print(f"│ Actually: DIGIT             │  {tp:3d} (TP+FP)     │  {fn:3d} (FN)        │")
     
     # Row 2: Actually OOD
     fp = false_acceptances  # OOD accepted as digit
     tn = correct_rejections  # OOD correctly rejected
-    print(f"│ Actually: OOD (non-digit)   │  {fp:3d} (FP)       │  {tn:3d} (TN)       │")
+    print(f"│ Actually: OOD (non-digit)   │  {fp:3d} (FP)        │  {tn:3d} (TN)        │")
     print("└─────────────────────────────┴──────────────────┴──────────────────┘")
     
     # Metrics
@@ -211,7 +211,7 @@ def main():
     print("="*80)
     
     # Check which models are available
-    cnn_available = os.path.exists(Config.MODEL_PATH)
+    cnn_available = os.path.exists(Config.MODEL_PATH_CNN)
     art_available = os.path.exists(Config.MODEL_PATH_ART)
     ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
     

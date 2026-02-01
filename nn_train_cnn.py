@@ -80,7 +80,7 @@ def main(
         loss_fn,
         num_epochs=epochs,
         patience=3,
-        save_path=Config.MODEL_PATH,
+        save_path=Config.MODEL_PATH_CNN,
         device=device,
         use_amp=use_amp,
     )
@@ -88,7 +88,7 @@ def main(
     logger.info("\n" + "=" * 60)
     logger.info("CNN Training Complete")
     logger.info("=" * 60)
-    logger.info(f"  - {Config.MODEL_PATH} (CNN classifier)")
+    logger.info(f"  - {Config.MODEL_PATH_CNN} (CNN classifier)")
     logger.info("  - Next: Train CCA and compute OOD params (separate options)")
 
 

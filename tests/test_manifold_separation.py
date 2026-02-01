@@ -24,7 +24,7 @@ class TestManifoldSeparation:
     def models(self):
         """Load pretrained models for testing."""
         # Check if models exist
-        if not Config.MODEL_PATH.exists():
+        if not Config.MODEL_PATH_CNN.exists():
             pytest.skip("CNN model not trained - skipping manifold tests")
         if not Config.AUTOENCODER_PATH.exists():
             pytest.skip("Autoencoder not trained - skipping manifold tests")
@@ -34,7 +34,7 @@ class TestManifoldSeparation:
         
         # Load classifier
         classifier = ImageClassifier().to(device)
-        with open(Config.MODEL_PATH, 'rb') as f:
+        with open(Config.MODEL_PATH_CNN, 'rb') as f:
             classifier.load_state_dict(torch.load(f, map_location=device, weights_only=False))
         classifier.eval()
         
@@ -237,14 +237,14 @@ def test_manifold_separation_integration(test_dataset=None):
     from torchvision.transforms import ToTensor
     
     # Skip if models not trained
-    if not Config.MODEL_PATH.exists() or not Config.AUTOENCODER_PATH.exists():
+    if not Config.MODEL_PATH_CNN.exists() or not Config.AUTOENCODER_PATH.exists():
         pytest.skip("Models not trained - skipping integration test")
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Load models
     classifier = ImageClassifier().to(device)
-    with open(Config.MODEL_PATH, 'rb') as f:
+    with open(Config.MODEL_PATH_CNN, 'rb') as f:
         classifier.load_state_dict(torch.load(f, map_location=device, weights_only=False))
     classifier.eval()
     
