@@ -26,7 +26,7 @@ def detect_model_type():
         str: 'cnn', 'art', or 'ffn' based on which model exists, or the configured default
     """
     # Check which model files exist
-    cnn_exists = os.path.exists(Config.MODEL_PATH)
+    cnn_exists = os.path.exists(Config.MODEL_PATH_CNN)
     art_exists = os.path.exists(Config.MODEL_PATH_ART)
     ffn_exists = os.path.exists(Config.MODEL_PATH_FFN)
     
@@ -70,7 +70,7 @@ def load_models(model_type=None):
         # Load appropriate classifier
         if model_type == 'cnn':
             clf = ImageClassifier().to(Config.DEVICE)
-            with open(Config.MODEL_PATH, 'rb') as f:
+            with open(Config.MODEL_PATH_CNN, 'rb') as f:
                 clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         elif model_type == 'art':
             clf = FuzzyARTClassifier(
@@ -96,7 +96,11 @@ def load_models(model_type=None):
         
         clf.eval()
         
-        # Load autoencoder
+        # Load autoencoder (required for full OOD detection)
+        if not Config.AUTOENCODER_PATH.exists():
+            print("❌ Missing autoencoder. Train CCA first (option 1 -> CCA).")
+            return None, None, None, None, None
+
         with open(Config.AUTOENCODER_PATH, 'rb') as f:
             ae_data = load(f, map_location=Config.DEVICE, weights_only=False)
         autoencoder = MNISTAutoencoder(latent_dim=Config.LATENT_DIM).to(Config.DEVICE)
@@ -123,6 +127,10 @@ def load_models(model_type=None):
         else:
             ood_path = Config.OOD_PARAMS_PATH
         
+        if not ood_path.exists():
+            print("❌ Missing OOD parameters. Compute OOD params first (option 2).")
+            return None, None, None, None, None
+
         ood_detector = MahalanobisOODDetector(ood_path)
         
         # Validate feature dimension compatibility - check ALWAYS to catch fallback mismatches

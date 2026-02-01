@@ -56,6 +56,8 @@ def main(
     logger.info(f"  • Batch size: {batch_size}")
     logger.info(f"  • Data workers: {num_workers}")
     logger.info(f"  • Mixed precision: {use_amp}")
+    logger.info(f"\n🔧 FFN Architecture:")
+    logger.info(f"  • Layer dimensions: [{Config.INPUT_SIZE**2}] → {Config.FFN_HIDDEN_SIZES} → [{Config.FEATURE_DIM}] → [{Config.NUM_CLASSES}]")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),

@@ -1,6 +1,26 @@
 # MNIST Digit Detection with Two-Stage OOD
 
-This project trains MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditional autoencoder, then runs detection through a two-stage OOD gate: 1) reconstruction error and 2) Mahalanobis distance to class prototypes. Shared logic now lives in src/first_ai/ to keep training and detection flows consistent.
+**Academic Progression Framework:** This project implements a rigorous P vs ¬P (in-distribution vs out-of-distribution) detection system as an academic study, starting with MNIST digits as the training distribution (P) and testing the ability to reject non-MNIST inputs (¬P) without ever training on them. The goal is to perfect OOD detection methodology on MNIST, then demonstrate generalization to more complex datasets (Fashion-MNIST, CIFAR-10, medical imaging).
+
+This project trains three complementary MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditional autoencoder (CCA), then runs detection through a two-stage OOD gate: 1) reconstruction error (Stage 1) and 2) Mahalanobis distance to class prototypes (Stage 2). Shared logic lives in src/first_ai/ to keep training and detection flows consistent.
+
+## Project Architecture & Recent Improvements
+
+**Separate Training Architecture:**
+- Each model (FFN, CNN, ART) trains independently with dedicated training scripts
+- Model-specific paths prevent conflicts: `MODEL_PATH_FFN`, `MODEL_PATH_CNN`, `MODEL_PATH_ART`
+- OOD parameters computed separately for each classifier via `compute_ood_params.py`
+- Shared utilities in `src/first_ai/` for dataloaders, logging, seeding, and OOD computation
+
+**Fuzzy ART Enhancements:**
+- Fixed category label assignment to prevent label drift during multi-pass training
+- Reduced learning rate from 0.5 → 0.1 to prevent template convergence to universal attractors
+- Category distribution analysis tracks digit-to-category mapping balance
+
+**Key Design Principles:**
+- Single source of truth for paths and hyperparameters in `config.py`
+- Modular training allows independent experimentation per architecture
+- Two-stage OOD detection (reconstruction + Mahalanobis) catches different failure modes
 
 ## Quick Start
 - Dashboard (interactive): python dashboard.py
@@ -29,10 +49,12 @@ This project trains MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditio
 - Both stages share code in detection_utils.py; CLI and scripts call the same path to avoid drift.
 
 ## Train
-- With CLI (preferred): see Quick Start.
-- With wrappers: python nn_train_cnn.py (or nn_train_ffn.py, nn_train_art.py).
-- Artifacts land in models/ (classifier, autoencoder, OOD params). Changing model embeddings
-  requires regenerating OOD params.
+- **Dashboard (recommended):** `python dashboard.py` → Option 1 (select FFN/CNN/ART/CCA)
+- **Individual scripts:** `python nn_train_ffn.py` or `nn_train_cnn.py` or `nn_train_art.py`
+- **CLI:** `python -m src.first_ai.cli train cnn --device auto --batch-size 256 --epochs 10`
+- **After training:** Run Option 2 to compute OOD parameters for each model
+- Artifacts land in `models/` with model-specific naming (e.g., `model_state_ffn.pth`, `ood_params_cnn.pth`)
+- **Important:** Changing model architectures requires regenerating OOD params via `compute_ood_params.py`
 
 ## Detect & Report
 - Single image: python -m src.first_ai.cli detect <image> or python detect.py.
@@ -45,12 +67,36 @@ This project trains MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditio
 - test_class_thresholds.py — inspect Mahalanobis thresholds and OOD behavior under noise.
 - clean_project.py — remove generated artifacts while keeping data.
 
+## Academic Goals & P vs ¬P Challenge
+
+**Core Problem:** Train only on P (MNIST digits 0-9), then reliably detect ¬P (everything else) without ever seeing non-digit examples during training. This is the fundamental OOD detection challenge.
+
+**Why This Matters:**
+- Real-world systems encounter inputs outside training distribution
+- No classifier is 100% accurate (humans can't perfectly distinguish ')' from '1')
+- Goal: Maximize P recognition (~99%+) while rejecting ¬P (~90%+)
+
+**Current Performance:**
+- FFN: Best OOD detector (~60% combined accuracy on hard test cases)
+- CNN: Strong classifier, moderate OOD performance
+- ART: Classical ML baseline, complement-coded features
+
+**Hard Test Cases:** Distinguishing handwritten '1' from ')' or '[' — visually similar but semantically different. Random images are trivial; lookalikes are the real challenge.
+
+**Planned Progression:**
+1. Perfect methodology on MNIST (current phase)
+2. Validate on Fashion-MNIST (same 28×28 format, different domain)
+3. Scale to CIFAR-10 (natural images, higher complexity)
+4. Apply to real-world domains (medical imaging, anomaly detection)
+
 ## Notes on artifacts & consistency
-- OOD detector (ood_detector.py) must match feature dims emitted by the classifier
-  (CNN/FFN: 128-d, ART: complement-coded size). After changing architectures or training
-  data, regenerate OOD params.
-- Config paths point to models/; keep loaders/savers aligned with config.py and
-  src/first_ai/artifacts.py to avoid stray files in the repo root.
+- OOD detector (ood_detector.py) must match feature dims emitted by the classifier:
+  - CNN/FFN: 128-dimensional embeddings
+  - ART: 1568-dimensional complement-coded features (784 × 2)
+- After changing architectures or hyperparameters, regenerate OOD params via dashboard Option 2
+- Config paths in `config.py` point to model-specific files (no legacy `model_state.pth`)
+- Mahalanobis distance thresholds calibrated at 90th, 95th, 99th percentiles per class
+- Two-stage detection: Stage 1 (CCA reconstruction) catches obvious non-digits; Stage 2 (Mahalanobis) handles subtle cases
 
 ## Environment
 - Python >= 3.8, PyTorch/torchvision per pyproject.toml or environment.yml.

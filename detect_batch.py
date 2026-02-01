@@ -25,7 +25,7 @@ def main(folder_path=None):
     print("="*80)
     
     # Check which models are available
-    cnn_available = os.path.exists(Config.MODEL_PATH)
+    cnn_available = os.path.exists(Config.MODEL_PATH_CNN)
     art_available = os.path.exists(Config.MODEL_PATH_ART)
     ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
     

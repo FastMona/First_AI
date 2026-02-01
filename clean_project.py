@@ -62,13 +62,24 @@ def clean_project(interactive=True, current_log_file=None):
     files_to_remove.extend(test_result_files)
     
     # Find session log files (dashboard_session_*.txt) - handled separately
-    session_logs = list(workspace.glob("session_logs/dashboard_session_*.txt"))
+    session_logs_all = list(workspace.glob("session_logs/dashboard_session_*.txt"))
+    
+    # Keep the most recent session log, remove all others
+    session_logs = []
+    most_recent_log = None
+    if session_logs_all:
+        most_recent_log = max(session_logs_all, key=lambda p: p.stat().st_mtime)
+        session_logs = [log for log in session_logs_all if log != most_recent_log]
     
     # Add current log file if provided (in case it's not found by glob because it's open)
     if current_log_file:
         current_log_path = Path(current_log_file)
-        if current_log_path.exists() and current_log_path not in session_logs:
-            session_logs.append(current_log_path)
+        # Protect current log file from cleanup
+        if current_log_path.exists() and current_log_path in session_logs:
+            session_logs.remove(current_log_path)
+            # Update most_recent_log if current is newer
+            if most_recent_log is None or current_log_path.stat().st_mtime > most_recent_log.stat().st_mtime:
+                most_recent_log = current_log_path
     
     # Find .png files (generated visualizations/plots)
     png_files = list(workspace.glob("*.png"))
@@ -111,14 +122,21 @@ def clean_project(interactive=True, current_log_file=None):
         print("  No folders to remove")
     
     # Display session logs separately
-    if session_logs:
-        print("\n📋 Session Logs (optional cleanup):")
-        total_log_size = 0
-        for log in sorted(session_logs):
-            size = log.stat().st_size / 1024
-            total_log_size += size
-            print(f"  - {log.name} ({size:.1f} KB)")
-        print(f"  Total: {len(session_logs)} files ({total_log_size:.1f} KB)")
+    if session_logs or most_recent_log:
+        print("\n📋 Session Logs:")
+        if most_recent_log:
+            size = most_recent_log.stat().st_size / 1024
+            print(f"  ✓ KEPT (most recent): {most_recent_log.name} ({size:.1f} KB)")
+        if session_logs:
+            print(f"  Optional cleanup ({len(session_logs)} older file(s)):")
+            total_log_size = 0
+            for log in sorted(session_logs):
+                size = log.stat().st_size / 1024
+                total_log_size += size
+                print(f"    - {log.name} ({size:.1f} KB)")
+            print(f"    Total: {len(session_logs)} files ({total_log_size:.1f} KB)")
+        else:
+            print(f"  No older logs to clean")
     
     print("\n" + "="*80)
     print("PRESERVED (NOT deleted):")
@@ -127,8 +145,10 @@ def clean_project(interactive=True, current_log_file=None):
     print("  ✓ test_images/ folder (if exists)")
     print("  ✓ README.md (if exists)")
     print("  ✓ All Python source files (.py)")
+    if most_recent_log:
+        print(f"  ✓ Most recent session log: {most_recent_log.name}")
     if session_logs:
-        print("  ⚠️  dashboard_session_*.txt (Will ask separately)")
+        print(f"  ⚠️  {len(session_logs)} older session log(s) (Will ask separately)")
     print("="*80)
     
     # Initialize variables for optional cleanup
@@ -159,10 +179,12 @@ def clean_project(interactive=True, current_log_file=None):
         # Ask about session logs
         if session_logs:
             print("\n" + "-"*80)
-            print("📋 Session Log Files:")
-            print(f"   Found {len(session_logs)} session log file(s)")
-            print("   These files contain terminal output history for demos/documentation")
-            response_logs = input("Do you want to delete session logs? (yes/no): ").strip().lower()
+            print("📋 Older Session Log Files:")
+            print(f"   Found {len(session_logs)} older session log file(s)")
+            if most_recent_log:
+                print(f"   Most recent log will be preserved: {most_recent_log.name}")
+            print("   These older files contain terminal output history for demos/documentation")
+            response_logs = input("Do you want to delete older session logs? (yes/no): ").strip().lower()
             remove_session_logs = response_logs in ['yes', 'y']
         
         # Ask about MNIST data
@@ -215,7 +237,7 @@ def clean_project(interactive=True, current_log_file=None):
     if session_logs and remove_session_logs:
         if removed_count > 0:
             print()
-        print("Removing session logs...")
+        print("Removing older session logs...")
         for log in session_logs:
             try:
                 log.unlink()
@@ -223,10 +245,19 @@ def clean_project(interactive=True, current_log_file=None):
                 removed_count += 1
             except Exception as e:
                 print(f"  ✗ Failed to remove {log.name}: {e}")
+        if most_recent_log:
+            print(f"  ✓ Preserved most recent: {most_recent_log.name}")
     elif session_logs and not remove_session_logs:
         if removed_count > 0:
             print()
-        print(f"  ✓ Session logs preserved ({len(session_logs)} files)")
+        print(f"  ✓ Older session logs preserved ({len(session_logs)} files)")
+        if most_recent_log:
+            print(f"  ✓ Most recent log: {most_recent_log.name}")
+    elif most_recent_log and not session_logs:
+        # Only one log exists, it was automatically preserved
+        if removed_count > 0:
+            print()
+        print(f"  ✓ Session log preserved: {most_recent_log.name}")
     
     # Handle MNIST data based on user choice
     if mnist_folders and remove_mnist:

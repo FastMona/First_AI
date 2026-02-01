@@ -56,6 +56,9 @@ def main(
     logger.info(f"  • Batch size: {batch_size}")
     logger.info(f"  • Data workers: {num_workers}")
     logger.info(f"  • Mixed precision: {use_amp}")
+    logger.info(f"\n🔧 CNN Architecture:")
+    logger.info(f"  • Conv channels: {Config.CONV_CHANNELS} (kernel: {Config.CONV_KERNEL})")
+    logger.info(f"  • Embedding: {Config.FEATURE_DIM}d → Output: {Config.NUM_CLASSES} classes")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),
@@ -80,7 +83,7 @@ def main(
         loss_fn,
         num_epochs=epochs,
         patience=3,
-        save_path=Config.MODEL_PATH,
+        save_path=Config.MODEL_PATH_CNN,
         device=device,
         use_amp=use_amp,
     )
@@ -88,7 +91,7 @@ def main(
     logger.info("\n" + "=" * 60)
     logger.info("CNN Training Complete")
     logger.info("=" * 60)
-    logger.info(f"  - {Config.MODEL_PATH} (CNN classifier)")
+    logger.info(f"  - {Config.MODEL_PATH_CNN} (CNN classifier)")
     logger.info("  - Next: Train CCA and compute OOD params (separate options)")
 
 

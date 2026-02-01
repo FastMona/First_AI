@@ -7,6 +7,7 @@ OOD parameter computation are handled separately.
 import logging
 import os
 import time
+import math
 from pathlib import Path
 import sys
 
@@ -202,7 +203,7 @@ def train_art(
             X, y = X.to('cpu'), y.to('cpu')
 
             for i in range(X.size(0)):
-                art.train_pattern(X[i].view(-1), y[i])
+                art.train_pattern(X[i].view(-1), y[i].item())
                 total_samples += 1
 
             batch_time = time.time() - batch_start
@@ -217,10 +218,12 @@ def train_art(
                 eta_min = int(eta_seconds // 60)
                 eta_sec = int(eta_seconds % 60)
                 current_time = time.strftime("%H:%M")
+                display_batch = (batch_idx + 1) // 50
+                display_total_batches = math.ceil(total_batches / 50)
 
                 logger.info(
-                    f"{progress_pct:.1f}% complete | Batch {batch_idx + 1}/{total_batches} | "
-                    f"Samples Processed: {total_samples} | Speed: {samples_per_sec:.1f} samp/sec | "
+                    f"{progress_pct:.1f}% complete | Batch {display_batch}/{display_total_batches} | "
+                    f"Categories {art.num_committed}/{art.max_categories} | Speed: {samples_per_sec:.1f} samp/sec | "
                     f"Time remaining: {eta_min:02d}:{eta_sec:02d} | {current_time}"
                 )
 
@@ -288,7 +291,8 @@ def main(
     train_batch_size: int = 64,
     eval_batch_size: int = 256,
     num_workers: int = None,
-    passes: int = 3,
+    passes: int = 1,  # CRITICAL: Single-pass only! Multi-pass causes template collapse to universal attractors
+    sort_data: bool = False,  # If True, train on sorted data (grouped by digit) to test category accumulation
 ):
     # ART uses CPU for training (GPU transfers are expensive for sequential processing)
     # Set device to CPU since GPU doesn't improve ART performance
@@ -314,7 +318,15 @@ def main(
     logger.info(f"  • Eval batch size: {eval_batch_size}")
     logger.info(f"  • Data workers: {num_workers}")
     logger.info(f"  • Passes: {passes}")
+    logger.info(f"  • Data order: {'sorted by digit' if sort_data else 'random'}")
     logger.info(f"  • CPU cores available: {cpu_info['total_cores']}")
+    logger.info(f"\n🔧 ART Architecture:")
+    logger.info(f"  • Max categories: {Config.ART_MAX_CATEGORIES}")
+    logger.info(f"  • Vigilance (ρ): {Config.ART_VIGILANCE}")
+    logger.info(f"  • Learning rate (β): {Config.ART_LEARNING_RATE}")
+    logger.info(f"  • Choice parameter (α): {Config.ART_CHOICE_ALPHA}")
+    logger.info(f"  • Count penalty (γ): {Config.ART_COUNT_PENALTY_GAMMA}")
+    logger.info(f"  • Max per category: {Config.ART_MAX_CATEGORY_COUNT}")
 
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
         dataset_root=Path("training_data"),
@@ -323,14 +335,17 @@ def main(
         num_workers=num_workers,
         train_ratio=getattr(Config, "TRAIN_RATIO", 0.8),
         seed=getattr(Config, "RANDOM_SEED", 42),
+        sort_by_label=sort_data,
     )
 
     art = FuzzyARTClassifier(
         input_dim=Config.INPUT_SIZE * Config.INPUT_SIZE,
         max_categories=Config.ART_MAX_CATEGORIES,
-        vigilance=Config.ART_VIGILANCE,
-        learning_rate=Config.ART_LEARNING_RATE,
+        vigilance=Config.ART_VIGILANCE_SORTED if sort_data else Config.ART_VIGILANCE,
+        learning_rate=Config.ART_LEARNING_RATE_SORTED if sort_data else Config.ART_LEARNING_RATE,
         choice_alpha=Config.ART_CHOICE_ALPHA,
+        count_penalty_gamma=Config.ART_COUNT_PENALTY_GAMMA,
+        max_category_count=Config.ART_MAX_CATEGORY_COUNT,
     ).to('cpu')  # Keep ART on CPU - GPU transfers are slower than CPU sequential processing
 
     # ART training

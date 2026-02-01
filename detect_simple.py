@@ -30,7 +30,7 @@ def get_available_models():
         dict: Dictionary with model types as keys and existence as boolean values
     """
     return {
-        'cnn': os.path.exists(Config.MODEL_PATH),
+        'cnn': os.path.exists(Config.MODEL_PATH_CNN),
         'art': os.path.exists(Config.MODEL_PATH_ART),
         'ffn': os.path.exists(Config.MODEL_PATH_FFN)
     }
@@ -124,7 +124,7 @@ def load_classifier(model_type=None):
         # Load appropriate classifier
         if model_type == 'cnn':
             clf = ImageClassifier().to(Config.DEVICE)
-            with open(Config.MODEL_PATH, 'rb') as f:
+            with open(Config.MODEL_PATH_CNN, 'rb') as f:
                 clf.load_state_dict(torch.load(f, map_location=Config.DEVICE, weights_only=False))
         elif model_type == 'art':
             clf = FuzzyARTClassifier(

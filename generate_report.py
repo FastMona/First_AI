@@ -210,7 +210,7 @@ def main():
     
     if args.all:
         # Check which models are available
-        if Config.MODEL_PATH.exists():
+        if Config.MODEL_PATH_CNN.exists():
             models_to_process.append('cnn')
         if Config.MODEL_PATH_ART.exists():
             models_to_process.append('art')
@@ -224,7 +224,7 @@ def main():
         models_to_process = [args.model]
     else:
         # Default: check for ALL available models (when run from dashboard)
-        if Config.MODEL_PATH.exists():
+        if Config.MODEL_PATH_CNN.exists():
             models_to_process.append('cnn')
         if Config.MODEL_PATH_ART.exists():
             models_to_process.append('art')

@@ -22,7 +22,7 @@ def show_threshold_info():
     logger.info("="*70)
     
     # Load OOD parameters
-    with open(Config.OOD_PARAMS_PATH, 'rb') as f:
+    with open(Config.OOD_PARAMS_PATH_CNN, 'rb') as f:
         params = load(f, weights_only=False)
     
     if 'class_thresholds_95' not in params:
