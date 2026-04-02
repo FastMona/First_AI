@@ -12,7 +12,7 @@ from torch import load
 from PIL import Image
 from torchvision.transforms import ToTensor
 from nn_model_cnn import ImageClassifier
-from nn_model_art import FuzzyARTClassifier
+from nn_model_art import FuzzyARTMAPClassifier
 from nn_model_ffn import FeedforwardClassifier
 from autoencoder_model import MNISTAutoencoder
 from ood_detector import MahalanobisOODDetector
@@ -73,12 +73,15 @@ def load_models(model_type=None):
             with open(Config.MODEL_PATH_CNN, 'rb') as f:
                 clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         elif model_type == 'art':
-            clf = FuzzyARTClassifier(
+            clf = FuzzyARTMAPClassifier(
                 input_dim=Config.INPUT_SIZE * Config.INPUT_SIZE,
                 max_categories=Config.ART_MAX_CATEGORIES,
                 vigilance=Config.ART_VIGILANCE,
                 learning_rate=Config.ART_LEARNING_RATE,
-                choice_alpha=Config.ART_CHOICE_ALPHA
+                choice_alpha=Config.ART_CHOICE_ALPHA,
+                count_penalty_gamma=Config.ART_COUNT_PENALTY_GAMMA,
+                max_category_count=Config.ART_MAX_CATEGORY_COUNT,
+                match_tracking_epsilon=Config.ART_MATCH_TRACKING_EPS
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_ART, 'rb') as f:
                 clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
@@ -109,26 +112,18 @@ def load_models(model_type=None):
         ae_threshold = ae_data['threshold_95']
         
         # Load OOD detector - use model-specific OOD parameters
-        using_fallback = False  # Track if we're using fallback OOD parameters
         if model_type == 'cnn':
-            ood_path = Config.OOD_PARAMS_PATH_CNN if Config.OOD_PARAMS_PATH_CNN.exists() else Config.OOD_PARAMS_PATH
+            ood_path = Config.OOD_PARAMS_PATH_CNN
         elif model_type == 'art':
-            if Config.OOD_PARAMS_PATH_ART.exists():
-                ood_path = Config.OOD_PARAMS_PATH_ART
-            else:
-                ood_path = Config.OOD_PARAMS_PATH
-                using_fallback = True
+            ood_path = Config.OOD_PARAMS_PATH_ART
         elif model_type == 'ffn':
-            if Config.OOD_PARAMS_PATH_FFN.exists():
-                ood_path = Config.OOD_PARAMS_PATH_FFN
-            else:
-                ood_path = Config.OOD_PARAMS_PATH
-                using_fallback = True
+            ood_path = Config.OOD_PARAMS_PATH_FFN
         else:
-            ood_path = Config.OOD_PARAMS_PATH
+            print(f"❌ Unknown model type: {model_type}")
+            return None, None, None, None, None
         
         if not ood_path.exists():
-            print("❌ Missing OOD parameters. Compute OOD params first (option 2).")
+            print(f"❌ Missing OOD parameters at {ood_path}. Compute OOD params first (option 2).")
             return None, None, None, None, None
 
         ood_detector = MahalanobisOODDetector(ood_path)
@@ -151,23 +146,20 @@ def load_models(model_type=None):
                 print(f"{'='*80}")
                 print(f"{model_type.upper()} model produces: {expected_feature_dim}-dimensional features")
                 print(f"OOD detector expects: {ood_detector.feature_dim}-dimensional features")
-                if using_fallback:
-                    print(f"\nMissing model-specific OOD parameters!")
-                    print(f"Currently using fallback CNN parameters which don't match ART dimensions.")
-                else:
-                    print(f"\nThis happens when you train with one model type and try to use another.")
-                print(f"\nSolution: Train the OOD parameters for {model_type.upper()}:\n")
+                print(f"\nThis happens when you change the model architecture or use wrong OOD params.")
+                print(f"\nSolution: Regenerate OOD parameters for {model_type.upper()}:\n")
                 if model_type == 'cnn':
                     print(f"Run: python nn_train_cnn.py")
                 elif model_type == 'art':
                     print(f"Run: python nn_train_art.py")
                 elif model_type == 'ffn':
                     print(f"Run: python nn_train_ffn.py")
+                print(f"Then run: python compute_ood_params.py")
                 print(f"{'='*80}\n")
                 return None, None, None, None, None
         
-        # Check model type compatibility (skip if using fallback OOD parameters)
-        if not using_fallback and hasattr(ood_detector, 'model_type') and ood_detector.model_type != 'unknown':
+        # Check model type compatibility
+        if hasattr(ood_detector, 'model_type') and ood_detector.model_type != 'unknown':
             if ood_detector.model_type != model_type:
                 print(f"\n{'='*80}")
                 print(f"  ⚠️  WARNING: MODEL TYPE MISMATCH")

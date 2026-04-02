@@ -20,7 +20,7 @@ sys.path.insert(0, str(src_path))
 from config import Config
 from nn_model_cnn import ImageClassifier as CNNModel
 from nn_model_ffn import FeedforwardClassifier as FFNModel
-from nn_model_art import FuzzyARTClassifier as ARTModel
+from nn_model_art import FuzzyARTMAPClassifier as ARTModel
 from first_ai.data import build_mnist_dataloaders
 from first_ai.ood import (
     compute_class_prototypes,
@@ -163,7 +163,10 @@ def compute_for_art():
         max_categories=Config.ART_MAX_CATEGORIES,
         vigilance=Config.ART_VIGILANCE,
         learning_rate=Config.ART_LEARNING_RATE,
-        choice_alpha=Config.ART_CHOICE_ALPHA
+        choice_alpha=Config.ART_CHOICE_ALPHA,
+        count_penalty_gamma=Config.ART_COUNT_PENALTY_GAMMA,
+        max_category_count=Config.ART_MAX_CATEGORY_COUNT,
+        match_tracking_epsilon=Config.ART_MATCH_TRACKING_EPS,
     ).to(device)
     checkpoint = torch.load(model_path, map_location=device, weights_only=True)
     model.load_state_dict(checkpoint)
