@@ -74,7 +74,18 @@ class FuzzyARTClassifier(nn.Module):
         # Count patterns assigned to each category (for confidence/voting)
         self.register_buffer('category_counts', torch.zeros(max_categories, dtype=torch.long))
         
-        self.num_committed = 0
+        # Track number of committed categories (must be a buffer to persist)
+        self.register_buffer('_num_committed', torch.tensor(0, dtype=torch.long))
+    
+    @property
+    def num_committed(self):
+        """Property to access num_committed as an integer."""
+        return self._num_committed.item()
+    
+    @num_committed.setter
+    def num_committed(self, value):
+        """Property setter to update num_committed buffer."""
+        self._num_committed.fill_(value)
         
     def complement_code(self, x):
         """
@@ -410,7 +421,18 @@ class FuzzyARTMAPClassifier(nn.Module):
         self.register_buffer('category_labels', torch.full((max_categories,), -1, dtype=torch.long))
         self.register_buffer('category_counts', torch.zeros(max_categories, dtype=torch.long))
 
-        self.num_committed = 0
+        # Track number of committed categories (must be a buffer to persist)
+        self.register_buffer('_num_committed', torch.tensor(0, dtype=torch.long))
+    
+    @property
+    def num_committed(self):
+        """Property to access num_committed as an integer."""
+        return self._num_committed.item()
+    
+    @num_committed.setter
+    def num_committed(self, value):
+        """Property setter to update num_committed buffer."""
+        self._num_committed.fill_(value)
 
     def complement_code(self, x):
         return torch.cat([x, 1 - x], dim=-1)
@@ -492,8 +514,10 @@ class FuzzyARTMAPClassifier(nn.Module):
 
             reset_categories[category_idx] = True
 
+            # ARTMAP match tracking: small conservative vigilance increase on label mismatch
+            # Avoid aggressive vigilance escalation that causes category proliferation
             if not label_match:
-                local_vigilance = min(1.0, match_value + self.match_tracking_epsilon)
+                local_vigilance = min(self.vigilance + 0.03, 1.0)
 
             if not (self.committed & ~reset_categories).any() and self.num_committed < self.max_categories:
                 category_idx = self.num_committed

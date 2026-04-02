@@ -368,4 +368,23 @@ def main(
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Train Fuzzy ARTMAP for MNIST")
+    parser.add_argument("--passes", type=int, default=1, help="Number of training passes (default: 1)")
+    parser.add_argument("--device", type=str, default="auto", help="Device to use (default: auto)")
+    parser.add_argument("--batch-size", type=int, default=64, help="Training batch size (default: 64)")
+    parser.add_argument("--eval-batch-size", type=int, default=256, help="Evaluation batch size (default: 256)")
+    parser.add_argument("--num-workers", type=int, default=None, help="Number of data workers (default: auto)")
+    parser.add_argument("--sort-data", action="store_true", help="Train on sorted data (grouped by digit)")
+    
+    args = parser.parse_args()
+    
+    main(
+        device=args.device,
+        train_batch_size=args.batch_size,
+        eval_batch_size=args.eval_batch_size,
+        num_workers=args.num_workers,
+        passes=args.passes,
+        sort_data=args.sort_data,
+    )
