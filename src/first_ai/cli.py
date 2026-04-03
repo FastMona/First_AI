@@ -46,8 +46,8 @@ def main(argv=None) -> int:
     sub.add_parser("report", help="Generate markdown report from test_images")
 
     # Train a model
-    train = sub.add_parser("train", help="Train a model (CNN, ART, or FFN)")
-    train.add_argument("model_type", choices=["cnn", "art", "ffn"], help="Model type to train")
+    train = sub.add_parser("train", help="Train a model (CNN, ART, FFN, or NCT)")
+    train.add_argument("model_type", choices=["cnn", "art", "ffn", "nct"], help="Model type to train")
     train.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     train.add_argument("--batch-size", type=int, default=256)
     train.add_argument("--num-workers", type=int, default=4)
@@ -179,6 +179,17 @@ def main(argv=None) -> int:
                     )
                 else:
                     logger.warning("nn_train_ffn has no main(); executing module")
+            elif args.model_type == "nct":
+                import nn_train_nct
+                if hasattr(nn_train_nct, "main"):
+                    nn_train_nct.main(
+                        device=args.device,
+                        batch_size=args.batch_size,
+                        num_workers=args.num_workers,
+                        epochs=args.epochs,
+                    )
+                else:
+                    logger.warning("nn_train_nct has no main(); executing module")
             return 0
         except ModuleNotFoundError as e:
             logger.error(f"Training module not found: {e}")

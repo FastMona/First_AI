@@ -2,12 +2,12 @@
 
 **Academic Progression Framework:** This project implements a rigorous P vs ¬P (in-distribution vs out-of-distribution) detection system as an academic study, starting with MNIST digits as the training distribution (P) and testing the ability to reject non-MNIST inputs (¬P) without ever training on them. The goal is to perfect OOD detection methodology on MNIST, then demonstrate generalization to more complex datasets (Fashion-MNIST, CIFAR-10, medical imaging).
 
-This project trains three complementary MNIST classifiers (CNN, FFN, Fuzzy ART) and a class-conditional autoencoder (CCA), then runs detection through a two-stage OOD gate: 1) reconstruction error (Stage 1) and 2) Mahalanobis distance to class prototypes (Stage 2). Shared logic lives in src/first_ai/ to keep training and detection flows consistent.
+This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocognitron, Fuzzy ART) and a class-conditional autoencoder (CCA), then runs detection through a two-stage OOD gate: 1) reconstruction error (Stage 1) and 2) Mahalanobis distance to class prototypes (Stage 2). Shared logic lives in src/first_ai/ to keep training and detection flows consistent.
 
 ## Project Architecture & Recent Improvements
 
 **Separate Training Architecture:**
-- Each model (FFN, CNN, ART) trains independently with dedicated training scripts
+- Each model (FFN, CNN, NCT, ART) trains independently with dedicated training scripts
 - Model-specific paths prevent conflicts: `MODEL_PATH_FFN`, `MODEL_PATH_CNN`, `MODEL_PATH_ART`
 - OOD parameters computed separately for each classifier via `compute_ood_params.py`
 - Shared utilities in `src/first_ai/` for dataloaders, logging, seeding, and OOD computation
@@ -39,8 +39,8 @@ This project trains three complementary MNIST classifiers (CNN, FFN, Fuzzy ART) 
 - outputs/ — reports/plots; captures/ — webcam saves; logs/ — log files
 - Scripts: detect.py, detect_batch.py, generate_report.py, test_accuracy.py,
   test_class_thresholds.py, visualize_conditional_ae.py, camera.py, clean_project.py
-- Training wrappers: nn_train_cnn.py, nn_train_ffn.py, nn_train_art.py
-- Models: nn_model_cnn.py, nn_model_ffn.py, nn_model_art.py, autoencoder_model.py
+- Training wrappers: nn_train_cnn.py, nn_train_ffn.py, nn_train_nct.py, nn_train_art.py
+- Models: nn_model_cnn.py, nn_model_ffn.py, nn_model_nct.py, nn_model_art.py, autoencoder_model.py
 - Config: config.py (devices, paths, hyperparameters)
 
 ## How detection works
@@ -49,8 +49,8 @@ This project trains three complementary MNIST classifiers (CNN, FFN, Fuzzy ART) 
 - Both stages share code in detection_utils.py; CLI and scripts call the same path to avoid drift.
 
 ## Train
-- **Dashboard (recommended):** `python dashboard.py` → Option 1 (select FFN/CNN/ART/CCA)
-- **Individual scripts:** `python nn_train_ffn.py` or `nn_train_cnn.py` or `nn_train_art.py`
+- **Dashboard (recommended):** `python dashboard.py` → Option 1 (select FFN/CNN/NCT/ART/CCA)
+- **Individual scripts:** `python nn_train_ffn.py` or `nn_train_cnn.py` or `nn_train_nct.py` or `nn_train_art.py`
 - **CLI:** `python -m src.first_ai.cli train cnn --device auto --batch-size 256 --epochs 10`
 - **After training:** Run Option 2 to compute OOD parameters for each model
 - Artifacts land in `models/` with model-specific naming (e.g., `model_state_ffn.pth`, `ood_params_cnn.pth`)

@@ -14,6 +14,7 @@ from torchvision.transforms import ToTensor
 from nn_model_cnn import ImageClassifier
 from nn_model_art import FuzzyARTClassifier
 from nn_model_ffn import FeedforwardClassifier
+from nn_model_nct import NeocognitronClassifier
 from autoencoder_model import MNISTAutoencoder
 from ood_detector import MahalanobisOODDetector
 from config import Config
@@ -23,12 +24,13 @@ def detect_model_type():
     Automatically detect which model type has been trained.
     
     Returns:
-        str: 'cnn', 'art', or 'ffn' based on which model exists, or the configured default
+        str: 'cnn', 'art', 'ffn', or 'nct' based on which model exists, or the configured default
     """
     # Check which model files exist
     cnn_exists = os.path.exists(Config.MODEL_PATH_CNN)
     art_exists = os.path.exists(Config.MODEL_PATH_ART)
     ffn_exists = os.path.exists(Config.MODEL_PATH_FFN)
+    nct_exists = os.path.exists(Config.MODEL_PATH_NCT)
     
     # Priority order if multiple exist: use the configured type first
     if Config.MODEL_TYPE == 'cnn' and cnn_exists:
@@ -37,6 +39,8 @@ def detect_model_type():
         return 'art'
     elif Config.MODEL_TYPE == 'ffn' and ffn_exists:
         return 'ffn'
+    elif Config.MODEL_TYPE == 'nct' and nct_exists:
+        return 'nct'
     
     # Otherwise, return first available
     if cnn_exists:
@@ -45,6 +49,8 @@ def detect_model_type():
         return 'art'
     elif ffn_exists:
         return 'ffn'
+    elif nct_exists:
+        return 'nct'
     else:
         # Default to configured type
         return Config.MODEL_TYPE
@@ -54,7 +60,7 @@ def load_models(model_type=None):
     Load all required models for digit detection.
     
     Args:
-        model_type: 'cnn', 'art', or 'ffn'. If None, auto-detect from available model files.
+        model_type: 'cnn', 'art', 'ffn', or 'nct'. If None, auto-detect from available model files.
     
     Returns:
         tuple: (classifier, autoencoder, ood_detector, ae_threshold, model_type_used)
@@ -91,6 +97,13 @@ def load_models(model_type=None):
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_FFN, 'rb') as f:
                 clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
+        elif model_type == 'nct':
+            clf = NeocognitronClassifier(
+                num_classes=Config.NUM_CLASSES,
+                embedding_dim=Config.NCT_EMBEDDING_SIZE,
+            ).to(Config.DEVICE)
+            with open(Config.MODEL_PATH_NCT, 'rb') as f:
+                clf.load_state_dict(load(f, map_location=Config.DEVICE, weights_only=False))
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         
@@ -124,6 +137,12 @@ def load_models(model_type=None):
             else:
                 ood_path = Config.OOD_PARAMS_PATH
                 using_fallback = True
+        elif model_type == 'nct':
+            if Config.OOD_PARAMS_PATH_NCT.exists():
+                ood_path = Config.OOD_PARAMS_PATH_NCT
+            else:
+                ood_path = Config.OOD_PARAMS_PATH
+                using_fallback = True
         else:
             ood_path = Config.OOD_PARAMS_PATH
         
@@ -141,6 +160,8 @@ def load_models(model_type=None):
             expected_feature_dim = Config.INPUT_SIZE * Config.INPUT_SIZE * 2  # ART produces 1568-dim (784*2 for complement coding)
         elif model_type == 'ffn':
             expected_feature_dim = Config.FEATURE_DIM  # FFN produces 128-dim features
+        elif model_type == 'nct':
+            expected_feature_dim = Config.NCT_EMBEDDING_SIZE  # NCT produces 128-dim features
         else:
             expected_feature_dim = None
         
@@ -163,6 +184,8 @@ def load_models(model_type=None):
                     print(f"Run: python nn_train_art.py")
                 elif model_type == 'ffn':
                     print(f"Run: python nn_train_ffn.py")
+                elif model_type == 'nct':
+                    print(f"Run: python nn_train_nct.py")
                 print(f"{'='*80}\n")
                 return None, None, None, None, None
         
@@ -186,6 +209,8 @@ def load_models(model_type=None):
                     print(f"Run: python nn_train_art.py")
                 elif model_type == 'ffn':
                     print(f"Run: python nn_train_ffn.py")
+                elif model_type == 'nct':
+                    print(f"Run: python nn_train_nct.py")
                 print(f"{'='*80}\n")
                 return None, None, None, None, None
         
@@ -193,7 +218,7 @@ def load_models(model_type=None):
         
     except FileNotFoundError as e:
         print(f"Error loading models: {e}")
-        print(f"Please train the models first using nn_train_cnn.py (CNN), nn_train_art.py (ART), or nn_train_ffn.py (FFN)")
+        print(f"Please train the models first using nn_train_cnn.py (CNN), nn_train_art.py (ART), nn_train_ffn.py (FFN), or nn_train_nct.py (NCT)")
         return None, None, None, None, None
 
 def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
@@ -257,6 +282,7 @@ def predict_image(image_path, model, autoencoder, ood_detector, ae_threshold):
                 f"  - For CNN (128-dim): Run 'python nn_train_cnn.py'\n"
                 f"  - For ART (1568-dim): Run 'python nn_train_art.py'\n"
                 f"  - For FFN (128-dim): Run 'python nn_train_ffn.py'\n"
+                f"  - For NCT (128-dim): Run 'python nn_train_nct.py'\n"
             )
         
         belongs, mahal_distance, min_distance, nearest_class, all_distances = ood_detector.detect(

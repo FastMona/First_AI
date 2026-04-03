@@ -198,7 +198,7 @@ def generate_report_for_model(model_type):
 
 def main():
     parser = argparse.ArgumentParser(description='Generate test reports for MNIST detection models')
-    parser.add_argument('--model', type=str, choices=['cnn', 'art', 'ffn'],
+    parser.add_argument('--model', type=str, choices=['cnn', 'art', 'ffn', 'nct'],
                        help='Generate report for specific model type')
     parser.add_argument('--all', action='store_true',
                        help='Generate reports for all available models')
@@ -216,6 +216,8 @@ def main():
             models_to_process.append('art')
         if Config.MODEL_PATH_FFN.exists():
             models_to_process.append('ffn')
+        if Config.MODEL_PATH_NCT.exists():
+            models_to_process.append('nct')
         
         if not models_to_process:
             print("No trained models found!")
@@ -230,6 +232,8 @@ def main():
             models_to_process.append('art')
         if Config.MODEL_PATH_FFN.exists():
             models_to_process.append('ffn')
+        if Config.MODEL_PATH_NCT.exists():
+            models_to_process.append('nct')
         
         # If no models found, try auto-detect as fallback
         if not models_to_process:

@@ -14,6 +14,7 @@ from torchvision.transforms import ToTensor
 from nn_model_cnn import ImageClassifier
 from nn_model_art import FuzzyARTClassifier
 from nn_model_ffn import FeedforwardClassifier
+from nn_model_nct import NeocognitronClassifier
 from config import Config
 from pathlib import Path
 import os
@@ -32,7 +33,8 @@ def get_available_models():
     return {
         'cnn': os.path.exists(Config.MODEL_PATH_CNN),
         'art': os.path.exists(Config.MODEL_PATH_ART),
-        'ffn': os.path.exists(Config.MODEL_PATH_FFN)
+        'ffn': os.path.exists(Config.MODEL_PATH_FFN),
+        'nct': os.path.exists(Config.MODEL_PATH_NCT),
     }
 
 
@@ -42,10 +44,10 @@ def select_model_type():
     Only auto-selects if exactly one model exists.
     
     Returns:
-        str: Selected model type ('cnn', 'art', or 'ffn'), or None if no models available
+        str: Selected model type ('cnn', 'art', 'ffn', or 'nct'), or None if no models available
     """
     available = get_available_models()
-    selection_order = ['ffn', 'cnn', 'art']
+    selection_order = ['ffn', 'cnn', 'nct', 'art']
     available_list = [model for model in selection_order if available.get(model)]
     
     # No models available
@@ -58,6 +60,7 @@ def select_model_type():
         print("  • python nn_train_cnn.py  - Train CNN model")
         print("  • python nn_train_art.py  - Train Fuzzy ART model")
         print("  • python nn_train_ffn.py  - Train Feedforward model")
+        print("  • python nn_train_nct.py  - Train Neocognitron model")
         print("\nOr use the dashboard (python dashboard.py) and select:")
         print("  • Option 1 - Train with FFN")
         print("  • Option 2 - Train with CNN")
@@ -78,7 +81,8 @@ def select_model_type():
     
     model_names = {'cnn': 'CNN (Convolutional Neural Network)', 
                    'art': 'Fuzzy ART (Adaptive Resonance Theory)',
-                   'ffn': 'FFN (Feedforward Neural Network)'}
+                   'ffn': 'FFN (Feedforward Neural Network)',
+                   'nct': 'NCT (Neocognitron)'}
     
     for i, model in enumerate(available_list, 1):
         print(f"  {i}. {model.upper():3} - {model_names[model]}")
@@ -107,7 +111,7 @@ def load_classifier(model_type=None):
     Load the trained classifier model.
     
     Args:
-        model_type: 'cnn', 'art', or 'ffn'. If None, will prompt user to select.
+        model_type: 'cnn', 'art', 'ffn', or 'nct'. If None, will prompt user to select.
     
     Returns:
         tuple: (classifier, model_type_used) or (None, None) if loading fails
@@ -145,6 +149,13 @@ def load_classifier(model_type=None):
             ).to(Config.DEVICE)
             with open(Config.MODEL_PATH_FFN, 'rb') as f:
                 clf.load_state_dict(torch.load(f, map_location=Config.DEVICE, weights_only=False))
+        elif model_type == 'nct':
+            clf = NeocognitronClassifier(
+                num_classes=Config.NUM_CLASSES,
+                embedding_dim=Config.NCT_EMBEDDING_SIZE,
+            ).to(Config.DEVICE)
+            with open(Config.MODEL_PATH_NCT, 'rb') as f:
+                clf.load_state_dict(torch.load(f, map_location=Config.DEVICE, weights_only=False))
         else:
             raise ValueError(f"Unknown model type: {model_type}")
         
@@ -153,7 +164,7 @@ def load_classifier(model_type=None):
         
     except FileNotFoundError as e:
         print(f"Error loading classifier: {e}")
-        print(f"Please train a model first using nn_train_cnn.py, nn_train_art.py, or nn_train_ffn.py")
+        print(f"Please train a model first using nn_train_cnn.py, nn_train_art.py, nn_train_ffn.py, or nn_train_nct.py")
         return None, None
 
 

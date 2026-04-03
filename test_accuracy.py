@@ -205,7 +205,7 @@ def test_single_model(model_name, model_type_override=None):
     }
 
 def main():
-    """Main function - tests all available models: CNN, ART, and FFN"""
+    """Main function - tests all available models: FFN, CNN, NCT, and ART"""
     print("="*80)
     print("AUTOMATED ACCURACY TEST - MNIST Digit Detector")
     print("="*80)
@@ -214,13 +214,15 @@ def main():
     cnn_available = os.path.exists(Config.MODEL_PATH_CNN)
     art_available = os.path.exists(Config.MODEL_PATH_ART)
     ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
+    nct_available = os.path.exists(Config.MODEL_PATH_NCT)
     
-    if not cnn_available and not art_available and not ffn_available:
+    if not cnn_available and not art_available and not ffn_available and not nct_available:
         print("\n⚠️  No trained models found!")
         print("\nPlease train a model first:")
         print("  - Option 1: Train with CNN")
         print("  - Option 2: Train with ART")
         print("  - Option 3: Train with FFN")
+        print("  - Option 4: Train with NCT")
         return
     
     results = []
@@ -239,7 +241,15 @@ def main():
         if result:
             results.append(result)
     else:
-        print("\n⚠️  CNN model (model_state.pth) not found. Skipping CNN test.")
+        print("\n⚠️  CNN model (model_state_cnn.pth) not found. Skipping CNN test.")
+
+    # Test NCT if available
+    if nct_available:
+        result = test_single_model("NCT", model_type_override='nct')
+        if result:
+            results.append(result)
+    else:
+        print("\n⚠️  NCT model (model_state_nct.pth) not found. Skipping NCT test.")
     
     # Test ART if available
     if art_available:

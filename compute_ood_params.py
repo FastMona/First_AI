@@ -5,7 +5,7 @@ This generates Mahalanobis distance parameters for Stage 2 OOD detection:
 - Precision matrix (inverse covariance)
 - Per-class distance thresholds (90th, 95th, 99th percentiles)
 
-Must be run after training classifiers (FFN/CNN/ART) and before OOD detection.
+Must be run after training classifiers (FFN/CNN/NCT/ART) and before OOD detection.
 """
 
 import logging
@@ -21,6 +21,7 @@ from config import Config
 from nn_model_cnn import ImageClassifier as CNNModel
 from nn_model_ffn import FeedforwardClassifier as FFNModel
 from nn_model_art import FuzzyARTClassifier as ARTModel
+from nn_model_nct import NeocognitronClassifier as NCTModel
 from first_ai.data import build_mnist_dataloaders
 from first_ai.ood import (
     compute_class_prototypes,
@@ -202,17 +203,70 @@ def compute_for_art():
     return True
 
 
+def compute_for_nct():
+    """Compute OOD parameters for NCT model."""
+    model_path = Config.MODEL_PATH_NCT
+    ood_path = Config.OOD_PARAMS_PATH_NCT
+
+    if not model_path.exists():
+        logger.warning(f"⚠ NCT model not found at {model_path} - skipping")
+        return False
+
+    logger.info("🔧 Loading NCT model...")
+    device = Config.DEVICE
+    model = NCTModel(
+        num_classes=Config.NUM_CLASSES,
+        embedding_dim=Config.NCT_EMBEDDING_SIZE,
+    ).to(device)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=True)
+    model.load_state_dict(checkpoint)
+    model.eval()
+
+    logger.info("📊 Loading MNIST dataset...")
+    train_loader, val_loader, _ = build_mnist_dataloaders(
+        dataset_root='training_data',
+        train_batch_size=256,
+        eval_batch_size=256,
+        num_workers=4
+    )
+
+    logger.info("🧮 Computing class prototypes...")
+    class_means = compute_class_prototypes(
+        model, train_loader, num_classes=10, device=device.type
+    )
+
+    logger.info("🧮 Computing covariance matrix...")
+    precision_diag = compute_covariance_matrix(
+        model, train_loader, class_means, device=device.type
+    )
+
+    logger.info("🧮 Computing Mahalanobis thresholds on validation set...")
+    ood_params = compute_mahalanobis_thresholds(
+        model, val_loader, class_means, precision_diag, num_classes=10, device=device.type
+    )
+
+    # Add metadata
+    ood_params['feature_dim'] = Config.NCT_EMBEDDING_SIZE
+    ood_params['model_type'] = 'nct'
+
+    logger.info(f"💾 Saving OOD parameters to {ood_path}...")
+    torch.save(ood_params, ood_path)
+    logger.info(f"✓ NCT OOD parameters saved successfully\n")
+    return True
+
+
 def main():
     """Compute OOD parameters for all trained models."""
     print_header("COMPUTE OOD PARAMETERS FOR ALL MODELS")
     
     logger.info("This will compute Mahalanobis distance parameters for Stage 2 OOD detection.")
-    logger.info("Ensure you have trained at least one classifier (FFN/CNN/ART) before running.\n")
+    logger.info("Ensure you have trained at least one classifier (FFN/CNN/NCT/ART) before running.\n")
     
     results = {
         'FFN': False,
         'CNN': False,
-        'ART': False
+        'ART': False,
+        'NCT': False,
     }
     
     # Compute for each model
@@ -224,6 +278,9 @@ def main():
     
     print_header("ART MODEL")
     results['ART'] = compute_for_art()
+
+    print_header("NCT MODEL")
+    results['NCT'] = compute_for_nct()
     
     # Summary
     print_header("SUMMARY")
