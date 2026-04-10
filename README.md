@@ -7,36 +7,44 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 ## Project Architecture & Recent Improvements
 
 **Separate Training Architecture:**
+
 - Each model (FFN, CNN, NCT, ART) trains independently with dedicated training scripts
-- Model-specific paths prevent conflicts: `MODEL_PATH_FFN`, `MODEL_PATH_CNN`, `MODEL_PATH_ART`
+- Model-specific paths prevent conflicts: `MODEL_PATH_FFN`, `MODEL_PATH_CNN`, `MODEL_PATH_NCT`, `MODEL_PATH_ART`
 - OOD parameters computed separately for each classifier via `compute_ood_params.py`
 - Shared utilities in `src/first_ai/` for dataloaders, logging, seeding, and OOD computation
 
 **Fuzzy ART Enhancements:**
-- Fixed category label assignment to prevent label drift during multi-pass training
-- Reduced learning rate from 0.5 → 0.1 to prevent template convergence to universal attractors
+
+- Fixed category label assignment to prevent label drift during ART training
+- Added stronger count-penalty controls and a single-pass default to reduce template collapse into universal attractors
 - Category distribution analysis tracks digit-to-category mapping balance
 
 **Key Design Principles:**
+
 - Single source of truth for paths and hyperparameters in `config.py`
 - Modular training allows independent experimentation per architecture
 - Two-stage OOD detection (reconstruction + Mahalanobis) catches different failure modes
 
 ## Quick Start
+
 - Dashboard (interactive): python dashboard.py
 - Unified CLI (shared modules):
   - Train: python -m src.first_ai.cli train cnn --device auto --batch-size 256 --epochs 10
   - Detect single image: python -m src.first_ai.cli detect test_images/img_3.jpg
   - Batch detect: python -m src.first_ai.cli batch-detect test_images/
   - Report: python -m src.first_ai.cli report
+  - If installed with `pip install -e .`, you can also use `python -m first_ai.cli ...`
 - Legacy scripts remain runnable (e.g., python nn_train_cnn.py); they now call shared helpers.
 
 ## Layout (key paths)
+
 - src/first_ai/ — shared package
   - data.py (MNIST loaders), train.py (early stopping trainer), ae_train.py, ood.py,
     artifacts.py, logging_utils.py, seeds.py, cli.py
 - models/ — artifacts (classifiers, autoencoder, OOD params)
-- outputs/ — reports/plots; captures/ — webcam saves; logs/ — log files
+- outputs/ — analysis artifacts and generated outputs; captures/ — webcam saves
+- session_logs/ — dashboard session transcripts; logs/ — CLI log files (created on demand)
+- Report files from `generate_report.py` are written to project root as `test_results_report_<model>.md`
 - Scripts: detect.py, detect_batch.py, generate_report.py, test_accuracy.py,
   test_class_thresholds.py, visualize_conditional_ae.py, camera.py, clean_project.py
 - Training wrappers: nn_train_cnn.py, nn_train_ffn.py, nn_train_nct.py, nn_train_art.py
@@ -44,11 +52,13 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 - Config: config.py (devices, paths, hyperparameters)
 
 ## How detection works
+
 - Stage 1: class-conditional autoencoder reconstruction error (reject obvious non-digits).
 - Stage 2: Mahalanobis distance to class prototypes (per-class thresholds when available).
 - Both stages share code in detection_utils.py; CLI and scripts call the same path to avoid drift.
 
 ## Train
+
 - **Dashboard (recommended):** `python dashboard.py` → Option 1 (select FFN/CNN/NCT/ART/CCA)
 - **Individual scripts:** `python nn_train_ffn.py` or `nn_train_cnn.py` or `nn_train_nct.py` or `nn_train_art.py`
 - **CLI:** `python -m src.first_ai.cli train cnn --device auto --batch-size 256 --epochs 10`
@@ -57,11 +67,13 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 - **Important:** Changing model architectures requires regenerating OOD params via `compute_ood_params.py`
 
 ## Detect & Report
-- Single image: python -m src.first_ai.cli detect <image> or python detect.py.
-- Batch: python -m src.first_ai.cli batch-detect <folder> or python detect_batch.py.
+
+- Single image: python -m src.first_ai.cli detect [image_path] or python detect.py.
+- Batch: python -m src.first_ai.cli batch-detect [folder_path] or python detect_batch.py.
 - Report: python -m src.first_ai.cli report or python generate_report.py.
 
 ## Utilities
+
 - camera.py — capture and preprocess to MNIST format.
 - visualize_conditional_ae.py — sanity-check AE manifolds vs classes.
 - test_class_thresholds.py — inspect Mahalanobis thresholds and OOD behavior under noise.
@@ -72,11 +84,13 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 **Core Problem:** Train only on P (MNIST digits 0-9), then reliably detect ¬P (everything else) without ever seeing non-digit examples during training. This is the fundamental OOD detection challenge.
 
 **Why This Matters:**
+
 - Real-world systems encounter inputs outside training distribution
 - No classifier is 100% accurate (humans can't perfectly distinguish ')' from '1')
 - Goal: Maximize P recognition (~99%+) while rejecting ¬P (~90%+)
 
 **Current Performance:**
+
 - FFN: Best OOD detector (~60% combined accuracy on hard test cases)
 - CNN: Strong classifier, moderate OOD performance
 - ART: Classical ML baseline, complement-coded features
@@ -84,12 +98,14 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 **Hard Test Cases:** Distinguishing handwritten '1' from ')' or '[' — visually similar but semantically different. Random images are trivial; lookalikes are the real challenge.
 
 **Planned Progression:**
+
 1. Perfect methodology on MNIST (current phase)
 2. Validate on Fashion-MNIST (same 28×28 format, different domain)
 3. Scale to CIFAR-10 (natural images, higher complexity)
 4. Apply to real-world domains (medical imaging, anomaly detection)
 
 ## Notes on artifacts & consistency
+
 - OOD detector (ood_detector.py) must match feature dims emitted by the classifier:
   - CNN/FFN: 128-dimensional embeddings
   - ART: 1568-dimensional complement-coded features (784 × 2)
@@ -99,10 +115,12 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
 - Two-stage detection: Stage 1 (CCA reconstruction) catches obvious non-digits; Stage 2 (Mahalanobis) handles subtle cases
 
 ## Environment
+
 - Python >= 3.8, PyTorch/torchvision per pyproject.toml or environment.yml.
 - Set device via CLI --device auto|cpu|cuda; falls back to CPU when CUDA unavailable.
 
 ## Run on a Laptop (CPU) with Pre‑Trained Models
+
 - Create env:
   - Conda: `conda env create -f environment.yml && conda activate pytorch`
   - Or pip: `pip install -e .` (reads pyproject.toml)
@@ -121,8 +139,10 @@ This project trains four complementary MNIST classifiers (CNN, FFN, NCT/Neocogni
   - Expected artifacts under `models/`: `model_state*.pth`, `autoencoder.pth`, `ood_params*.pth`.
 
 ## Testing
+
 - python test_accuracy.py exercises the same detection path for a quick smoke test.
-- Additional pytest scaffolding is planned under tests/ (see pyproject config).
+- pytest is configured and active under tests/ (see pyproject.toml).
 
 ## Author
+
 David Cronin — January 2026

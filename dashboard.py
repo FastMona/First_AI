@@ -277,7 +277,7 @@ def select_training_target():
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train a Model             - Train FFN/CNN/ART/CCA                       │")
+    print("│  1. Train a Model             - Train FFN/CNN/NCT/ART/CCA                   │")
     print("│  2. Compute OOD Params        - Generate Mahalanobis params for models     │")
     print("│  3. OOD Test Accuracy         - Compare OOD detection of trained models    │")
     print("└────────────────────────────────────────────────────────────────────────────┘")

@@ -1,6 +1,6 @@
 """Simple digit detection without OOD detection.
 
-Dashboard Menu: Option 7 - Simple NN Detection
+Dashboard Menu: Option 6 - Simple NN Detection
 
 Why: Provides baseline NN-only predictions without the autoencoder or Mahalanobis
 distance checks. Useful for comparing raw NN performance vs OOD-gated predictions.
@@ -62,9 +62,7 @@ def select_model_type():
         print("  • python nn_train_ffn.py  - Train Feedforward model")
         print("  • python nn_train_nct.py  - Train Neocognitron model")
         print("\nOr use the dashboard (python dashboard.py) and select:")
-        print("  • Option 1 - Train with FFN")
-        print("  • Option 2 - Train with CNN")
-        print("  • Option 3 - Train with ART")
+        print("  • Option 1 - Train a Model (then choose FFN/CNN/NCT/ART)")
         print("="*80 + "\n")
         return None
     
