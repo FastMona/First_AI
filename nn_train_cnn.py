@@ -32,6 +32,39 @@ from first_ai.logging_utils import get_environment_info, log_environment_block  
 
 logger = logging.getLogger(__name__)
 
+LAST_TRAINING_FOLDER_FILE = Path(".last_training_folder.txt")
+
+
+def load_last_training_folder(default_folder: Path) -> Path:
+    if LAST_TRAINING_FOLDER_FILE.exists():
+        value = LAST_TRAINING_FOLDER_FILE.read_text(encoding="utf-8").strip()
+        if value:
+            return Path(value)
+    return default_folder
+
+
+def normalize_dataset_root(path: Path) -> Path:
+    # Accept either dataset root (.../training_data) or raw folder (.../MNIST/raw).
+    if (path / "train-images-idx3-ubyte").exists() and (path / "train-labels-idx1-ubyte").exists():
+        return path.parent.parent
+    return path
+
+
+def choose_training_folder(default_folder: Path) -> Path:
+    last_used = load_last_training_folder(default_folder)
+    raw_input = input(
+        "Training folder (press Enter to use last one) "
+        f"[{last_used}]: "
+    ).strip()
+    selected = Path(raw_input) if raw_input else last_used
+    dataset_root = normalize_dataset_root(selected)
+
+    if not dataset_root.exists():
+        raise FileNotFoundError(f"Training folder does not exist: {dataset_root}")
+
+    LAST_TRAINING_FOLDER_FILE.write_text(str(selected), encoding="utf-8")
+    return dataset_root
+
 
 def resolve_device(device: str) -> str:
     if device == "auto":
@@ -60,8 +93,11 @@ def main(
     logger.info(f"  • Conv channels: {Config.CONV_CHANNELS} (kernel: {Config.CONV_KERNEL})")
     logger.info(f"  • Embedding: {Config.FEATURE_DIM}d → Output: {Config.NUM_CLASSES} classes")
 
+    dataset_root = choose_training_folder(Path("training_data"))
+    logger.info(f"  • Training data folder: {dataset_root}")
+
     train_loader, val_loader, test_loader = build_mnist_dataloaders(
-        dataset_root=Path("training_data"),
+        dataset_root=dataset_root,
         train_batch_size=batch_size,
         eval_batch_size=batch_size,
         num_workers=num_workers,

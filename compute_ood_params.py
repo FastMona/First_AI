@@ -36,6 +36,39 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+LAST_TRAINING_FOLDER_FILE = Path(".last_training_folder.txt")
+
+
+def load_last_training_folder(default_folder: Path) -> Path:
+    if LAST_TRAINING_FOLDER_FILE.exists():
+        value = LAST_TRAINING_FOLDER_FILE.read_text(encoding="utf-8").strip()
+        if value:
+            return Path(value)
+    return default_folder
+
+
+def normalize_dataset_root(path: Path) -> Path:
+    # Accept either dataset root (.../training_data) or raw folder (.../MNIST/raw).
+    if (path / "train-images-idx3-ubyte").exists() and (path / "train-labels-idx1-ubyte").exists():
+        return path.parent.parent
+    return path
+
+
+def choose_training_folder(default_folder: Path) -> Path:
+    last_used = load_last_training_folder(default_folder)
+    raw_input = input(
+        "Training folder (press Enter to use last one) "
+        f"[{last_used}]: "
+    ).strip()
+    selected = Path(raw_input) if raw_input else last_used
+    dataset_root = normalize_dataset_root(selected)
+
+    if not dataset_root.exists():
+        raise FileNotFoundError(f"Training folder does not exist: {dataset_root}")
+
+    LAST_TRAINING_FOLDER_FILE.write_text(str(selected), encoding="utf-8")
+    return dataset_root
+
 
 def print_header(title: str):
     """Print formatted section header."""
@@ -44,7 +77,7 @@ def print_header(title: str):
     print("=" * 80 + "\n")
 
 
-def compute_for_cnn():
+def compute_for_cnn(dataset_root: Path):
     """Compute OOD parameters for CNN model."""
     model_path = Config.MODEL_PATH_CNN
     ood_path = Config.OOD_PARAMS_PATH_CNN
@@ -62,7 +95,7 @@ def compute_for_cnn():
     
     logger.info("📊 Loading MNIST dataset...")
     train_loader, val_loader, _ = build_mnist_dataloaders(
-        dataset_root='training_data',
+        dataset_root=dataset_root,
         train_batch_size=256,
         eval_batch_size=256,
         num_workers=4
@@ -93,7 +126,7 @@ def compute_for_cnn():
     return True
 
 
-def compute_for_ffn():
+def compute_for_ffn(dataset_root: Path):
     """Compute OOD parameters for FFN model."""
     model_path = Config.MODEL_PATH_FFN
     ood_path = Config.OOD_PARAMS_PATH_FFN
@@ -116,7 +149,7 @@ def compute_for_ffn():
     
     logger.info("📊 Loading MNIST dataset...")
     train_loader, val_loader, _ = build_mnist_dataloaders(
-        dataset_root='training_data',
+        dataset_root=dataset_root,
         train_batch_size=256,
         eval_batch_size=256,
         num_workers=4
@@ -147,7 +180,7 @@ def compute_for_ffn():
     return True
 
 
-def compute_for_art():
+def compute_for_art(dataset_root: Path):
     """Compute OOD parameters for ART model."""
     model_path = Config.MODEL_PATH_ART
     ood_path = Config.OOD_PARAMS_PATH_ART
@@ -172,7 +205,7 @@ def compute_for_art():
     
     logger.info("📊 Loading MNIST dataset...")
     train_loader, val_loader, _ = build_mnist_dataloaders(
-        dataset_root='training_data',
+        dataset_root=dataset_root,
         train_batch_size=256,
         eval_batch_size=256,
         num_workers=4
@@ -203,7 +236,7 @@ def compute_for_art():
     return True
 
 
-def compute_for_nct():
+def compute_for_nct(dataset_root: Path):
     """Compute OOD parameters for NCT model."""
     model_path = Config.MODEL_PATH_NCT
     ood_path = Config.OOD_PARAMS_PATH_NCT
@@ -224,7 +257,7 @@ def compute_for_nct():
 
     logger.info("📊 Loading MNIST dataset...")
     train_loader, val_loader, _ = build_mnist_dataloaders(
-        dataset_root='training_data',
+        dataset_root=dataset_root,
         train_batch_size=256,
         eval_batch_size=256,
         num_workers=4
@@ -258,6 +291,8 @@ def compute_for_nct():
 def main():
     """Compute OOD parameters for all trained models."""
     print_header("COMPUTE OOD PARAMETERS FOR ALL MODELS")
+    dataset_root = choose_training_folder(Path("training_data"))
+    logger.info(f"Using training data folder: {dataset_root}")
     
     logger.info("This will compute Mahalanobis distance parameters for Stage 2 OOD detection.")
     logger.info("Ensure you have trained at least one classifier (FFN/CNN/NCT/ART) before running.\n")
@@ -271,16 +306,16 @@ def main():
     
     # Compute for each model
     print_header("FFN MODEL")
-    results['FFN'] = compute_for_ffn()
+    results['FFN'] = compute_for_ffn(dataset_root)
     
     print_header("CNN MODEL")
-    results['CNN'] = compute_for_cnn()
+    results['CNN'] = compute_for_cnn(dataset_root)
     
     print_header("ART MODEL")
-    results['ART'] = compute_for_art()
+    results['ART'] = compute_for_art(dataset_root)
 
     print_header("NCT MODEL")
-    results['NCT'] = compute_for_nct()
+    results['NCT'] = compute_for_nct(dataset_root)
     
     # Summary
     print_header("SUMMARY")

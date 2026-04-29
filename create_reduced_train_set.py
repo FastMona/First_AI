@@ -17,6 +17,9 @@ from pathlib import Path
 import numpy as np
 
 
+LAST_TRAINING_FOLDER_FILE = Path(".last_training_folder.txt")
+
+
 def read_idx_labels(path: Path) -> np.ndarray:
     data = path.read_bytes()
     if len(data) < 8:
@@ -89,6 +92,18 @@ def ask_kept_count() -> int:
         print("Count must be between 0 and 100.")
 
 
+def load_last_training_folder(default_input: Path) -> Path:
+    if LAST_TRAINING_FOLDER_FILE.exists():
+        value = LAST_TRAINING_FOLDER_FILE.read_text(encoding="utf-8").strip()
+        if value:
+            return Path(value)
+    return default_input
+
+
+def save_last_training_folder(path: Path) -> None:
+    LAST_TRAINING_FOLDER_FILE.write_text(str(path), encoding="utf-8")
+
+
 def build_reduced_train_set(raw_input_dir: Path, output_root: Path) -> None:
     train_images_path = raw_input_dir / "train-images-idx3-ubyte"
     train_labels_path = raw_input_dir / "train-labels-idx1-ubyte"
@@ -154,12 +169,17 @@ def build_reduced_train_set(raw_input_dir: Path, output_root: Path) -> None:
 def main() -> None:
     default_input = Path(r"C:\Users\fastm\Documents_local\Repositories_local\Python_stuff\First_AI\training_data\MNIST\raw")
     output_root = Path("reduced_train_set")
+    last_used_input = load_last_training_folder(default_input)
 
     user_input = input(
-        "Raw MNIST input folder "
-        f"[{default_input}]: "
+        "Training folder (press Enter to use last one) "
+        f"[{last_used_input}]: "
     ).strip()
-    raw_input_dir = Path(user_input) if user_input else default_input
+    raw_input_dir = Path(user_input) if user_input else last_used_input
+
+    if not raw_input_dir.exists():
+        print(f"Folder does not exist: {raw_input_dir}")
+        return
 
     print("\nThis will create a reduced MNIST training dataset in 'reduced_train_set'.")
     if output_root.exists():
@@ -172,6 +192,7 @@ def main() -> None:
         shutil.rmtree(output_root)
 
     build_reduced_train_set(raw_input_dir=raw_input_dir, output_root=output_root)
+    save_last_training_folder(raw_input_dir)
 
 
 if __name__ == "__main__":
