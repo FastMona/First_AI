@@ -28,23 +28,26 @@ def main(folder_path=None):
     cnn_available = os.path.exists(Config.MODEL_PATH_CNN)
     art_available = os.path.exists(Config.MODEL_PATH_ART)
     ffn_available = os.path.exists(Config.MODEL_PATH_FFN)
+    nct_available = os.path.exists(Config.MODEL_PATH_NCT)
     
     print("\nAvailable trained models:")
     print(f"  1. FFN  {'✓ Trained' if ffn_available else '✗ Not trained'}")
     print(f"  2. CNN  {'✓ Trained' if cnn_available else '✗ Not trained'}")
     print(f"  3. ART  {'✓ Trained' if art_available else '✗ Not trained'}")
+    print(f"  4. NCT  {'✓ Trained' if nct_available else '✗ Not trained'}")
     
-    if not (cnn_available or art_available or ffn_available):
+    if not (cnn_available or art_available or ffn_available or nct_available):
         logger.error("No trained models found!")
         logger.info("Please train at least one model first:")
         logger.info("  - For CNN: Run 'python nn_train_cnn.py'")
         logger.info("  - For ART: Run 'python nn_train_art.py'")
         logger.info("  - For FFN: Run 'python nn_train_ffn.py'")
+        logger.info("  - For NCT: Run 'python nn_train_nct.py'")
         return
     
     # Ask user to select model
     while True:
-        choice = input("\nSelect model to test (1=FFN, 2=CNN, 3=ART): ").strip()
+        choice = input("\nSelect model to test (1=FFN, 2=CNN, 3=ART, 4=NCT): ").strip()
         
         if choice == '1':
             if not ffn_available:
@@ -64,8 +67,14 @@ def main(folder_path=None):
                 continue
             model_type = 'art'
             break
+        elif choice == '4':
+            if not nct_available:
+                print("❌ NCT model not trained. Please run 'python nn_train_nct.py' first.")
+                continue
+            model_type = 'nct'
+            break
         else:
-            print("❌ Invalid choice. Please enter 1, 2, or 3.")
+            print("❌ Invalid choice. Please enter 1, 2, 3, or 4.")
     
     # Load models (no need to print "Loading..." here, load_models() will do it)
     clf, autoencoder, ood_detector, ae_threshold, model_type = load_models(model_type)

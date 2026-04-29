@@ -4,7 +4,7 @@ Central console for accessing all project functionalities
 Dashboard Menu: This IS the main dashboard - entry point for all options
 
 Menu Structure:
-    1. Train a Model             → sub-menu to select FFN/CNN/ART/CCA for training
+    1. Train a Model             → sub-menu to select FFN/CNN/NCT/ART/CCA for training
     2. Compute OOD Params        → calls compute_ood_params.py
     3. Test Accuracy             → calls test_accuracy.py
     4. Single Image Detection    → calls detect.py
@@ -209,12 +209,14 @@ def print_header(env_info):
     print(
         f"    FFN: {status_mark(trained['ffn'])} | "
         f"CNN: {status_mark(trained['cnn'])} | "
+        f"NCT: {status_mark(trained['nct'])} | "
         f"ART: {status_mark(trained['art'])} | "
         f"CCA: {status_mark(trained['cca'])}"
     )
     print(
         f"    OOD Params → FFN: {status_mark(trained['ood_ffn'])} | "
         f"CNN: {status_mark(trained['ood_cnn'])} | "
+        f"NCT: {status_mark(trained['ood_nct'])} | "
         f"ART: {status_mark(trained['ood_art'])}"
     )
     print("="*80)
@@ -224,10 +226,12 @@ def get_trained_models_status():
     return {
         'ffn': os.path.exists(Config.MODEL_PATH_FFN),
         'cnn': os.path.exists(Config.MODEL_PATH_CNN),
+        'nct': os.path.exists(Config.MODEL_PATH_NCT),
         'art': os.path.exists(Config.MODEL_PATH_ART),
         'cca': os.path.exists(Config.AUTOENCODER_PATH),
         'ood_ffn': os.path.exists(Config.OOD_PARAMS_PATH_FFN),
         'ood_cnn': os.path.exists(Config.OOD_PARAMS_PATH_CNN),
+        'ood_nct': os.path.exists(Config.OOD_PARAMS_PATH_NCT),
         'ood_art': os.path.exists(Config.OOD_PARAMS_PATH_ART),
     }
 
@@ -241,11 +245,12 @@ def select_training_target():
     model_names = {
         'ffn': 'FFN (Feedforward Neural Network)',
         'cnn': 'CNN (Convolutional Neural Network)',
+        'nct': 'NCT (Neocognitron)',
         'art': 'ART (Fuzzy Adaptive Resonance Theory)',
         'cca': 'CCA (Class-Conditional Autoencoder)'
     }
     
-    models = ['ffn', 'cnn', 'art', 'cca']
+    models = ['ffn', 'cnn', 'nct', 'art', 'cca']
     
     for i, model in enumerate(models, 1):
         status = "✓ Trained" if trained[model] else "○ Not trained"
@@ -256,14 +261,14 @@ def select_training_target():
     
     while True:
         try:
-            choice = input("\n➤ Select model to train (0-4): ").strip()
+            choice = input(f"\n➤ Select model to train (0-{len(models)}): ").strip()
             if choice == '0':
                 return None
             choice_idx = int(choice) - 1
-            if 0 <= choice_idx < 4:
+            if 0 <= choice_idx < len(models):
                 return models[choice_idx]
             else:
-                print("❌ Please enter a number between 0 and 4")
+                print(f"❌ Please enter a number between 0 and {len(models)}")
         except ValueError:
             print("❌ Please enter a valid number")
         except KeyboardInterrupt:
@@ -272,7 +277,7 @@ def select_training_target():
 def print_menu():
     """Display main menu options"""
     print("\n┌─ MODEL TRAINING & EVALUATION ─────────────────────────────────────────────┐")
-    print("│  1. Train a Model             - Train FFN/CNN/ART/CCA                       │")
+    print("│  1. Train a Model             - Train FFN/CNN/NCT/ART/CCA                   │")
     print("│  2. Compute OOD Params        - Generate Mahalanobis params for models     │")
     print("│  3. OOD Test Accuracy         - Compare OOD detection of trained models    │")
     print("└────────────────────────────────────────────────────────────────────────────┘")
@@ -427,6 +432,8 @@ def main():
                     run_module("nn_train_ffn", option_title="OPTION 1 - TRAIN WITH FFN")
                 elif selected_model == 'cnn':
                     run_module("nn_train_cnn", option_title="OPTION 1 - TRAIN WITH CNN")
+                elif selected_model == 'nct':
+                    run_module("nn_train_nct", option_title="OPTION 1 - TRAIN WITH NCT")
                 elif selected_model == 'art':
                     run_module("nn_train_art", option_title="OPTION 1 - TRAIN WITH ART")
                 elif selected_model == 'cca':
