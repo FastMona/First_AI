@@ -1,5 +1,5 @@
 {
-  "python.defaultInterpreterPath": "C:\\Users\\David\\Miniconda3\\envs\\pytorch\\python.exe",
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
   "python.testing.pytestEnabled": true,
   "python.terminal.activateEnvironment": true
 }
